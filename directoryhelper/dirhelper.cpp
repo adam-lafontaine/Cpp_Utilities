@@ -1,9 +1,4 @@
-#include "dir_pr.hpp"
-
-
-
-
-
+#include "dirhelper.hpp"
 
 // returns all files in a directory with a given extension
 file_list_t get_files_of_type(std::string const& src_dir, std::string const& extension)
