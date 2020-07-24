@@ -12,7 +12,7 @@ namespace cmd
 	using args_list_t = std::vector<args_t>;
 
 	using validate_t = std::function<bool(args_t const&)>;
-	using execute_t = std::function<void()>;
+	using execute_t = std::function<void(args_t const&)>;
 
 	typedef struct
 	{

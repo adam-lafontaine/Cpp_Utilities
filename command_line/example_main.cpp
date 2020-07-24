@@ -28,11 +28,11 @@ double d_val2 = 0;
 const char* text_file = "";
 
 const cmd::option_list_t OPTIONS =
-{
-	{ "-h", "--help", HELP_DESC, cmd::no_args,   []() { help_option = true; } },
-    { "-i", "--int",  HELP_DESC, cmd::one_int,   []() { int_option = true; } },
-    { "-a", "--add",  HELP_DESC, is_two_doubles, []() { add_option = true; } },
-	{ "-f", "--file", FILE_DESC, is_text_file,   []() { file_option = true; } },
+{													// values can be set in execute function
+	{ "-h", "--help", HELP_DESC, cmd::no_args,   [](cmd::args_t const&) { help_option = true; } },
+    { "-i", "--int",  HELP_DESC, cmd::one_int,   [](cmd::args_t const& args) { int_option = true; int_val = std::atoi(args[1]); } },
+    { "-a", "--add",  HELP_DESC, is_two_doubles, [](cmd::args_t const&) { add_option = true; } },
+	{ "-f", "--file", FILE_DESC, is_text_file,   [](cmd::args_t const&) { file_option = true; } },
 };
 
 
@@ -91,15 +91,23 @@ bool is_two_doubles(cmd::args_t const& args)
     const auto is_double = [&](const char* arg)
     {
         auto val = std::atof(arg);
-        return val != 0 || (val == 0 && (is_equal(args[1], "0") || is_equal(args[1], "0.0"))); // 0.00?
+        return val != 0 || (val == 0 && (is_equal(arg, "0") || is_equal(arg, "0.0"))); // 0.00?
     };
 
-    return is_double(args[1]) && is_double(args[2]);
+	// values can also be set in validation function
+	if(is_double(args[1]) && is_double(args[2]))
+	{
+		d_val1 = std::atof(args[1]);
+		d_val2 = std::atof(args[2]);
+		return true;
+	}
+
+    return false;
 }
 
 bool is_text_file(cmd::args_t const& args)
-{
-    text_file = args[1];
+{    
+	int_val = std::atoi(args[1]);
     return cmd::one_file(args) && cmd::has_extenstion(text_file, ".txt");
 }
 
@@ -109,17 +117,18 @@ void show_help()
 }
 
 void process_int()
-{
+{	
     std::cout << "The number you entered is " << int_val << '\n';
 }
 
 void process_doubles()
 {
+	
     std::cout << d_val1 << " + " << d_val2 << " = " << d_val1 + d_val2<< '\n';
 }
 
 void process_file()
-{
+{	
 	std::cout << "You entered file: " << text_file << "\n";
 }
 

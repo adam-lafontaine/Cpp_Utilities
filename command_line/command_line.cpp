@@ -61,7 +61,7 @@ namespace cmd
 			{
 				if (has_option(args[0], opt) && opt.validate(args))
 				{
-					opt.execute();
+					opt.execute(args);
 				}
 			}
 		}
