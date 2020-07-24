@@ -9,7 +9,7 @@ A collection of small utilities I like having around
 
 * directory_helper
     * C++17
-    * Provides file paths in a directory of a given extension
+    * Provides file paths of a given extension in a directory
 
 
 * normalize
@@ -34,4 +34,4 @@ A collection of small utilities I like having around
 
 
 * win32_leak_check.h
-    * Allows checking for memory leaks using Visual Studio
+    * Check for memory leaks using Visual Studio
