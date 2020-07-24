@@ -1,16 +1,16 @@
 #### C++ Utilities
 A collection of small utilities I like having around
 
-* stopwatch.hpp
-    * C++11
-    * Wraps std::chrono to easily time code execution    
+* command_line
+    * C++17
+    * For processing command line arguments
+    * Demonstrated in example_main.cpp
 
-* win32_leak_check.h
-    * Allows checking for memory leaks using Visual Studio
 
-* directoryhelper
+* directory_helper
     * C++17
     * Provides file paths in a directory of a given extension
+
 
 * normalize
     * C++17
@@ -23,5 +23,15 @@ A collection of small utilities I like having around
     * charmap.hpp
         * Used with normalize.hpp to convert a given value to a character
         * Multiple values can be saved as strings
+        * TODO: bytemap.hpp
     * convert.hpp/cpp
         * Used with charmap.hpp to convert multiple values into a string
+
+
+* stopwatch.hpp
+    * C++11
+    * Wraps std::chrono to easily time code execution
+
+
+* win32_leak_check.h
+    * Allows checking for memory leaks using Visual Studio
