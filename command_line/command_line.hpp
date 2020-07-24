@@ -33,7 +33,7 @@ namespace cmd
 
 	std::string to_options_str(option_list_t const& options);
 
-	bool has_extenstion(const char* path, std::string const& extension);
+	bool is_file_type(const char* path, std::string const& extension);
 
 
 	// validate_t for option that takes no arguments

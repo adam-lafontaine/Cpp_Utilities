@@ -29,10 +29,10 @@ const char* text_file = "";
 
 const cmd::option_list_t OPTIONS =
 {													// values can be set in execute function
-	{ "-h", "--help", HELP_DESC, cmd::no_args,   [](cmd::args_t const&) { help_option = true; } },
+	{ "-h", "--help", HELP_DESC, cmd::no_args,   [](cmd::args_t const&)      { help_option = true; } },
     { "-i", "--int",  HELP_DESC, cmd::one_int,   [](cmd::args_t const& args) { int_option = true; int_val = std::atoi(args[1]); } },
-    { "-a", "--add",  HELP_DESC, is_two_doubles, [](cmd::args_t const&) { add_option = true; } },
-	{ "-f", "--file", FILE_DESC, is_text_file,   [](cmd::args_t const&) { file_option = true; } },
+    { "-a", "--add",  HELP_DESC, is_two_doubles, [](cmd::args_t const&)      { add_option = true; } },
+	{ "-f", "--file", FILE_DESC, is_text_file,   [](cmd::args_t const& args) { file_option = true; text_file = args[1]; } },
 };
 
 
@@ -106,9 +106,8 @@ bool is_two_doubles(cmd::args_t const& args)
 }
 
 bool is_text_file(cmd::args_t const& args)
-{    
-	int_val = std::atoi(args[1]);
-    return cmd::one_file(args) && cmd::has_extenstion(text_file, ".txt");
+{  	
+    return cmd::one_file(args) && cmd::is_file_type(text_file, ".txt");
 }
 
 void show_help()
@@ -117,13 +116,12 @@ void show_help()
 }
 
 void process_int()
-{	
+{
     std::cout << "The number you entered is " << int_val << '\n';
 }
 
 void process_doubles()
-{
-	
+{	
     std::cout << d_val1 << " + " << d_val2 << " = " << d_val1 + d_val2<< '\n';
 }
 

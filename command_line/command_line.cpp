@@ -37,6 +37,22 @@ namespace cmd
 	}
 
 
+	bool is_file(const char* path)
+	{
+		return fs::exists(path) && fs::is_regular_file(path);
+	}
+
+
+	bool has_extension(const char* file_path, std::string const& extension)
+	{
+		if (extension[0] != '.')
+			return false;
+
+		auto path = fs::path(file_path);
+		return path.has_extension() && path.extension() == extension;
+	}
+
+
 	std::string to_option_str(option_t const& opt)
 	{
 		return std::string(
@@ -81,13 +97,9 @@ namespace cmd
 	}
 
 
-	bool has_extenstion(const char* file_path, std::string const& extension)
+	bool is_file_type(const char* path, std::string const& extension)
 	{
-		if (extension[0] != '.')
-			return false;
-
-		auto path = fs::path(file_path);
-		return path.has_extension() && path.extension() == extension;
+		return is_file(path) && has_extension(path, extension);
 	}
 
 
