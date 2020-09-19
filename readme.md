@@ -28,8 +28,13 @@ A collection of small utilities I like having around
         * Used with charmap.hpp to convert multiple values into a string
 
 
+* libimage.hpp
+    * Image processing library using Boost GIL
+    * Add _CRT_SECURE_NO_WARNINGS to Preprocessor Definitions in Visual Studio
+
+
 * stopwatch.hpp
-    * C++11
+    * C++17
     * Wraps std::chrono to easily time code execution
 
 
