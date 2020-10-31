@@ -80,6 +80,17 @@ namespace libimage // 2020-09-19
 	using rgb_list_t = std::vector<rgb_t>;
 
 
+	typedef struct
+	{
+		bits8 r;
+		bits8 g;
+		bits8 b;
+		bits8 a;
+	} rgba_t;
+
+	using rgba_list_t = std::vector<rgba_t>;	
+
+
 	constexpr gil::red_t   GIL_RED;
 	constexpr gil::green_t GIL_GREEN;
 	constexpr gil::blue_t  GIL_BLUE;
@@ -158,6 +169,17 @@ namespace libimage // 2020-09-19
 	}
 
 
+	constexpr bits32 to_bits32(bits8 red, bits8 green, bits8 blue, bits8 alpha)
+	{
+		const bits32 r = red;
+		const bits32 g = green;
+		const bits32 b = blue;
+		const bits32 a = alpha;
+
+		return (r << 24) + (g << 16) + (b << 8) + a;
+	}
+
+
 	constexpr bits32 to_bits32(rgb_t const& rgb)
 	{
 		const bits32 r = rgb.r;
@@ -169,24 +191,44 @@ namespace libimage // 2020-09-19
 
 
 	// converts pixel reference to a 32 bit integer
+	inline bits32 to_bits32(pixel_t const& src)
+	{
+		auto const r = gil::get_color(src, GIL_RED);
+		auto const g = gil::get_color(src, GIL_GREEN);
+		auto const b = gil::get_color(src, GIL_BLUE);
+		auto const a = gil::get_color(src, GIL_ALPHA);
+
+		return to_bits32(r, g, b, a);
+	}
+
+
+	// converts pixel reference to a 32 bit integer
 	inline bits32 to_bits32(ref_t const& src)
 	{
-		auto const src_r = gil::get_color(src, GIL_RED);
-		auto const src_g = gil::get_color(src, GIL_GREEN);
-		auto const src_b = gil::get_color(src, GIL_BLUE);
+		auto const r = gil::get_color(src, GIL_RED);
+		auto const g = gil::get_color(src, GIL_GREEN);
+		auto const b = gil::get_color(src, GIL_BLUE);
+		auto const a = gil::get_color(src, GIL_ALPHA);
 
-		return to_bits32(src_r, src_g, src_b);
+		return to_bits32(r, g, b, a);
 	}
 
 
 	// converts a pointer to a pixel to a 32 bit integer
 	inline bits32 to_bits32(pixel_ptr_t const& ptr)
 	{
-		auto const src_r = gil::get_color(*ptr, GIL_RED);
-		auto const src_g = gil::get_color(*ptr, GIL_GREEN);
-		auto const src_b = gil::get_color(*ptr, GIL_BLUE);
+		auto const r = gil::get_color(*ptr, GIL_RED);
+		auto const g = gil::get_color(*ptr, GIL_GREEN);
+		auto const b = gil::get_color(*ptr, GIL_BLUE);
+		auto const a = gil::get_color(*ptr, GIL_ALPHA);
 
-		return to_bits32(src_r, src_g, src_b);
+		return to_bits32(r, g, b, a);
+	}
+
+
+	constexpr bits32 to_bits32(rgba_t const& rgba)
+	{
+		return to_bits32(rgba.r, rgba.g, rgba.b, rgba.a);
 	}
 
 
@@ -207,6 +249,18 @@ namespace libimage // 2020-09-19
 	}
 
 
+	inline rgba_t to_rgba(pixel_t const& pixel)
+	{
+		return
+		{
+			static_cast<bits8>(gil::get_color(pixel, GIL_RED)),
+			static_cast<bits8>(gil::get_color(pixel, GIL_GREEN)),
+			static_cast<bits8>(gil::get_color(pixel, GIL_BLUE)),
+			static_cast<bits8>(gil::get_color(pixel, GIL_ALPHA))
+		};
+	}
+
+
 	inline pixel_t to_pixel(bits8 r, bits8 g, bits8 b, bits8 a = 255)
 	{
 		return pixel_t(r, g, b, a); // png
@@ -221,49 +275,10 @@ namespace libimage // 2020-09-19
 	}
 
 
-	// gets pixels from part of a column
-	//inline pixel_ptr_list_t to_pixel_column(view_t const& img_v, index_t y_begin, index_t y_end, index_t x) // use column_view() instead
-	//{
-	//	pixel_ptr_list_t list;
-	//	list.reserve(y_end - y_begin);
-
-	//	for (index_t y = y_begin; y < y_end; ++y)
-	//	{
-	//		list.push_back(img_v.row_begin(y) + x);
-	//	}
-
-	//	return list;
-	//}
-
-
-	// gets pixels from an entire column
-	//inline pixel_ptr_list_t to_pixel_column(view_t const& img_v, index_t x) // use column_view() instead
-	//{
-	//	return to_pixel_column(img_v, 0, img_v.height(), x);
-	//}
-
-
-	// gets pixels from part of a row
-	//inline pixel_ptr_list_t to_pixel_row(view_t const& img_v, index_t x_begin, index_t x_end, index_t y) // use row_view instead
-	//{
-	//	pixel_ptr_list_t list;
-	//	list.reserve(x_end - x_begin);
-
-	//	auto ptr_begin = img_v.row_begin(y);
-
-	//	for (index_t x = x_begin; x < x_end; ++x)
-	//	{
-	//		list.push_back(ptr_begin + x);
-	//	}
-
-	//	return list;
-	//}
-
-	// gets pixels from an entire row
-	//inline pixel_ptr_list_t to_pixel_row(view_t const& img_v, index_t y) // use row_view instead
-	//{
-	//	return to_pixel_row(img_v, 0, img_v.width(), y);
-	//}
+	inline pixel_t to_pixel(rgba_t const& rgba)
+	{
+		return to_pixel(rgba.r, rgba.g, rgba.b, rgba.a);
+	}
 
 
 	inline rgb_list_t to_rgb_column(view_t const& img_v, index_t y_begin, index_t y_end, index_t x)
