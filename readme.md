@@ -5,6 +5,14 @@ A collection of small utilities I like having around
     * C++17
     * For processing command line arguments
     * Demonstrated in example_main.cpp
+    
+
+* config_reader
+    * C++ 17
+    * Read configuration file of key value pairs
+    * key=value or key = value
+    * Comment lines with '#'
+    * Overload for specifying required keys
 
 
 * directory_helper
