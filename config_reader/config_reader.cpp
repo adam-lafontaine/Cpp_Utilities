@@ -1,9 +1,9 @@
+#include "config_reader.hpp"
+
 #include <fstream>
 #include <sstream>
 #include <filesystem>
 #include <algorithm>
-
-#include "config_reader.hpp"
 
 namespace fs = std::filesystem;
 

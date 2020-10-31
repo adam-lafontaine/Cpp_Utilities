@@ -1,0 +1,18 @@
+This line is ignored
+
+#comment = ignored as well
+
+no_value=
+
+TEST_FILE_ROOT = D:/test_images
+PROJECT_ROOT = D:/repos/AugmentedAI/DataAdaptor/test
+SRC_FAIL_ROOT = D:/test_images/src_fail
+SRC_PASS_ROOT = D:/test_images/src_pass
+
+DATA_FAIL_ROOT = D:/test_images/data_fail
+DATA_PASS_ROOT D:/test_images/data_pass
+
+ALPHA_PATH = D:/test_images/alphabet/alphabet.png
+BORDER_PATH = D:/test_images/alphabet/border.png
+
+MODEL_ROOT = D:/test_images/model
