@@ -20,6 +20,15 @@ A collection of small utilities I like having around
     * Provides file paths of a given extension in a directory
 
 
+* leak_check
+    * Check for memory leaks using Visual Studio
+
+
+* libimage
+    * Image processing library using Boost GIL
+    * Add _CRT_SECURE_NO_WARNINGS to Preprocessor Definitions in Visual Studio
+
+
 * normalize
     * C++17
     * For custom scaling of values from one range to another
@@ -36,15 +45,6 @@ A collection of small utilities I like having around
         * Used with charmap.hpp to convert multiple values into a string
 
 
-* libimage.hpp
-    * Image processing library using Boost GIL
-    * Add _CRT_SECURE_NO_WARNINGS to Preprocessor Definitions in Visual Studio
-
-
-* stopwatch.hpp
+* stopwatch
     * C++17
     * Wraps std::chrono to easily time code execution
-
-
-* win32_leak_check.h
-    * Check for memory leaks using Visual Studio
