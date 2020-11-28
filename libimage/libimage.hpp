@@ -13,6 +13,7 @@
 
 #include <vector>
 #include <string>
+#include <functional>
 
 namespace libimage // 2020-09-19
 {
@@ -97,7 +98,7 @@ namespace libimage // 2020-09-19
 	constexpr gil::alpha_t GIL_ALPHA;
 
 	
-
+	//====== MAKE VIEWS ====================
 
 	inline view_t get_view(image_t& img)
 	{
@@ -112,7 +113,7 @@ namespace libimage // 2020-09-19
 
 
 	// returns a resized image view
-	inline view_t make_resized_view(image_t& img_src, image_t img_dst)
+	inline view_t make_resized_view(image_t& img_src, image_t& img_dst)
 	{
 		const auto& view = gil::view(img_dst);
 
@@ -154,6 +155,55 @@ namespace libimage // 2020-09-19
 		auto pixel_count = x_end - x_begin;
 		return gil::subimage_view(view, x_begin, y, pixel_count, 1);
 	}
+
+
+	//====== ALGORITHMS ================
+
+	//using pixel_func_t = std::function<void(pixel_t const& p)>;
+	using view_func_t = std::function<void(view_t const& v)>;
+
+	/*void for_each_row(view_t const& view, pixel_func_t const& func)
+	{
+		for (index_t y = 0; y < view.height(); ++y)
+		{
+			auto const begin = view.row_begin(y);
+			auto const end = begin + view.width();
+			std::for_each(begin, end, func);
+		}
+	}
+
+
+	void for_each_column(view_t const& view, pixel_func_t const& func)
+	{
+		for (index_t x = 0; x < view.width(); ++x)
+		{
+			auto const column = column_view(view, x);
+			gil::for_each_pixel(column, func);
+		}
+	}*/
+
+
+	inline void for_each_row(view_t const& view, view_func_t const& func)
+	{
+		for (index_t y = 0; y < view.height(); ++y)
+		{
+			auto const row = row_view(view, y);
+			func(view);
+		}
+	}
+
+
+	inline void for_each_column(view_t const& view, view_func_t const& func)
+	{
+		for (index_t x = 0; x < view.width(); ++x)
+		{
+			auto const column = column_view(view, x);
+			func(view);
+		}
+	}
+
+
+
 	
 
 
@@ -330,7 +380,7 @@ namespace libimage // 2020-09-19
 	template<typename String>
 	image_t read_image_png(String const& img_path)
 	{
-		gil::image_read_settings<gil::png_tag> read_settings;
+		//gil::image_read_settings<gil::png_tag> read_settings;
 		image_t src_img;
 		gil::read_image(img_path, src_img, /*read_settings*/gil::png_tag());
 
@@ -355,8 +405,6 @@ namespace libimage // 2020-09-19
 	{
 		return read_image_png(img_path);
 	}
-
-
 
 	//======= WRITE IMAGES =====================
 
@@ -438,12 +486,11 @@ namespace libimage // 2020-09-19
 	}
 
 
-	inline gray::view_t make_resized_view(gray::image_t& img_src, gray::image_t img_dst)
+	inline gray::view_t make_resized_view(gray::image_t& img_src, gray::image_t& img_dst)
 	{
-		const auto& view = gil::view(img_dst);
+		gil::resize_view(gil::const_view(img_src), gil::view(img_dst), gil::bilinear_sampler());
 
-		gil::resize_view(gil::const_view(img_src), view, gil::bilinear_sampler());
-		return view;
+		return gil::view(img_dst);
 	}
 
 
