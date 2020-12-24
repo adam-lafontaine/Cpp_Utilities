@@ -20,6 +20,13 @@ A collection of small utilities I like having around
     * Provides file paths of a given extension in a directory
 
 
+* iterator
+    * IndexRange
+        * Iterate over a range of indeces from 0 to size - 1
+    * PointRange2D
+        * Iterate over a 2D array/matrix of given width and height
+
+
 * leak_check
     * Check for memory leaks using Visual Studio
 
