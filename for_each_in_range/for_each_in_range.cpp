@@ -1,12 +1,9 @@
 #include "index_range.hpp"
 #include "point_range_2d.hpp"
+#include "for_each_in_range.hpp"
 
-#include <functional>
 #include <algorithm>
 #include <execution>
-
-using uid_func_t = std::function<void(size_t id)>;
-using sid_func_t = std::function<void(long long id)>;
 
 void for_each_in_range(size_t size, uid_func_t const& id_func)
 {
@@ -47,4 +44,24 @@ void for_each_in_range_par(long long begin, long long end, sid_func_t const& id_
 {
     SignedRange ids(begin, end);
 	std::for_each(std::execution::par, ids.begin(), ids.end(), id_func);
+}
+
+
+void for_each_in_range(size_t width, size_t height, uxy_func_t const& xy_func)
+{
+    UnsignedPointRange2D pts(width, height);
+
+    auto const pt_func = [&](auto const& pt){ return xy_func(pt.x, pt.y); };
+
+    std::for_each(std::execution::par, pts.begin(), pts.end(), pt_func);
+}
+
+
+void for_each_in_range(long long width, long long height, sxy_func_t const& xy_func)
+{
+    SignedPointRange2D pts(width, height);
+
+    auto const pt_func = [&](auto const& pt){ return xy_func(pt.x, pt.y); };
+
+    std::for_each(std::execution::par, pts.begin(), pts.end(), pt_func);
 }
