@@ -108,9 +108,6 @@ private:
 public:
 
     template<typename INT_T>
-    SignedRange(INT_T size) : m_max(to_max(size));
-
-    template<typename INT_T>
     SignedRange(INT_T begin, INT_T end)
     {
         if(end >= begin)
