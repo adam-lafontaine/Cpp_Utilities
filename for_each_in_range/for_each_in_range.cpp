@@ -31,7 +31,7 @@ namespace for_each_in_range
         }
 
 
-        void for_each_in_range_2d(u_int_t width, u_int_t height, uxy_func_t const& xy_func)
+        void for_each_in_range_2d(u_int_t width, u_int_t height, u_xy_func_t const& xy_func)
         {
             UnsignedPointRange2D pts(width, height);
 
@@ -41,7 +41,7 @@ namespace for_each_in_range
         }
 
 
-        void for_each_in_range_2d(u_int_t width, u_int_t height, upt_func_t const& pt_func)
+        void for_each_in_range_2d(u_int_t width, u_int_t height, u_pt_func_t const& pt_func)
         {
             UnsignedPointRange2D pts(width, height);
 
@@ -49,7 +49,7 @@ namespace for_each_in_range
         }
 
 
-        void for_each_in_range_2d(upoint_2d const& first, upoint_2d const& last, upt_func_t const& pt_func)
+        void for_each_in_range_2d(upoint_2d const& first, upoint_2d const& last, u_pt_func_t const& pt_func)
         {
             UnsignedPointRange2D pts(UnsignedPointRange2D::pt{ first.x, first.y }, UnsignedPointRange2D::pt{ last.x, last.y });
 
@@ -57,7 +57,7 @@ namespace for_each_in_range
         }
 
 
-        void for_each_in_range_2d(spoint_2d const& first, spoint_2d const& last, spt_func_t const& pt_func)
+        void for_each_in_range_2d(spoint_2d const& first, spoint_2d const& last, s_pt_func_t const& pt_func)
         {
             SignedPointRange2D pts(SignedPointRange2D::pt{ first.x, first.y }, SignedPointRange2D::pt{ last.x, last.y });
 
@@ -89,7 +89,7 @@ namespace for_each_in_range
         }
 
 
-        void for_each_in_range_2d(u_int_t width, u_int_t height, uxy_func_t const& xy_func)
+        void for_each_in_range_2d(u_int_t width, u_int_t height, u_xy_func_t const& xy_func)
         {
             UnsignedPointRange2D pts(width, height);
 
@@ -99,7 +99,7 @@ namespace for_each_in_range
         }
 
 
-        void for_each_in_range_2d(u_int_t width, u_int_t height, upt_func_t const& pt_func)
+        void for_each_in_range_2d(u_int_t width, u_int_t height, u_pt_func_t const& pt_func)
         {
             UnsignedPointRange2D pts(width, height);
 
@@ -107,7 +107,7 @@ namespace for_each_in_range
         }
 
 
-        void for_each_in_range_2d(upoint_2d const& first, upoint_2d const& last, upt_func_t const& pt_func)
+        void for_each_in_range_2d(upoint_2d const& first, upoint_2d const& last, u_pt_func_t const& pt_func)
         {
             UnsignedPointRange2D pts(UnsignedPointRange2D::pt{ first.x, first.y }, UnsignedPointRange2D::pt{ last.x, last.y });
 
@@ -115,7 +115,7 @@ namespace for_each_in_range
         }
 
 
-        void for_each_in_range_2d(spoint_2d const& first, spoint_2d const& last, spt_func_t const& pt_func)
+        void for_each_in_range_2d(spoint_2d const& first, spoint_2d const& last, s_pt_func_t const& pt_func)
         {
             SignedPointRange2D pts(SignedPointRange2D::pt{ first.x, first.y }, SignedPointRange2D::pt{ last.x, last.y });
 
