@@ -25,6 +25,8 @@ public:
         using reference = const pt&;
 
     private:
+        index_type m_x_min = 0;
+        index_type m_y_min = 0;
         index_type m_x_max = 0;
         index_type m_y_max = 0;
 
@@ -34,18 +36,36 @@ public:
 
         explicit iterator() {}
 
-        explicit iterator(value_type const& loc, value_type const& last)
+        explicit iterator(value_type const& first, value_type const& last)
         {
-            m_loc = loc;
+            m_loc = first;
+
+            m_x_min = first.x;
+            m_y_min = first.y;
             m_x_max = last.x;
             m_y_max = last.y;
         }
 
-        explicit iterator(value_type const& loc, size_t width, size_t height)
+        explicit iterator(size_t width, size_t height)
         {
-            m_loc = loc;
             m_x_max = width - 1;
             m_y_max = height - 1;
+        }
+
+        explicit iterator(value_type const& first, size_t width, size_t height)
+        {
+            m_loc = first;
+
+            m_x_min = first.x;
+            m_y_min = first.y;
+            m_x_max = width - 1;
+            m_y_max = height - 1;
+        }
+
+        iterator last() 
+        {
+            m_loc = { m_x_max, m_y_max };
+            return *this;
         }
 
         iterator& operator++() 
@@ -53,7 +73,7 @@ public:
             ++m_loc.x;
             if (m_loc.x > m_x_max)
             {
-                m_loc.x = 0;
+                m_loc.x = m_x_min;
                 ++m_loc.y;
             }
             
@@ -63,6 +83,8 @@ public:
         bool operator==(iterator other) const { return m_loc.x == other.m_loc.x && m_loc.y == other.m_loc.y; }
         bool operator!=(iterator other) const { return !(*this == other); }
         reference operator*() const { return m_loc; }
+
+        
     };
 
 private:
@@ -113,7 +135,7 @@ public:
     }
 
     iterator begin() { return iterator(m_first, m_last); }
-    iterator end() { return ++(iterator(m_last, m_last)); }
+    iterator end() { return ++(iterator(m_first, m_last).last()); }
 
 };
 
@@ -143,6 +165,8 @@ public:
         using reference = const pt&;
 
     private:
+        index_type m_x_min = 0;
+        index_type m_y_min = 0;
         index_type m_x_max = 0;
         index_type m_y_max = 0;
 
@@ -152,18 +176,30 @@ public:
 
         explicit iterator() {}
 
-        explicit iterator(value_type const& loc, value_type const& last)
+        explicit iterator(value_type const& first, value_type const& last)
         {
-            m_loc = loc;
+            m_loc = first;
+
+            m_x_min = first.x;
+            m_y_min = first.y;
             m_x_max = last.x;
             m_y_max = last.y;
         }
 
-        explicit iterator(value_type const& loc, size_t width, size_t height)
+        explicit iterator(value_type const& first, size_t width, size_t height)
         {
-            m_loc = loc;
+            m_loc = first;
+
+            m_x_min = first.x;
+            m_y_min = first.y;
             m_x_max = width - 1;
             m_y_max = height - 1;
+        }
+
+        iterator last()
+        {
+            m_loc = { m_x_max, m_y_max };
+            return *this;
         }
 
         iterator& operator++() 
@@ -222,6 +258,6 @@ public:
     }
 
     iterator begin() { return iterator(m_first, m_last); }
-    iterator end() { return ++(iterator(m_last, m_last)); }
+    iterator end() { return ++(iterator(m_first, m_last).last()); }
 
 };
