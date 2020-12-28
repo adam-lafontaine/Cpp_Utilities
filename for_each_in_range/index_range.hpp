@@ -60,7 +60,7 @@ public:
         }        
     }
 
-    iterator begin() { return iterator(0); }
+    iterator begin() { return iterator(m_min); }
     iterator end() { return iterator(m_max + 1); }
 };
 
