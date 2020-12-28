@@ -54,7 +54,9 @@ int main()
 			std::cout << '\n';
 		}
 
-		std::cout << "{ " << x << ", " << y << " } ";
+		printf("{ %2i, %2i }", x, y);
+
+		//std::cout << "{ " << x << ", " << y << " } ";
 		++on_line;
 	};
 
@@ -67,12 +69,12 @@ int main()
 	on_line = 0;
 	fpar::for_each_in_range_2d(width, height, pt_out);
 
-	/*max_per_line = x_end - x_begin;
+	max_per_line = x_end - x_begin;
 	std::cout << "\n\nSequential:\n";
 	on_line = 0;
 	fseq::for_each_in_range_2d(x_begin, x_end, y_begin, y_end, xy_out);		
 
 	std::cout << "\n\nParallel:\n";
 	on_line = 0;
-	fpar::for_each_in_range_2d(x_begin, x_end, y_begin, y_end, xy_out);*/
+	fpar::for_each_in_range_2d(x_begin, x_end, y_begin, y_end, xy_out);
 }
