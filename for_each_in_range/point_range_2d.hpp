@@ -194,12 +194,6 @@ private:
 public:
 
     template<typename INT_T>
-    SignedPointRange2D(INT_T width, INT_T height)
-    {
-        m_last = { to_max(width), to_max(height) };
-    }
-
-    template<typename INT_T>
     SignedPointRange2D(point<INT_T> const& first, point<INT_T> const& last)
     {
         if(last.y > first.y)

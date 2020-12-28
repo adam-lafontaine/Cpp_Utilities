@@ -23,6 +23,7 @@ A collection of small utilities I like having around
 * for_each_in_range
     * C++17
     * Iterate over 1D and 2D integer ranges
+    * Sequential or parallel
 
 
 * leak_check
