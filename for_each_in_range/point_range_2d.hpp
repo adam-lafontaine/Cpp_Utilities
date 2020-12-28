@@ -207,7 +207,7 @@ public:
             ++m_loc.x;
             if (m_loc.x > m_x_max)
             {
-                m_loc.x = 0;
+                m_loc.x = m_x_min;
                 ++m_loc.y;
             }
             

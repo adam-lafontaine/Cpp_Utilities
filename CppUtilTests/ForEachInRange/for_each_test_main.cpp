@@ -18,8 +18,11 @@ int main()
 	size_t x_end = 9;
 	size_t y_begin = 1;
 	size_t y_end = 15;
-	long long s_x_begin = -9;
-	long long s_x_end = 10;
+	long long s_x_begin = -4;
+	long long s_x_end = 2;
+	long long s_y_begin = -3;
+	long long s_y_end = 5;
+
 
 	auto const id_out = [](auto id) { std::lock_guard<std::mutex> lk(console_mtx); std::cout << id << ", "; };
 
@@ -62,19 +65,35 @@ int main()
 
 	auto const pt_out = [&](auto const& pt) { xy_out(pt.x, pt.y); };
 
-	std::cout << "\n\nSequential:\n";
+	std::cout << "\n\nfor_each_in_range_2d(width, height, pt_func) - Sequential:\n";
 	fseq::for_each_in_range_2d(width, height, pt_out);
 
-	std::cout << "\n\nParallel:\n";
+	std::cout << "\n\nfor_each_in_range_2d(width, height, pt_func) - Parallel:\n";
 	on_line = 0;
 	fpar::for_each_in_range_2d(width, height, pt_out);
 
+	std::cout << "\n\nfor_each_in_range_2d(width, height, xy_func) - Sequential:\n";
+	fseq::for_each_in_range_2d(width, height, xy_out);
+
+	std::cout << "\n\nfor_each_in_range_2d(width, height, xy_func) - Parallel:\n";
+	on_line = 0;
+	fpar::for_each_in_range_2d(width, height, xy_out);
+
 	max_per_line = x_end - x_begin;
-	std::cout << "\n\nSequential:\n";
+	std::cout << "\n\nfor_each_in_range_2d(x_begin, x_end, y_begin, y_end, xy_func) - Sequential:\n";
 	on_line = 0;
 	fseq::for_each_in_range_2d(x_begin, x_end, y_begin, y_end, xy_out);		
 
-	std::cout << "\n\nParallel:\n";
+	std::cout << "\n\nfor_each_in_range_2d(x_begin, x_end, y_begin, y_end, xy_func) - Parallel:\n";
 	on_line = 0;
 	fpar::for_each_in_range_2d(x_begin, x_end, y_begin, y_end, xy_out);
+
+	max_per_line = s_x_end - s_x_begin;
+	std::cout << "\n\nfor_each_in_range_2d(s_x_begin, s_x_end, s_y_begin, s_y_end, xy_func) - Sequential:\n";
+	on_line = 0;
+	fseq::for_each_in_range_2d(s_x_begin, s_x_end, s_y_begin, s_y_end, xy_out);
+
+	std::cout << "\n\nfor_each_in_range_2d(s_x_begin, s_x_end, s_y_begin, s_y_end, xy_func) - Parallel:\n";
+	on_line = 0;
+	fpar::for_each_in_range_2d(s_x_begin, s_x_end, s_y_begin, s_y_end, xy_out);
 }
