@@ -13,7 +13,7 @@ public:
         INT_T y;
     };
 
-    using pt = struct point<index_type>;
+    typedef struct point<index_type> pt;
 
     class iterator
     {
@@ -22,7 +22,7 @@ public:
         using value_type = pt;
         using difference_type = std::ptrdiff_t;
         using pointer = const pt*;
-        using reference = pt;
+        using reference = const pt&;
 
     private:
         index_type m_x_max = 0;
@@ -76,6 +76,9 @@ private:
     template<typename PT_T>
     pt to_pt(PT_T const& p) { return { to_index(p.x), to_index(p.y)}; }
 
+    template<typename INT_T>
+    index_type to_max(INT_T val) { return val < 1 ? 0 : static_cast<index_type>(val) - 1; }
+
 public:
 
     template<typename INT_T>
@@ -128,7 +131,7 @@ public:
         INT_T y;
     };
 
-    using pt = struct point<index_type>;
+    typedef struct point<index_type> pt;
 
     class iterator
     {
@@ -137,7 +140,7 @@ public:
         using value_type = pt;
         using difference_type = std::ptrdiff_t;
         using pointer = const pt*;
-        using reference = pt;
+        using reference = const pt&;
 
     private:
         index_type m_x_max = 0;

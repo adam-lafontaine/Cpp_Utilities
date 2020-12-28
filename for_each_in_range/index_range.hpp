@@ -43,7 +43,7 @@ private:
 public:
 
     template<typename INT_T>
-    UnsignedRange(INT_T size) : m_max(to_max(size));
+    UnsignedRange(INT_T size) : m_max(to_max(size)) {}
 
     template<typename INT_T>
     UnsignedRange(INT_T begin, INT_T end)
