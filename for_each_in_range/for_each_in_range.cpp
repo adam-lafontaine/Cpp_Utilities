@@ -5,63 +5,104 @@
 #include <algorithm>
 #include <execution>
 
-void for_each_in_range(size_t size, uid_func_t const& id_func)
+
+namespace for_each_in_range
 {
-    UnsignedRange ids(size);
-	std::for_each(ids.begin(), ids.end(), id_func);
+    namespace seq
+    {
+        void for_each_in_range(size_t size, uid_func_t const& id_func)
+        {
+            UnsignedRange ids(size);
+            std::for_each(ids.begin(), ids.end(), id_func);
+        }
+        
+
+        void for_each_in_range(size_t begin, size_t end, uid_func_t const& id_func)
+        {
+            UnsignedRange ids(begin, end);
+            std::for_each(ids.begin(), ids.end(), id_func);
+        }
+
+
+        void for_each_in_range(long long begin, long long end, sid_func_t const& id_func)
+        {
+            SignedRange ids(begin, end);
+            std::for_each(ids.begin(), ids.end(), id_func);
+        }
+
+
+        void for_each_in_range_2d(size_t width, size_t height, uxy_func_t const& xy_func)
+        {
+            UnsignedPointRange2D pts(width, height);
+
+            auto const pt_func = [&](auto const& pt){ return xy_func(pt.x, pt.y); };
+
+            std::for_each(pts.begin(), pts.end(), pt_func);
+        }
+    }
+
+
+    namespace par
+    {
+        void for_each_in_range(size_t size, uid_func_t const& id_func)
+        {
+            UnsignedRange ids(size);
+            std::for_each(std::execution::par, ids.begin(), ids.end(), id_func);
+        }
+
+
+        void for_each_in_range(size_t begin, size_t end, uid_func_t const& id_func)
+        {
+            UnsignedRange ids(begin, end);
+            std::for_each(std::execution::par, ids.begin(), ids.end(), id_func);
+        }
+
+
+        void for_each_in_range(long long begin, long long end, sid_func_t const& id_func)
+        {
+            SignedRange ids(begin, end);
+            std::for_each(std::execution::par, ids.begin(), ids.end(), id_func);
+        }
+
+
+        void for_each_in_range_2d(size_t width, size_t height, uxy_func_t const& xy_func)
+        {
+            UnsignedPointRange2D pts(width, height);
+
+            auto const pt_func = [&](auto const& pt){ return xy_func(pt.x, pt.y); };
+
+            std::for_each(std::execution::par, pts.begin(), pts.end(), pt_func);
+        }
+
+
+
+    }
 }
 
 
-void for_each_in_range(size_t begin, size_t end, uid_func_t const& id_func)
-{
-    UnsignedRange ids(begin, end);
-	std::for_each(ids.begin(), ids.end(), id_func);
-}
 
 
-void for_each_in_range(long long begin, long long end, sid_func_t const& id_func)
-{
-    SignedRange ids(begin, end);
-	std::for_each(ids.begin(), ids.end(), id_func);
-}
 
 
-void for_each_in_range_par(size_t size, uid_func_t const& id_func)
-{
-    UnsignedRange ids(size);
-	std::for_each(std::execution::par, ids.begin(), ids.end(), id_func);
-}
 
 
-void for_each_in_range_par(size_t begin, size_t end, uid_func_t const& id_func)
-{
-    UnsignedRange ids(begin, end);
-	std::for_each(std::execution::par, ids.begin(), ids.end(), id_func);
-}
 
 
-void for_each_in_range_par(long long begin, long long end, sid_func_t const& id_func)
-{
-    SignedRange ids(begin, end);
-	std::for_each(std::execution::par, ids.begin(), ids.end(), id_func);
-}
 
 
-void for_each_in_range(size_t width, size_t height, uxy_func_t const& xy_func)
-{
-    UnsignedPointRange2D pts(width, height);
-
-    auto const pt_func = [&](auto const& pt){ return xy_func(pt.x, pt.y); };
-
-    std::for_each(std::execution::par, pts.begin(), pts.end(), pt_func);
-}
 
 
-void for_each_in_range(long long width, long long height, sxy_func_t const& xy_func)
-{
-    SignedPointRange2D pts(width, height);
 
-    auto const pt_func = [&](auto const& pt){ return xy_func(pt.x, pt.y); };
 
-    std::for_each(std::execution::par, pts.begin(), pts.end(), pt_func);
-}
+
+
+
+
+
+
+
+
+
+
+
+
