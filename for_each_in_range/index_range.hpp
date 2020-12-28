@@ -43,7 +43,7 @@ private:
 public:
 
     template<typename INT_T>
-    UnsignedRange(INT_T size) : m_max(to_max(size));
+    UnsignedRange(INT_T size) : m_max(to_max(size)) {}
 
     template<typename INT_T>
     UnsignedRange(INT_T begin, INT_T end)
@@ -60,7 +60,7 @@ public:
         }        
     }
 
-    iterator begin() { return iterator(0); }
+    iterator begin() { return iterator(m_min); }
     iterator end() { return iterator(m_max + 1); }
 };
 

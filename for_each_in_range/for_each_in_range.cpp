@@ -10,16 +10,16 @@ namespace for_each_in_range
 {
     UnsignedPointRange2D to_unsigned_range_2d(u_point_2d const& first, u_point_2d const& last)
     {
-        auto const first = UnsignedPointRange2D::pt{ first.x, first.y };
-        auto const last = UnsignedPointRange2D::pt{ last.x, last.y };
+        UnsignedPointRange2D::pt const range_first = { first.x, first.y };
+        UnsignedPointRange2D::pt const range_last = { last.x, last.y };
 
-        return UnsignedPointRange2D (first, last);
+        return UnsignedPointRange2D (range_first, range_last);
     }
 
     UnsignedPointRange2D to_unsigned_range_2d(u_int_t x_begin, u_int_t x_end, u_int_t y_begin, u_int_t y_end)
     {
-        auto const first = UnsignedPointRange2D::pt{ x_begin, y_begin };
-        auto const last = UnsignedPointRange2D::pt{ x_end - 1, y_end - 1 };
+        UnsignedPointRange2D::pt const first = { x_begin, y_begin };
+        UnsignedPointRange2D::pt const last = { x_end - 1, y_end - 1 };
         
         return UnsignedPointRange2D(first, last);
     }
@@ -27,14 +27,17 @@ namespace for_each_in_range
 
     SignedPointRange2D to_signed_range_2d(s_point_2d const& first, s_point_2d const& last)
     {
-        return SignedPointRange2D(SignedPointRange2D::pt{ first.x, first.y }, SignedPointRange2D::pt{ last.x, last.y });
+        SignedPointRange2D::pt range_first = { first.x, first.y };
+        SignedPointRange2D::pt range_last = { last.x, last.y };
+
+        return SignedPointRange2D(range_first, range_last);
     }
 
 
     SignedPointRange2D to_signed_range_2d(s_int_t x_begin, s_int_t x_end, s_int_t y_begin, s_int_t y_end)
     {
-        auto const first = SignedPointRange2D::pt{ x_begin, y_begin };
-        auto const last = SignedPointRange2D::pt{ x_end - 1, y_end - 1 };
+        SignedPointRange2D::pt const first = { x_begin, y_begin };
+        SignedPointRange2D::pt const last = { x_end - 1, y_end - 1 };
 
         return SignedPointRange2D(first, last);
     }
@@ -56,13 +59,17 @@ namespace for_each_in_range
 
         static void execute(UnsignedPointRange2D& pts, u_pt_func_t const& pt_func)
         {
-            std::for_each(pts.begin(), pts.end(), pt_func);
+            auto const r_pt_func = [&](auto const& pt) { pt_func({ pt.x, pt.y }); };
+
+            std::for_each(pts.begin(), pts.end(), r_pt_func);
         }
 
 
         static void execute(SignedPointRange2D& pts, s_pt_func_t const& pt_func)
         {
-            std::for_each(pts.begin(), pts.end(), pt_func);
+            auto const r_pt_func = [&](auto const& pt) { pt_func({ pt.x, pt.y }); };
+
+            std::for_each(pts.begin(), pts.end(), r_pt_func);
         }
 
 
@@ -160,13 +167,17 @@ namespace for_each_in_range
 
         static void execute(UnsignedPointRange2D& pts, u_pt_func_t const& pt_func)
         {
-            std::for_each(std::execution::par, pts.begin(), pts.end(), pt_func);
+            auto const r_pt_func = [&](auto const& pt) { pt_func({ pt.x, pt.y }); };
+
+            std::for_each(std::execution::par, pts.begin(), pts.end(), r_pt_func);
         }
 
 
         static void execute(SignedPointRange2D& pts, s_pt_func_t const& pt_func)
         {
-            std::for_each(std::execution::par, pts.begin(), pts.end(), pt_func);
+            auto const r_pt_func = [&](auto const& pt) { pt_func({ pt.x, pt.y }); };
+
+            std::for_each(std::execution::par, pts.begin(), pts.end(), r_pt_func);
         }
 
 
