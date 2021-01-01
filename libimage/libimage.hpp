@@ -48,10 +48,7 @@ namespace libimage
 	using pixel_ptr_t = pixel_t*;
 
 	using pixel_ptr_list_t = std::vector<pixel_ptr_t>;
-	using pixel_list_t = std::vector<pixel_t>;
-	//using pix_trans_cb_t = std::function<pixel_t(ref_t const&)>;
-
-	
+	using pixel_list_t = std::vector<pixel_t>;	
 
 	using index_t = std::ptrdiff_t;
 	
