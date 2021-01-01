@@ -1,47 +1,7 @@
 #include "libimage.hpp"
 
-// Add _CRT_SECURE_NO_WARNINGS to Preprocessor Definitions
-
-#include <boost/gil.hpp>
-#include <boost/gil/io/io.hpp>
-#include <boost/gil/extension/io/png.hpp>
-#include <boost/gil/extension/io/jpeg.hpp>
-#include <boost/gil/extension/io/jpeg/old.hpp>
-#include <boost/gil/extension/numeric/sampler.hpp>
-#include <boost/gil/extension/numeric/resample.hpp>
-#include <boost/gil/color_convert.hpp>
-
 namespace libimage
 {
-	namespace gil = boost::gil;
-
-	//======= TYPE DEFINITIONS ======================
-
-	using png_image_t = gil::rgba8_image_t;
-	using png_view_t = gil::rgba8_view_t;
-	using png_pixel_t = gil::rgba8_pixel_t;
-	using png_ref_t = gil::rgba8_ref_t;	
-	using png_pixel_ptr_t = gil::rgba8_ptr_t;
-
-	using jpeg_image_t = gil::rgb8_image_t;
-	using jpeg_view_t = gil::rgb8_view_t;
-	using jpeg_ref_t = gil::rgb8_ref_t;
-	using jpeg_pixel_t = gil::rgb8_pixel_t;
-	using jpeg_pixel_ptr_t = gil::rgb8_ptr_t;
-
-	// using png types
-	using image_t = png_image_t;
-	using view_t = png_view_t;
-	using pixel_t = png_pixel_t;	
-
-	using pixel_ptr_list_t = std::vector<pixel_ptr_t>;
-	using pixel_list_t = std::vector<pixel_t>;
-	using pix_trans_cb_t = std::function<pixel_t(ref_t const&)>;
-
-	using index_t = std::ptrdiff_t;
-	using bits8 = uint8_t;
-	using bits32 = uint32_t;
-
 	constexpr gil::red_t   GIL_RED;
 	constexpr gil::green_t GIL_GREEN;
 	constexpr gil::blue_t  GIL_BLUE;
@@ -143,12 +103,12 @@ namespace libimage
 	}
 
 	
-	static void write_image_view_jpeg(std::string const& file_path, view_t const& view)
-	{
-		gil::jpeg_write_view(file_path, view);
+	//static void write_image_view_jpeg(std::string const& file_path, view_t const& view)
+	//{
+	//	gil::jpeg_write_view(file_path, view);
 
-		//gil::write_view(file_path, view, gil::jpeg_tag());
-	}
+	//	//gil::write_view(file_path, view, gil::jpeg_tag());
+	//}
 
 
 	// choose jpeg or png	
@@ -221,7 +181,7 @@ namespace libimage
 	}
 
 
-	pixel_t to_pixel(bits8 r, bits8 g, bits8 b, bits8 a = 255)
+	pixel_t to_pixel(bits8 r, bits8 g, bits8 b, bits8 a)
 	{
 		return pixel_t(r, g, b, a); // png
 		// return pixel_t(r, g, b); // jpeg
@@ -286,9 +246,7 @@ namespace libimage
 
 	namespace gray
 	{
-		using image_t = gil::gray8_image_t;
-		using view_t = gil::gray8_view_t;
-		using pixel_t = gil::gray8_pixel_t;
+		
 
 		image_t read_image_from_file(file_path_t const& img_path)
 		{
@@ -305,12 +263,12 @@ namespace libimage
 		}
 
 
-		static void write_image_view_jpeg(std::string const& file_path, view_t const& view)
-		{
-			gil::jpeg_write_view(file_path, view);
+		//static void write_image_view_jpeg(std::string const& file_path, view_t const& view)
+		//{
+		//	gil::jpeg_write_view(file_path, view);
 
-			//gil::write_view(file_path, view, gil::jpeg_tag());
-		}
+		//	//gil::write_view(file_path, view, gil::jpeg_tag());
+		//}
 
 
 		hist_t make_histogram(view_t const& view)
@@ -334,10 +292,7 @@ namespace libimage
 	}
 
 	
-	void write_image_view(file_path_t const& file_path, gray::view_t const& view)
-	{
-		gray::write_image_view_png(file_path.string(), view);
-	}
+	
 
 
 	gray::view_t make_resized_view(gray::image_t& img_src, gray::image_t& img_dst)
@@ -348,7 +303,7 @@ namespace libimage
 	}
 
 
-	/*gray::view_t column_view(gray::view_t const& view, size_t x)
+	gray::view_t column_view(gray::view_t const& view, size_t x)
 	{
 		return gil::subimage_view(view, x, 0, 1, view.height());
 	}
@@ -371,6 +326,12 @@ namespace libimage
 	{
 		auto pixel_count = x_end - x_begin;
 		return gil::subimage_view(view, x_begin, y, pixel_count, 1);
-	}*/
+	}
+
+
+	void write_image_view(file_path_t const& file_path, gray::view_t const& view)
+	{
+		gray::write_image_view_png(file_path.string(), view);
+	}
 
 }
