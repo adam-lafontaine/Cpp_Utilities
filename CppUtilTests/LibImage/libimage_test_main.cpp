@@ -13,10 +13,12 @@ constexpr auto DST_IMAGE_ROOT = "D:/repos/Cpp_Utilities/CppUtilTests/LibImage/ou
 void empty_dir(fs::path const& dir);
 void print(img::view_t const& view);
 void print(img::gray::view_t const& view);
+void print(img::stats_t const& stats);
 
 void basic_tests(fs::path const& out_dir);
 void for_each_tests(fs::path const& out_dir);
 void transform_tests(fs::path const& out_dir);
+void math_tests();
 
 
 int main()
@@ -24,9 +26,35 @@ int main()
 	auto dst_root = fs::path(DST_IMAGE_ROOT);
 	empty_dir(dst_root);
 
-	basic_tests(dst_root);
-	for_each_tests(dst_root);
-	transform_tests(dst_root);
+	//basic_tests(dst_root);
+	//(dst_root);
+	//transform_tests(dst_root);
+	math_tests();
+}
+
+
+void math_tests()
+{
+	std::cout << "math:\n";
+
+	auto image = img::read_image_from_file(fs::path(SRC_IMAGE_PATH));
+	auto view = img::make_view(image);
+
+	auto stats = img::make_stats(view);
+	std::cout << "  red: ";
+	print(stats.r);
+	std::cout << "green: ";
+	print(stats.g);
+	std::cout << " blue: ";
+	print(stats.b);
+
+	auto image_gray = img::gray::read_image_from_file(fs::path(SRC_IMAGE_PATH));
+	auto view_gray = img::make_view(image_gray);
+
+	auto stats_gray = img::make_stats(view_gray);
+	std::cout << " gray: mean = " << stats_gray.mean << " sigma = " << stats_gray.sigma << '\n';
+
+	std::cout << '\n';
 }
 
 
@@ -188,4 +216,10 @@ void print(img::gray::view_t const& view)
 	auto h = view.height();
 
 	std::cout << "width: " << w << " height: " << h << "\n";
+}
+
+
+void print(img::stats_t const& stats)
+{
+	std::cout << "mean = " << (double)stats.mean << " sigma = " << (double)stats.sigma << '\n';
 }

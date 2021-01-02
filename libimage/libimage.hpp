@@ -2,6 +2,7 @@
 
 #include "algorithm.hpp"
 #include "conversions.hpp"
+#include "math.hpp"
 
 #include <vector>
 #include <string>
@@ -12,7 +13,7 @@ namespace libimage
 {
 	using file_path_t = std::filesystem::path;	
 
-	constexpr size_t CHANNEL_SIZE = 256; // 8 bit channel
+	
 	constexpr auto IMAGE_FILE_EXTENSION = ".png";
 
 
@@ -57,25 +58,6 @@ namespace libimage
 
 	void write_image_view(file_path_t const& file_path, view_t const& view);
 	
-
-
-	//======= CONVERSION FUNCTIONS ==============	
-
-	bits32 to_bits32(pixel_t const& src);
-	
-	bits32 to_bits32(ref_t const& src);
-
-	bits32 to_bits32(pixel_ptr_t const& ptr);
-
-	rgb_t to_rgb(pixel_t const& pixel);
-
-	rgba_t to_rgba(pixel_t const& pixel);
-
-	pixel_t to_pixel(bits8 r, bits8 g, bits8 b, bits8 a = 255);
-
-	pixel_t to_pixel(rgb_t const& rgb);
-
-	pixel_t to_pixel(rgba_t const& rgba);
 
 	/*rgb_list_t to_rgb_column(view_t const& img_v, index_t y_begin, index_t y_end, index_t x);
 

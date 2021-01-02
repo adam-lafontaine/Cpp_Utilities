@@ -43,6 +43,12 @@ namespace libimage
 
 	using index_t = std::ptrdiff_t;
 
+	using bits8 = uint8_t;
+	using bits32 = uint32_t;
+
+
+	constexpr size_t CHANNEL_SIZE = 256; // 8 bit channel
+
 
 	namespace gray
 	{
