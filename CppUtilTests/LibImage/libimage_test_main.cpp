@@ -34,6 +34,7 @@ int main()
 	img::pixel_range_t range = { w * 1/3, w * 2/3, h * 1/3, h * 2/3 };
 	auto sub_view = img::sub_view(view, range);
 	print(sub_view);
+	img::write_image_view(dst_root / "sub.png", sub_view);
 
 	auto row_view = img::row_view(view, 2);
 	print(row_view);
@@ -54,8 +55,9 @@ int main()
 	print(resized_view_gray);
 	img::write_image_view(dst_root / "resized_gray.png", resized_view_gray);
 
-	auto sub_view_gray = img::sub_view(view, range);
+	auto sub_view_gray = img::sub_view(view_gray, range);
 	print(sub_view_gray);
+	img::write_image_view(dst_root / "sub_gray.png", sub_view_gray);
 
 	auto row_view_gray = img::row_view(view, 2);
 	print(row_view_gray);

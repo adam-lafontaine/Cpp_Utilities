@@ -30,14 +30,14 @@ namespace libimage
 	using png_image_t = gil::rgba8_image_t;
 	using png_view_t = gil::rgba8_view_t;
 	using png_pixel_t = gil::rgba8_pixel_t;
-	using png_ref_t = gil::rgba8_ref_t;
-	using png_pixel_ptr_t = gil::rgba8_ptr_t;
+	//using png_ref_t = gil::rgba8_ref_t;
+	//using png_pixel_ptr_t = gil::rgba8_ptr_t;
 
 	using jpeg_image_t = gil::rgb8_image_t;
 	using jpeg_view_t = gil::rgb8_view_t;
 	using jpeg_ref_t = gil::rgb8_ref_t;
-	using jpeg_pixel_t = gil::rgb8_pixel_t;
-	using jpeg_pixel_ptr_t = gil::rgb8_ptr_t;
+	//using jpeg_pixel_t = gil::rgb8_pixel_t;
+	//using jpeg_pixel_ptr_t = gil::rgb8_ptr_t;
 
 	// using png types
 	using image_t = png_image_t;
@@ -65,11 +65,11 @@ namespace libimage
 		index_t y_end;
 	} pixel_range_t;
 
-	using range_list_t = std::vector<pixel_range_t>;
+	//using range_list_t = std::vector<pixel_range_t>;
 
-	using rgb_list_t = std::vector<rgb_t>;
+	//using rgb_list_t = std::vector<rgb_t>;
 
-	using rgba_list_t = std::vector<rgba_t>;	
+	//using rgba_list_t = std::vector<rgba_t>;	
 
 
 	//======= READ IMAGES =====================
@@ -151,6 +151,8 @@ namespace libimage
 
 	gray::view_t make_resized_view(gray::image_t& img_src, gray::image_t& img_dst);
 
+	gray::view_t sub_view(gray::view_t const& view, pixel_range_t const& range);
+
 	gray::view_t column_view(gray::view_t const& view, size_t x);
 
 	gray::view_t row_view(gray::view_t const& view, size_t y);
@@ -160,5 +162,10 @@ namespace libimage
 	gray::view_t row_view(gray::view_t const& view, index_t x_begin, index_t x_end, index_t y);
 
 	void write_image_view(file_path_t const& file_path, gray::view_t const& view);
+
+
+	
+
+
 
 }

@@ -289,10 +289,7 @@ namespace libimage
 	gray::view_t make_view(gray::image_t& img)
 	{
 		return gil::view(img);
-	}
-
-	
-	
+	}	
 
 
 	gray::view_t make_resized_view(gray::image_t& img_src, gray::image_t& img_dst)
@@ -300,6 +297,15 @@ namespace libimage
 		gil::resize_view(gil::const_view(img_src), gil::view(img_dst), gil::bilinear_sampler());
 
 		return gil::view(img_dst);
+	}
+
+
+	gray::view_t sub_view(gray::view_t const& view, pixel_range_t const& range)
+	{
+		auto width = range.x_end - range.x_begin;
+		auto height = range.y_end - range.y_begin;
+
+		return gray::view_t(width, height, view.xy_at(range.x_begin, range.y_begin));
 	}
 
 
