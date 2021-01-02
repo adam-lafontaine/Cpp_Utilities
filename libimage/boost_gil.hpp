@@ -46,6 +46,14 @@ namespace libimage
 	using bits8 = uint8_t;
 	using bits32 = uint32_t;
 
+	typedef struct
+	{
+		index_t x_begin;
+		index_t x_end;
+		index_t y_begin;
+		index_t y_end;
+	} pixel_range_t;
+
 
 	constexpr size_t CHANNEL_SIZE = 256; // 8 bit channel
 

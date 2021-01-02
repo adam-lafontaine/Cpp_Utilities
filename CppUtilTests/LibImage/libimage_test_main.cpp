@@ -52,7 +52,26 @@ void math_tests()
 	auto view_gray = img::make_view(image_gray);
 
 	auto stats_gray = img::make_stats(view_gray);
-	std::cout << " gray: mean = " << stats_gray.mean << " sigma = " << stats_gray.sigma << '\n';
+	std::cout << " gray: ";
+	print(stats_gray);
+
+	img::pixel_range_t range;
+	range.x_begin = 245;
+	range.x_end = 345;
+	range.y_begin = 270;
+	range.y_end = 300;
+
+	stats = img::make_stats(view, range);
+	std::cout << "  range red: ";
+	print(stats.r);
+	std::cout << "range green: ";
+	print(stats.g);
+	std::cout << " range blue: ";
+	print(stats.b);
+
+	stats_gray = img::make_stats(view_gray, range);
+	std::cout << " range gray: ";
+	print(stats_gray);
 
 	std::cout << '\n';
 }

@@ -28,11 +28,17 @@ namespace libimage
 		stats_t b;
 	} rgb_stats_t;
 
-	hist_t make_histogram(gray::view_t const& view);
+	
 
-	rgb_hist_t make_histograms(view_t const& view);
+	rgb_hist_t make_histograms(view_t const& view);	
+
+	rgb_stats_t make_stats(view_t const& view);
+
+	rgb_stats_t make_stats(view_t const& view, pixel_range_t const& range);
+
+	hist_t make_histogram(gray::view_t const& view);
 
 	stats_t make_stats(gray::view_t const& view);
 
-	rgb_stats_t make_stats(view_t const& view);
+	stats_t make_stats(gray::view_t const& view, pixel_range_t const& range);
 }

@@ -6,46 +6,6 @@
 
 namespace libimage
 {
-	static double sigma(hist_t const& hist, double mean)
-	{
-		double diff_sq_total = 0;
-		size_t qty_total = 0;
-
-		auto const update = [&](size_t shade) 
-		{
-			auto val = shade;
-			auto qty = hist[shade];
-
-			if (!qty)
-				return;
-
-			qty_total += qty;
-			double diff = val - mean;
-
-			diff_sq_total += qty * diff * diff;
-		};
-
-		for (size_t shade = 0; shade < hist.size(); ++shade)
-		{
-			update(shade);
-		}
-
-		return qty_total == 0 ? 0 : std::sqrt(diff_sq_total / qty_total);
-	}
-
-
-	hist_t make_histogram(gray::view_t const& view)
-	{
-		hist_t hist = { 0 };
-
-		auto const update_hist = [&](gray::pixel_t const& p) { ++hist[p[0]]; };
-
-		seq::for_each_pixel(view, update_hist);
-
-		return hist;
-	}
-
-
 	rgb_hist_t make_histograms(view_t const& view)
 	{
 		rgb_hist_t hist;
@@ -60,28 +20,6 @@ namespace libimage
 		seq::for_each_pixel(view, update_hist);
 
 		return hist;
-	}
-
-
-	stats_t make_stats(gray::view_t const& view)
-	{
-		hist_t hist = { 0 };
-		double count = 0;
-		auto const update = [&](gray::pixel_t const& p) 
-		{
-			auto shade = p[0];
-			++hist[shade];
-			count += shade;
-		};
-
-		seq::for_each_pixel(view, update);
-
-		auto num_pixels = static_cast<size_t>(view.width() * view.height());
-
-		auto mean = count / num_pixels;
-		assert(mean >= 0 && mean <= hist.size());
-
-		return { mean, sigma(hist, mean) };
 	}
 
 
@@ -152,5 +90,89 @@ namespace libimage
 			{ props[B].mean, props[B].sigma },
 		};
 
+	}
+
+
+	rgb_stats_t make_stats(view_t const& view, pixel_range_t const& range)
+	{
+		auto width = range.x_end - range.x_begin;
+		auto height = range.y_end - range.y_begin;
+
+		auto sub = view_t(width, height, view.xy_at(range.x_begin, range.y_begin));
+
+		return make_stats(sub);
+	}
+
+
+	static double sigma(hist_t const& hist, double mean)
+	{
+		double diff_sq_total = 0;
+		size_t qty_total = 0;
+
+		auto const update = [&](size_t shade)
+		{
+			auto val = shade;
+			auto qty = hist[shade];
+
+			if (!qty)
+				return;
+
+			qty_total += qty;
+			double diff = val - mean;
+
+			diff_sq_total += qty * diff * diff;
+		};
+
+		for (size_t shade = 0; shade < hist.size(); ++shade)
+		{
+			update(shade);
+		}
+
+		return qty_total == 0 ? 0 : std::sqrt(diff_sq_total / qty_total);
+	}
+
+
+	hist_t make_histogram(gray::view_t const& view)
+	{
+		hist_t hist = { 0 };
+
+		auto const update_hist = [&](gray::pixel_t const& p) { ++hist[p[0]]; };
+
+		seq::for_each_pixel(view, update_hist);
+
+		return hist;
+	}
+
+
+	stats_t make_stats(gray::view_t const& view)
+	{
+		hist_t hist = { 0 };
+		double count = 0;
+		auto const update = [&](gray::pixel_t const& p)
+		{
+			auto shade = p[0];
+			++hist[shade];
+			count += shade;
+		};
+
+		seq::for_each_pixel(view, update);
+
+		auto num_pixels = static_cast<size_t>(view.width() * view.height());
+
+		auto mean = count / num_pixels;
+		assert(mean >= 0 && mean <= hist.size());
+
+		return { mean, sigma(hist, mean) };
+	}
+
+
+	stats_t make_stats(gray::view_t const& view, pixel_range_t const& range)
+	{
+		auto width = range.x_end - range.x_begin;
+		auto height = range.y_end - range.y_begin;
+
+		auto sub = gray::view_t(width, height, view.xy_at(range.x_begin, range.y_begin));
+
+		return make_stats(sub);
 	}
 }

@@ -17,13 +17,7 @@ namespace libimage
 	constexpr auto IMAGE_FILE_EXTENSION = ".png";
 
 
-	typedef struct
-	{
-		index_t x_begin;
-		index_t x_end;
-		index_t y_begin;
-		index_t y_end;
-	} pixel_range_t;
+	
 
 	//using range_list_t = std::vector<pixel_range_t>;
 
