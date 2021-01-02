@@ -16,6 +16,7 @@ void print(img::gray::view_t const& view);
 
 void basic_tests(fs::path const& out_dir);
 void for_each_tests(fs::path const& out_dir);
+void transform_tests(fs::path const& out_dir);
 
 
 int main()
@@ -25,6 +26,37 @@ int main()
 
 	basic_tests(dst_root);
 	for_each_tests(dst_root);
+	transform_tests(dst_root);
+}
+
+
+void transform_tests(fs::path const& out_dir)
+{
+	std::cout << "transform_pixels:\n";
+
+	auto image = img::read_image_from_file(fs::path(SRC_IMAGE_PATH));
+	auto view = img::make_view(image);
+
+	auto const func = [](img::pixel_t const& p) { return img::to_pixel(p[0] / 2, p[1] / 2, p[2] / 2); };
+	auto dst_image = img::image_t(image.width(), image.height());
+	auto dst_view = img::make_view(dst_image);
+	img::seq::transform_pixels(view, dst_view, func);
+	img::write_image_view(out_dir / "transform_seq.png", dst_view);
+	img::par::transform_pixels(view, dst_view, func);
+	img::write_image_view(out_dir / "transform_par.png", dst_view);
+
+	auto image_gray = img::gray::read_image_from_file(fs::path(SRC_IMAGE_PATH));
+	auto view_gray = img::make_view(image_gray);
+
+	auto const func_gray = [](img::gray::pixel_t const& p) { return img::gray::pixel_t(p[0] / 2); };
+	auto dst_image_gray = img::gray::image_t(image_gray.width(), image_gray.height());
+	auto dst_view_gray = img::make_view(dst_image_gray);
+	img::seq::transform_pixels(view_gray, dst_view_gray, func_gray);
+	img::write_image_view(out_dir / "transform_gray_seq.png", dst_view_gray);
+	img::par::transform_pixels(view_gray, dst_view_gray, func_gray);
+	img::write_image_view(out_dir / "transform_gray_par.png", dst_view_gray);
+
+	std::cout << '\n';
 }
 
 
