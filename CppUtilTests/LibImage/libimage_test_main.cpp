@@ -6,7 +6,7 @@
 namespace fs = std::filesystem;
 namespace img = libimage;
 
-constexpr auto SRC_IMAGE_PATH = "D:/repos/Cpp_Utilities/CppUtilTests/LibImage/in_files/png/cadillac.png";
+constexpr auto SRC_IMAGE_PATH = "D:/repos/Cpp_Utilities/CppUtilTests/LibImage/in_files/png/corvette.png";
 constexpr auto DST_IMAGE_ROOT = "D:/repos/Cpp_Utilities/CppUtilTests/LibImage/out_files";
 
 
@@ -15,7 +15,7 @@ void print(img::view_t const& view);
 void print(img::gray::view_t const& view);
 
 void basic_tests(fs::path const& out_dir);
-void for_each_tests();
+void for_each_tests(fs::path const& out_dir);
 
 
 int main()
@@ -24,11 +24,11 @@ int main()
 	empty_dir(dst_root);
 
 	basic_tests(dst_root);
-	for_each_tests();
+	for_each_tests(dst_root);
 }
 
 
-void for_each_tests()
+void for_each_tests(fs::path const& out_dir)
 {
 	std::cout << "for_each_pixel:\n";
 	using uint_t = unsigned long long;
@@ -39,7 +39,7 @@ void for_each_tests()
 
 	uint_t total_red = 0;
 	auto const count_func = [&](img::pixel_t const& p) { total_red += img::to_rgba(p).r; };
-	img::seq::for_each_pixel(view, count_func);	
+	img::seq::for_each_pixel(view, count_func);
 	std::cout << "red seq: " << total_red << "\n";
 
 	total_red = 0;
@@ -59,6 +59,20 @@ void for_each_tests()
 	auto const lk_count_func_gray = [&](img::gray::pixel_t const& p) { std::lock_guard<std::mutex> lk(mtx); total_gray += p; };
 	img::par::for_each_pixel(view_gray, lk_count_func_gray);
 	std::cout << "gray par: " << total_gray << "\n";
+
+
+	auto const red_func = [](img::pixel_t& p) { p[0] /= 2; };
+	img::seq::for_each_pixel(view, red_func);
+	img::write_image_view(out_dir / "for_each_seq.png", view);
+	img::par::for_each_pixel(view, red_func);
+	img::write_image_view(out_dir / "for_each_par.png", view);
+
+
+	auto const gray_func = [](img::gray::pixel_t& p) { p[0] /= 2; };
+	img::seq::for_each_pixel(view_gray, gray_func);
+	img::write_image_view(out_dir / "for_each_gray_seq.png", view_gray);
+	img::par::for_each_pixel(view_gray, gray_func);
+	img::write_image_view(out_dir / "for_each_gray_par.png", view_gray);
 
 	std::cout << '\n';
 }

@@ -6,16 +6,21 @@
 
 namespace libimage
 {
-	using pixel_func_t = std::function<void(pixel_t const& p)>;
+	//using cpixel_func_t = std::function<void(pixel_t const& p)>;
+	using pixel_func_t = std::function<void(pixel_t& p)>;;
 
 	namespace seq
 	{
+		//void for_each_pixel(view_t const& view, cpixel_func_t const& func);
+
 		void for_each_pixel(view_t const& view, pixel_func_t const& func);
 	}
 
 
 	namespace par
 	{
+		//void for_each_pixel(view_t const& view, cpixel_func_t const& func);
+
 		void for_each_pixel(view_t const& view, pixel_func_t const& func);
 	}
 
@@ -24,7 +29,7 @@ namespace libimage
 
 	namespace gray
 	{
-		using pixel_func_t = std::function<void(pixel_t const& p)>;
+		using pixel_func_t = std::function<void(pixel_t& p)>;
 	}
 
 	
