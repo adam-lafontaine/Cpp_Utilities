@@ -1,4 +1,5 @@
 #include "../../libimage/libimage.hpp"
+#include "../../libimage/draw.hpp"
 
 #include <iostream>
 #include <mutex>
@@ -6,7 +7,10 @@
 namespace fs = std::filesystem;
 namespace img = libimage;
 
-constexpr auto SRC_IMAGE_PATH = "D:/repos/Cpp_Utilities/CppUtilTests/LibImage/in_files/png/corvette.png";
+constexpr auto CORVETTE_PATH = "D:/repos/Cpp_Utilities/CppUtilTests/LibImage/in_files/png/corvette.png";
+constexpr auto CADILLAC_PATH = "D:/repos/Cpp_Utilities/CppUtilTests/LibImage/in_files/png/cadillac.png";
+
+constexpr auto SRC_IMAGE_PATH = CORVETTE_PATH;
 constexpr auto DST_IMAGE_ROOT = "D:/repos/Cpp_Utilities/CppUtilTests/LibImage/out_files";
 
 
@@ -19,6 +23,7 @@ void basic_tests(fs::path const& out_dir);
 void for_each_tests(fs::path const& out_dir);
 void transform_tests(fs::path const& out_dir);
 void math_tests();
+void draw_tests(fs::path const& out_dir);
 
 
 int main()
@@ -26,10 +31,18 @@ int main()
 	auto dst_root = fs::path(DST_IMAGE_ROOT);
 	empty_dir(dst_root);
 
-	//basic_tests(dst_root);
-	//(dst_root);
-	//transform_tests(dst_root);
+	basic_tests(dst_root);
+	for_each_tests(dst_root);
+	transform_tests(dst_root);
 	math_tests();
+	draw_tests(dst_root);
+}
+
+
+void draw_tests(fs::path const& out_dir)
+{
+	draw::histogram(fs::path(CORVETTE_PATH), out_dir / "hist_corvette.png");
+	draw::histogram(fs::path(CADILLAC_PATH), out_dir / "hist_cadillac.png");
 }
 
 

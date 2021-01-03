@@ -146,11 +146,13 @@
     <ClInclude Include="..\..\libimage\algorithm.hpp" />
     <ClInclude Include="..\..\libimage\boost_gil.hpp" />
     <ClInclude Include="..\..\libimage\conversions.hpp" />
+    <ClInclude Include="..\..\libimage\draw.hpp" />
     <ClInclude Include="..\..\libimage\libimage.hpp" />
     <ClInclude Include="..\..\libimage\math.hpp" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\libimage\algorithm.cpp" />
+    <ClCompile Include="..\..\libimage\draw.cpp" />
     <ClCompile Include="..\..\libimage\libimage.cpp" />
     <ClCompile Include="..\..\libimage\math.cpp" />
     <ClCompile Include="libimage_test_main.cpp" />
