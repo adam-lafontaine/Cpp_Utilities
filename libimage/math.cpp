@@ -8,13 +8,15 @@ namespace libimage
 {
 	rgb_hist_t make_histograms(view_t const& view)
 	{
+		auto const divisor = CHANNEL_SIZE / N_HIST_BUCKETS;
+
 		rgb_hist_t hist;
 		auto const update_hist = [&](pixel_t const& p) 
 		{
 			auto const rgb = to_rgb(p);
-			++(hist.r[rgb.r]);
-			++(hist.g[rgb.g]);
-			++(hist.b[rgb.b]);
+			++(hist.r[ rgb.r / divisor ]);
+			++(hist.g[ rgb.g / divisor ]);
+			++(hist.b[ rgb.b / divisor ]);
 		};
 
 		seq::for_each_pixel(view, update_hist);
@@ -27,7 +29,7 @@ namespace libimage
 	{
 		typedef struct Props
 		{
-			hist_t hist = { 0 };
+			hist_full_t hist = { 0 };
 			double count = 0;
 			double mean = 0;
 			double diff_sq_total = 0;
@@ -104,7 +106,7 @@ namespace libimage
 	}
 
 
-	static double sigma(hist_t const& hist, double mean)
+	static double sigma(hist_full_t const& hist, double mean)
 	{
 		double diff_sq_total = 0;
 		size_t qty_total = 0;
@@ -136,7 +138,9 @@ namespace libimage
 	{
 		hist_t hist = { 0 };
 
-		auto const update_hist = [&](gray::pixel_t const& p) { ++hist[p[0]]; };
+		auto const divisor = CHANNEL_SIZE / N_HIST_BUCKETS;
+
+		auto const update_hist = [&](gray::pixel_t const& p) { ++hist[p[0] / divisor]; };
 
 		seq::for_each_pixel(view, update_hist);
 
@@ -146,7 +150,7 @@ namespace libimage
 
 	stats_t make_stats(gray::view_t const& view)
 	{
-		hist_t hist = { 0 };
+		hist_full_t hist = { 0 };
 		double count = 0;
 		auto const update = [&](gray::pixel_t const& p)
 		{

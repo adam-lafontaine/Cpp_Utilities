@@ -2,9 +2,17 @@
 
 #include "boost_gil.hpp"
 
+#include <array>
+
+
 namespace libimage
 {
-	using hist_t = std::array<unsigned, CHANNEL_SIZE>;
+	constexpr size_t N_HIST_BUCKETS = 16;
+
+	using hist_t = std::array<unsigned, N_HIST_BUCKETS>;
+	using hist_full_t = std::array<unsigned, CHANNEL_SIZE>;
+	//using hist_16_t = std::array<unsigned, 16>;
+
 
 	typedef struct RGBHist
 	{
