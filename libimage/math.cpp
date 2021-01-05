@@ -8,6 +8,8 @@ namespace libimage
 {
 	rgb_hist_t make_histograms(view_t const& view)
 	{
+		assert(N_HIST_BUCKETS > 0 && N_HIST_BUCKETS <= CHANNEL_SIZE);
+
 		auto const divisor = CHANNEL_SIZE / N_HIST_BUCKETS;
 
 		rgb_hist_t hist;

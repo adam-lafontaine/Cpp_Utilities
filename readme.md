@@ -31,8 +31,9 @@ A collection of small utilities I like having around
 
 
 * libimage
-    * Image processing library using Boost GIL
+    * Basic image processing library using Boost GIL
     * Add _CRT_SECURE_NO_WARNINGS to Preprocessor Definitions in Visual Studio
+    * Sequential and parallel for_each and transform algorithms
 
 
 * normalize

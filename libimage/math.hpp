@@ -11,7 +11,6 @@ namespace libimage
 
 	using hist_t = std::array<unsigned, N_HIST_BUCKETS>;
 	using hist_full_t = std::array<unsigned, CHANNEL_SIZE>;
-	//using hist_16_t = std::array<unsigned, 16>;
 
 
 	typedef struct RGBHist
