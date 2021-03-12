@@ -5,12 +5,14 @@
 #include <execution>
 #include <functional>
 
-
-//======= POINT RANGE 2D ==================
-
-class UnsignedPointRange2D
+namespace for_each_in_range_stb
 {
-public:
+
+    //======= POINT RANGE 2D ==================
+
+    class UnsignedPointRange2D
+    {
+    public:
 
     using index_type = size_t;
 
@@ -95,7 +97,7 @@ public:
 
     };
 
-private:
+    private:
 
     pt m_first = { 0, 0 };
     pt m_last = { 0, 1 };
@@ -109,7 +111,7 @@ private:
     template<typename INT_T>
     index_type to_max(INT_T val) { return val < 1 ? 0 : static_cast<index_type>(val) - 1; }
 
-public:
+    public:
 
     template<typename INT_T>
     UnsignedPointRange2D(INT_T width, INT_T height)
@@ -145,13 +147,12 @@ public:
     iterator begin() { return iterator(m_first, m_last); }
     iterator end() { return ++(iterator(m_first, m_last).last()); }
 
-};
+    };
 
 
-//======= FOR EACH IN RANGE ================
+    //======= FOR EACH IN RANGE ================
 
-namespace for_each_in_range
-{
+
     using u_int_t = size_t;
 
     using u_xy_func_t = std::function<void(u_int_t x, u_int_t y)>;

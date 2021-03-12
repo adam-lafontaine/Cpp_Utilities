@@ -22,6 +22,9 @@
     <Filter Include="Source Files\for_each_in_range">
       <UniqueIdentifier>{cdf793d1-7300-4f25-9b5a-8c9b4c87119c}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\stb">
+      <UniqueIdentifier>{3170d337-52ce-4cf0-aba6-b8781858d7a3}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\libimage\libimage.hpp">
@@ -45,9 +48,6 @@
     <ClInclude Include="..\..\libimage\stb\stb_image.h">
       <Filter>Header Files\stb</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\libimage\stb\libimage_stb.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\for_each_in_range\for_each_in_range.hpp">
       <Filter>Header Files\for_each_in_range</Filter>
     </ClInclude>
@@ -58,6 +58,9 @@
       <Filter>Header Files\for_each_in_range</Filter>
     </ClInclude>
     <ClInclude Include="..\..\libimage\stb\for_each_in_range.hpp">
+      <Filter>Header Files\stb</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\libimage\stb\libimage_stb.hpp">
       <Filter>Header Files\stb</Filter>
     </ClInclude>
   </ItemGroup>
@@ -79,6 +82,9 @@
     </ClCompile>
     <ClCompile Include="..\..\for_each_in_range\for_each_in_range.cpp">
       <Filter>Source Files\for_each_in_range</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\libimage\stb\libimage_stb.cpp">
+      <Filter>Source Files\stb</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>
