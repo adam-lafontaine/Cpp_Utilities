@@ -1,11 +1,16 @@
 #include "libimage_stb.hpp"
-#include "for_each_in_range.hpp"
 
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb_image.h"
 
+#define STB_IMAGE_WRITE_IMPLEMENTATION
+#include "stb_image_write.h"
+
 #include <algorithm>
 #include <execution>
+#include <filesystem>
+
+namespace fs = std::filesystem;
 
 namespace libimage_stb
 {
@@ -245,43 +250,49 @@ namespace libimage_stb
 	}
 
 
-	//======= ALGORITMS ====================
+	void write_image(const char* file_path, image_t const& image)
+	{
+		int width = static_cast<int>(image.width);
+		int height = static_cast<int>(image.height);
+		int channels = static_cast<int>(RGBA_CHANNELS);
+		auto const data = image.data;
 
-	namespace fer = for_each_in_range_stb;
-	namespace seq
-	{		
+		auto ext = fs::path(file_path).extension();
 
-		void for_each_pixel(image_t& image, fe_func_t const& func)
+		if (ext == ".bmp" || ext == ".BMP")
 		{
-			std::for_each(image.begin(), image.end(), func);
+			stbi_write_bmp(file_path, width, height, channels, data);
 		}
-
-
-		void for_each_pixel(view_t& view, fe_func_t const& func)
+		else if (ext == ".png" || ext == ".PNG")
 		{
-			auto const xy_func = [&](auto x, auto y) { return func(*(view.xy_at(x, y))); };
+			int stride_in_bytes = width * channels;
 
-			fer::seq::for_each_in_range_2d(view.x_begin, view.x_end, view.y_begin, view.y_end, xy_func);
+			stbi_write_png(file_path, width, height, channels, data, stride_in_bytes);
 		}
-
-
+		else if (ext == ".jpg" || ext == ".jpeg" || ext == ".JPG" || ext == ".JPEG")
+		{
+			// TODO: quality?
+			// stbi_write_jpg(char const *filename, int w, int h, int comp, const void *data, int quality);
+		}
 	}
 
 
-	namespace par
+	static image_t make_image(view_t const& view)
 	{
-		void for_each_pixel(image_t& image, fe_func_t const& func)
-		{
-			std::for_each(std::execution::par, image.begin(), image.end(), func);
-		}
+		image_t image(view.width, view.height);
+
+		image.data = (pixel_t*)malloc(sizeof(pixel_t) * view.width * view.height);
+		std::transform(view.cbegin(), view.cend(), image.begin(), [](auto p) { return p; });		
+
+		return image;
+	}
 
 
-		void for_each_pixel(view_t& view, fe_func_t const& func)
-		{
-			auto const xy_func = [&](auto x, auto y) { return func(*(view.xy_at(x, y))); };
+	void write_view(const char* file_path, view_t const& view)
+	{
+		auto image = make_image(view);
 
-			fer::par::for_each_in_range_2d(view.x_begin, view.x_end, view.y_begin, view.y_end, xy_func);
-		}
+		write_image(file_path, image);
 	}
 }
 

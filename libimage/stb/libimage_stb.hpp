@@ -24,6 +24,10 @@ namespace libimage_stb
 
 	view_t row_view(view_t& view, u32 y);
 
+	void write_image(const char* file_path, image_t const& image);
+
+	void write_view(const char* file_path, view_t const& view);
+
 
 	namespace gray
 	{
