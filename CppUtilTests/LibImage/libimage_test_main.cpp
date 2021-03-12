@@ -36,6 +36,9 @@ int main()
 	transform_tests(dst_root);
 	math_tests();
 	draw_tests(dst_root);
+
+	char ch;
+	std::cin >> ch;
 }
 
 
