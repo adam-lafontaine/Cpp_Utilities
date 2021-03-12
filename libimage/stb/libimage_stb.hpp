@@ -14,7 +14,7 @@ namespace libimage_stb
 {
 	image_t read_image_from_file(const char* img_path);
 
-	view_t make_view(image_t& img);
+	view_t make_view(image_t& image);
 
 	view_t sub_view(image_t& image, pixel_range_t const& range);
 
@@ -28,14 +28,11 @@ namespace libimage_stb
 	namespace gray
 	{
 		image_t read_image_from_file(const char* img_path);		
-	}
-
-	namespace grey = gray;
-
+	}	
 
 	//======= GRAYSCALE OVERLOADS ================
 
-	gray::view_t make_view(gray::image_t& img);
+	gray::view_t make_view(gray::image_t& image);
 
 	gray::view_t sub_view(gray::image_t& image, pixel_range_t const& range);
 

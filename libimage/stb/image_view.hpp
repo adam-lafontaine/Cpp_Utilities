@@ -13,9 +13,9 @@ namespace libimage_stb
 	typedef struct
 	{
 		u32 x_begin;
-		u32 x_end;
+		u32 x_end;   // one past last x
 		u32 y_begin;
-		u32 y_end;
+		u32 y_end;   // one past last y
 
 	} pixel_range_t;
 
@@ -109,6 +109,28 @@ namespace libimage_stb
 
 			rgba_image_view_t* view = 0;
 
+			void next()
+			{
+				++loc_x;
+				if (loc_x >= view->x_end)
+				{
+					loc_x = view->x_begin;
+					++loc_y;
+				}
+			}
+
+			void next_in_row()
+			{
+				++loc_x;
+			}
+
+			void next_in_column()
+			{
+				++loc_y;
+			}
+
+			std::function<void()> increment = [&]() { next(); };
+
 		public:
 
 			using iterator_category = std::forward_iterator_tag;
@@ -124,6 +146,15 @@ namespace libimage_stb
 				view = v;
 				loc_x = view->x_begin;
 				loc_y = view->y_begin;
+
+				if (v->y_begin == v->y_end)
+				{
+					increment = [&]() { next_in_row(); };
+				}
+				else if (v->x_begin == v->x_end)
+				{
+					increment = [&]() { next_in_column(); };
+				}
 			}
 
 			iterator end()
@@ -134,21 +165,20 @@ namespace libimage_stb
 				return *this;
 			}
 
-			iterator& operator++() // TODO: custom for row and column views
+			iterator& operator ++ ()
 			{
-				++loc_x;
-				if (loc_x >= view->x_end)
-				{
-					loc_x = view->x_begin;
-					++loc_y;
-				}
+				increment();
 
 				return *this;
 			}
-			iterator operator++(int) { iterator result = *this; ++(*this); return result; }
-			bool operator==(iterator other) const { return loc_x == other.loc_x && loc_y == other.loc_y; }
-			bool operator!=(iterator other) const { return !(*this == other); }
-			reference operator*() const { return *view->xy_at(loc_x, loc_y); }
+
+			iterator operator ++ (int) { iterator result = *this; ++(*this); return result; }
+
+			bool operator == (iterator other) const { return loc_x == other.loc_x && loc_y == other.loc_y; }
+
+			bool operator != (iterator other) const { return !(*this == other); }
+
+			reference operator * () const { return *view->xy_at(loc_x, loc_y); }
 		};
 
 		/******* ITERATOR ************/
@@ -229,6 +259,28 @@ namespace libimage_stb
 
 				image_view_t* view = 0;
 
+				void next()
+				{
+					++loc_x;
+					if (loc_x >= view->x_end)
+					{
+						loc_x = view->x_begin;
+						++loc_y;
+					}
+				}
+
+				void next_in_row()
+				{
+					++loc_x;
+				}
+
+				void next_in_column()
+				{
+					++loc_y;
+				}
+
+				std::function<void()> increment = [&]() { next(); };
+
 			public:
 
 				using iterator_category = std::forward_iterator_tag;
@@ -244,6 +296,15 @@ namespace libimage_stb
 					view = v;
 					loc_x = view->x_begin;
 					loc_y = view->y_begin;
+
+					if (v->y_begin == v->y_end)
+					{
+						increment = [&]() { next_in_row(); };
+					}
+					else if (v->x_begin == v->x_end)
+					{
+						increment = [&]() { next_in_column(); };
+					}
 				}
 
 				iterator end()
@@ -254,21 +315,20 @@ namespace libimage_stb
 					return *this;
 				}
 
-				iterator& operator++() // TODO: custom for row and column views
+				iterator& operator ++ ()
 				{
-					++loc_x;
-					if (loc_x >= view->x_end)
-					{
-						loc_x = view->x_begin;
-						++loc_y;
-					}
+					increment();
 
 					return *this;
 				}
-				iterator operator++(int) { iterator result = *this; ++(*this); return result; }
-				bool operator==(iterator other) const { return loc_x == other.loc_x && loc_y == other.loc_y; }
-				bool operator!=(iterator other) const { return !(*this == other); }
-				reference operator*() const { return *view->xy_at(loc_x, loc_y); }
+
+				iterator operator ++ (int) { iterator result = *this; ++(*this); return result; }
+
+				bool operator == (iterator other) const { return loc_x == other.loc_x && loc_y == other.loc_y; }
+
+				bool operator != (iterator other) const { return !(*this == other); }
+
+				reference operator * () const { return *view->xy_at(loc_x, loc_y); }
 			};
 
 			/******* ITERATOR ************/
@@ -281,5 +341,6 @@ namespace libimage_stb
 		using view_t = image_view_t;
 	}
 	
+	namespace grey = gray;
 
 }
