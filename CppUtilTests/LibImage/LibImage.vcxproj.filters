@@ -63,6 +63,9 @@
     <ClInclude Include="..\..\libimage\stb\libimage_stb.hpp">
       <Filter>Header Files\stb</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\libimage\stb\image_view.hpp">
+      <Filter>Header Files\stb</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\libimage\libimage.cpp">
