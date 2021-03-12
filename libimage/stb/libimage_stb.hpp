@@ -41,7 +41,7 @@ namespace libimage_stb
 		u32 width = 0;
 		u32 height = 0;
 
-		rgba_pixel* data = 0;
+		pixel_t* data = 0;
 
 		rgba_image_t(u32 width, u32 height) : width(width), height(height) {}
 
@@ -64,7 +64,7 @@ namespace libimage_stb
 	{
 	public:
 
-		rgba_pixel* image_data = 0;
+		pixel_t* image_data = 0;
 		u32 image_width = 0;
 
 		u32 x_begin = 0;
@@ -113,6 +113,85 @@ namespace libimage_stb
 
 	view_t row_view(view_t& view, u32 y);
 
+
+	namespace gray
+	{
+		using pixel_t = u8;
+
+		class image_t
+		{
+		public:
+			u32 width = 0;
+			u32 height = 0;
+
+			pixel_t* data = 0;
+
+			image_t(u32 width, u32 height) : width(width), height(height) {}
+
+			~image_t()
+			{
+				if (data)
+				{
+					free(data);
+				}
+			}
+
+			pixel_t* begin() { return data; }
+			pixel_t* end() { return data + (u64)width * (u64)height; }
+		};
+
+
+		class image_view_t
+		{
+		public:
+
+			pixel_t* image_data = 0;
+			u32 image_width = 0;
+
+			u32 x_begin = 0;
+			u32 x_end = 0;
+			u32 y_begin = 0;
+			u32 y_end = 0;
+
+			u32 width = 0;
+			u32 height = 0;
+
+			pixel_t* row_begin(u32 y) const
+			{
+				auto offset = (y_begin + y) * image_width + x_begin;
+				return image_data + (u64)offset;
+			}
+
+			pixel_t* xy_at(u32 x, u32 y) const
+			{
+				return row_begin(y) + x;
+			}
+		};
+
+		using view_t = image_view_t;
+
+
+		image_t read_image_from_file(const char* img_path);		
+	}
+
+	namespace grey = gray;
+
+
+	//======= GRAYSCALE OVERLOADS ================
+
+	gray::view_t make_view(gray::image_t& img);
+
+	gray::view_t sub_view(gray::image_t& image, pixel_range_t const& range);
+
+	gray::view_t sub_view(gray::view_t const& view, pixel_range_t const& range);
+
+	gray::view_t row_view(gray::image_t& image, u32 y);
+
+	gray::view_t row_view(gray::view_t& view, u32 y);
+
+
+	//======= ALGORITHMS =================
+	// TODO: view_t::iterator
 
 	using fe_func_t = std::function<void(pixel_t& p)>;
 

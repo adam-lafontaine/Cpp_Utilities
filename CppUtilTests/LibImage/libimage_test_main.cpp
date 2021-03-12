@@ -44,14 +44,14 @@ int main()
 
 void draw_tests(fs::path const& out_dir)
 {
-	draw::histogram(fs::path(CORVETTE_PATH), out_dir / "hist_corvette.png");
-	draw::histogram(fs::path(CADILLAC_PATH), out_dir / "hist_cadillac.png");
+	/*draw::histogram(fs::path(CORVETTE_PATH), out_dir / "hist_corvette.png");
+	draw::histogram(fs::path(CADILLAC_PATH), out_dir / "hist_cadillac.png");*/
 }
 
 
 void math_tests()
 {
-	std::cout << "math:\n";
+	/*std::cout << "math:\n";
 
 	auto image = img::read_image_from_file(fs::path(SRC_IMAGE_PATH));
 	auto view = img::make_view(image);
@@ -89,13 +89,13 @@ void math_tests()
 	std::cout << " range gray: ";
 	print(stats_gray);
 
-	std::cout << '\n';
+	std::cout << '\n';*/
 }
 
 
 void transform_tests(fs::path const& out_dir)
 {
-	std::cout << "transform_pixels:\n";
+	/*std::cout << "transform_pixels:\n";
 
 	auto image = img::read_image_from_file(fs::path(SRC_IMAGE_PATH));
 	auto view = img::make_view(image);
@@ -119,7 +119,7 @@ void transform_tests(fs::path const& out_dir)
 	img::par::transform_pixels(view_gray, dst_view_gray, func_gray);
 	img::write_image_view(out_dir / "transform_gray_par.png", dst_view_gray);
 
-	std::cout << '\n';
+	std::cout << '\n';*/
 }
 
 
