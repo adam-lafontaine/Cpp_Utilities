@@ -57,13 +57,16 @@
     <ClInclude Include="..\..\for_each_in_range\point_range_2d.hpp">
       <Filter>Header Files\for_each_in_range</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\libimage\stb\for_each_in_range.hpp">
-      <Filter>Header Files\stb</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\libimage\stb\libimage_stb.hpp">
       <Filter>Header Files\stb</Filter>
     </ClInclude>
     <ClInclude Include="..\..\libimage\stb\image_view.hpp">
+      <Filter>Header Files\stb</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\libimage\stb\stb_image_resize.h">
+      <Filter>Header Files\stb</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\libimage\stb\stb_image_write.h">
       <Filter>Header Files\stb</Filter>
     </ClInclude>
   </ItemGroup>

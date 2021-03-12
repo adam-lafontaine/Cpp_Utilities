@@ -152,10 +152,11 @@
     <ClInclude Include="..\..\libimage\draw.hpp" />
     <ClInclude Include="..\..\libimage\libimage.hpp" />
     <ClInclude Include="..\..\libimage\math.hpp" />
-    <ClInclude Include="..\..\libimage\stb\for_each_in_range.hpp" />
     <ClInclude Include="..\..\libimage\stb\image_view.hpp" />
     <ClInclude Include="..\..\libimage\stb\libimage_stb.hpp" />
     <ClInclude Include="..\..\libimage\stb\stb_image.h" />
+    <ClInclude Include="..\..\libimage\stb\stb_image_resize.h" />
+    <ClInclude Include="..\..\libimage\stb\stb_image_write.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\for_each_in_range\for_each_in_range.cpp" />

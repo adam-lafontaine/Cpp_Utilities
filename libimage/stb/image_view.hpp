@@ -117,8 +117,6 @@ namespace libimage_stb
 			pixel_t* image_data = 0;
 			u32 image_width = 0;
 
-			//rgba_image_view_t* view = 0;
-
 			pixel_t* loc_ptr() const
 			{
 				auto offset = (y_begin + loc_y) * image_width + x_begin + loc_x;
@@ -158,7 +156,7 @@ namespace libimage_stb
 
 			explicit iterator() {}
 
-			explicit iterator(view_t const& view)
+			explicit iterator(rgba_image_view_t const& view)
 			{
 				image_data = view.image_data;
 				image_width = view.image_width;
@@ -183,8 +181,8 @@ namespace libimage_stb
 
 			iterator end()
 			{
-				loc_x = view->x_end;
-				loc_y = view->y_end;
+				loc_x = x_end;
+				loc_y = y_end;
 
 				return *this;
 			}
@@ -394,14 +392,27 @@ namespace libimage_stb
 				u32 loc_x = 0;
 				u32 loc_y = 0;
 
-				image_view_t* view = 0;
+				u32 x_begin = 0;
+				u32 x_end = 0;
+				u32 y_begin = 0;
+				u32 y_end = 0;
+
+				pixel_t* image_data = 0;
+				u32 image_width = 0;
+
+				pixel_t* loc_ptr() const
+				{
+					auto offset = (y_begin + loc_y) * image_width + x_begin + loc_x;
+
+					return image_data + static_cast<u64>(offset);
+				}
 
 				void next()
 				{
 					++loc_x;
-					if (loc_x >= view->x_end)
+					if (loc_x >= x_end)
 					{
-						loc_x = view->x_begin;
+						loc_x = x_begin;
 						++loc_y;
 					}
 				}
@@ -426,19 +437,26 @@ namespace libimage_stb
 				using pointer = const value_type*;
 				using reference = const value_type&;
 
-				//explicit iterator() {}
+				explicit iterator() {}
 
-				explicit iterator(image_view_t* v)
+				explicit iterator(image_view_t const& view)
 				{
-					view = v;
-					loc_x = view->x_begin;
-					loc_y = view->y_begin;
+					image_data = view.image_data;
+					image_width = view.image_width;
 
-					if (v->y_begin == v->y_end)
+					x_begin = view.x_begin;
+					x_end = view.x_end;
+					y_begin = view.y_begin;
+					y_end = view.y_end;
+
+					loc_x = x_begin;
+					loc_y = y_begin;
+
+					if (y_begin == y_end)
 					{
 						increment = [&]() { next_in_row(); };
 					}
-					else if (v->x_begin == v->x_end)
+					else if (x_begin == x_end)
 					{
 						increment = [&]() { next_in_column(); };
 					}
@@ -446,8 +464,8 @@ namespace libimage_stb
 
 				iterator end()
 				{
-					loc_x = view->x_end;
-					loc_y = view->y_end;
+					loc_x = x_end;
+					loc_y = y_end;
 
 					return *this;
 				}
@@ -465,14 +483,14 @@ namespace libimage_stb
 
 				bool operator != (iterator other) const { return !(*this == other); }
 
-				reference operator * () const { return *view->xy_at(loc_x, loc_y); }
+				reference operator * () const { return *loc_ptr(); }
 			};
 
 			/******* ITERATOR ************/
 
-			iterator begin() { return iterator(this); }
+			iterator begin() { return iterator(*this); }
 
-			iterator end() { return iterator(this).end(); }
+			iterator end() { return iterator(*this).end(); }
 		};
 
 		using view_t = image_view_t;
