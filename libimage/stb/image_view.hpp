@@ -491,6 +491,10 @@ namespace libimage_stb
 			iterator begin() { return iterator(*this); }
 
 			iterator end() { return iterator(*this).end(); }
+
+			iterator cbegin() const { return iterator(*this); }
+
+			iterator cend() const { return iterator(*this).end(); }
 		};
 
 		using view_t = image_view_t;

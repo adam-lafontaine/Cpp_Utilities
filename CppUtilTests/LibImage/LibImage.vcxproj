@@ -153,6 +153,7 @@
     <ClInclude Include="..\..\libimage\libimage.hpp" />
     <ClInclude Include="..\..\libimage\math.hpp" />
     <ClInclude Include="..\..\libimage\stb\image_view.hpp" />
+    <ClInclude Include="..\..\libimage\stb\libimage_fs.hpp" />
     <ClInclude Include="..\..\libimage\stb\libimage_stb.hpp" />
     <ClInclude Include="..\..\libimage\stb\stb_image.h" />
     <ClInclude Include="..\..\libimage\stb\stb_image_resize.h" />

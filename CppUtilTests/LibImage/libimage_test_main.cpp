@@ -1,11 +1,14 @@
-#include "../../libimage/libimage.hpp"
-#include "../../libimage/draw.hpp"
+//#include "../../libimage/libimage.hpp"
+//#include "../../libimage/draw.hpp"
+
+#include "../../libimage/stb/libimage_fs.hpp"
 
 #include <iostream>
 #include <mutex>
 
 namespace fs = std::filesystem;
-namespace img = libimage;
+//namespace img = libimage;
+namespace img = libimage_stb;
 
 constexpr auto CORVETTE_PATH = "D:/repos/Cpp_Utilities/CppUtilTests/LibImage/in_files/png/corvette.png";
 constexpr auto CADILLAC_PATH = "D:/repos/Cpp_Utilities/CppUtilTests/LibImage/in_files/png/cadillac.png";
@@ -17,7 +20,7 @@ constexpr auto DST_IMAGE_ROOT = "D:/repos/Cpp_Utilities/CppUtilTests/LibImage/ou
 void empty_dir(fs::path const& dir);
 void print(img::view_t const& view);
 void print(img::gray::view_t const& view);
-void print(img::stats_t const& stats);
+//void print(img::stats_t const& stats);
 
 void basic_tests(fs::path const& out_dir);
 void for_each_tests(fs::path const& out_dir);
@@ -37,6 +40,7 @@ int main()
 	math_tests();
 	draw_tests(dst_root);
 
+	std::cout << "\nDone.\n";
 	char ch;
 	std::cin >> ch;
 }
@@ -125,7 +129,7 @@ void transform_tests(fs::path const& out_dir)
 
 void for_each_tests(fs::path const& out_dir)
 {
-	std::cout << "for_each_pixel:\n";
+	/*std::cout << "for_each_pixel:\n";
 	using uint_t = unsigned long long;
 	std::mutex mtx;
 
@@ -169,7 +173,7 @@ void for_each_tests(fs::path const& out_dir)
 	img::par::for_each_pixel(view_gray, gray_func);
 	img::write_image_view(out_dir / "for_each_gray_par.png", view_gray);
 
-	std::cout << '\n';
+	std::cout << '\n';*/
 }
 
 
@@ -181,18 +185,18 @@ void basic_tests(fs::path const& out_dir)
 	auto view = img::make_view(image);
 	print(view);
 
-	auto w = view.width();
-	auto h = view.height();
+	auto w = view.width;
+	auto h = view.height;
 
-	auto resized_image = img::image_t(h, w);
+	/*auto resized_image = img::image_t(h, w);
 	auto resized_view = img::make_resized_view(image, resized_image);
 	print(resized_view);
-	img::write_image_view(out_dir / "resized.png", resized_view);
+	img::write_view(out_dir / "resized.png", resized_view);*/
 
 	img::pixel_range_t range = { w * 1 / 3, w * 2 / 3, h * 1 / 3, h * 2 / 3 };
 	auto sub_view = img::sub_view(view, range);
 	print(sub_view);
-	img::write_image_view(out_dir / "sub.png", sub_view);
+	img::write_view(out_dir / "sub.png", sub_view);
 
 	auto row_view = img::row_view(view, 2);
 	print(row_view);
@@ -205,17 +209,17 @@ void basic_tests(fs::path const& out_dir)
 	auto view_gray = img::make_view(image_gray);
 	print(view_gray);
 
-	w = view_gray.width();
-	h = view_gray.height();
+	w = view_gray.width;
+	h = view_gray.height;
 
-	auto resized_image_gray = img::gray::image_t(h, w);
+	/*auto resized_image_gray = img::gray::image_t(h, w);
 	auto resized_view_gray = img::make_resized_view(image_gray, resized_image_gray);
 	print(resized_view_gray);
-	img::write_image_view(out_dir / "resized_gray.png", resized_view_gray);
+	img::write_view(out_dir / "resized_gray.png", resized_view_gray);*/
 
 	auto sub_view_gray = img::sub_view(view_gray, range);
 	print(sub_view_gray);
-	img::write_image_view(out_dir / "sub_gray.png", sub_view_gray);
+	img::write_view(out_dir / "sub_gray.png", sub_view_gray);
 
 	auto row_view_gray = img::row_view(view, 2);
 	print(row_view_gray);
@@ -238,8 +242,8 @@ void empty_dir(fs::path const& dir)
 
 void print(img::view_t const& view)
 {
-	auto w = view.width();
-	auto h = view.height();
+	auto w = view.width;
+	auto h = view.height;
 
 	std::cout << "width: " << w << " height: " << h << "\n";
 }
@@ -247,14 +251,14 @@ void print(img::view_t const& view)
 
 void print(img::gray::view_t const& view)
 {
-	auto w = view.width();
-	auto h = view.height();
+	auto w = view.width;
+	auto h = view.height;
 
 	std::cout << "width: " << w << " height: " << h << "\n";
 }
 
 
-void print(img::stats_t const& stats)
-{
-	std::cout << "mean = " << (double)stats.mean << " sigma = " << (double)stats.sigma << '\n';
-}
+//void print(img::stats_t const& stats)
+//{
+//	std::cout << "mean = " << (double)stats.mean << " sigma = " << (double)stats.sigma << '\n';
+//}

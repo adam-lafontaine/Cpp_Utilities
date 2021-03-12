@@ -24,9 +24,17 @@ namespace libimage_stb
 
 	view_t row_view(view_t& view, u32 y);
 
+	view_t column_view(image_t& image, u32 y);
+
+	view_t column_view(view_t& view, u32 y);
+
 	void write_image(const char* file_path, image_t const& image);
 
 	void write_view(const char* file_path, view_t const& view);
+
+	void resize_image(image_t const& img_src, image_t& img_dst);
+
+	view_t make_resized_view(image_t const& img_src, image_t& img_dst);
 
 
 	namespace gray
@@ -45,4 +53,16 @@ namespace libimage_stb
 	gray::view_t row_view(gray::image_t& image, u32 y);
 
 	gray::view_t row_view(gray::view_t& view, u32 y);
+
+	gray::view_t column_view(gray::image_t& image, u32 y);
+
+	gray::view_t column_view(gray::view_t& view, u32 y);
+
+	void write_image(const char* file_path, gray::image_t const& image);
+
+	void write_view(const char* file_path, gray::view_t const& view);
+
+	void resize_image(gray::image_t const& img_src, gray::image_t& img_dst);
+
+	gray::view_t make_resized_view(gray::image_t const& img_src, gray::image_t& img_dst);
 }

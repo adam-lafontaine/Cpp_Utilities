@@ -6,6 +6,9 @@
 #define STB_IMAGE_WRITE_IMPLEMENTATION
 #include "stb_image_write.h"
 
+#define STB_IMAGE_RESIZE_IMPLEMENTATION
+#include "stb_image_resize.h"
+
 #include <algorithm>
 #include <execution>
 #include <filesystem>
@@ -21,10 +24,8 @@ namespace libimage_stb
 		int image_channels = 0;
 		int desired_channels = 4;
 
-		auto data = (rgba_pixel*)stbi_load(img_path, &width, &height, &image_channels, desired_channels);
-
 		image_t image(width, height);
-		image.data = data;
+		image.data = (rgba_pixel*)stbi_load(img_path, &width, &height, &image_channels, desired_channels);
 
 		return image;
 	}
@@ -126,6 +127,89 @@ namespace libimage_stb
 		range.y_end = view.height;
 
 		return sub_view(view, range);
+	}
+
+
+	void write_image(const char* file_path, image_t const& image)
+	{
+		int width = static_cast<int>(image.width);
+		int height = static_cast<int>(image.height);
+		int channels = static_cast<int>(RGBA_CHANNELS);
+		auto const data = image.data;
+
+		auto ext = fs::path(file_path).extension();
+
+		if (ext == ".bmp" || ext == ".BMP")
+		{
+			stbi_write_bmp(file_path, width, height, channels, data);
+		}
+		else if (ext == ".png" || ext == ".PNG")
+		{
+			int stride_in_bytes = width * channels;
+
+			stbi_write_png(file_path, width, height, channels, data, stride_in_bytes);
+		}
+		else if (ext == ".jpg" || ext == ".jpeg" || ext == ".JPG" || ext == ".JPEG")
+		{
+			// TODO: quality?
+			// stbi_write_jpg(char const *filename, int w, int h, int comp, const void *data, int quality);
+		}
+	}
+
+
+	static image_t make_image(view_t const& view)
+	{
+		image_t image(view.width, view.height);
+
+		image.data = (pixel_t*)malloc(sizeof(pixel_t) * view.width * view.height);
+		//std::transform(view.cbegin(), view.cend(), image.begin(), [](auto p) { return p; });
+
+		auto p = image.begin();
+		for (auto it = view.cbegin(); it != view.cend(); ++it)
+		{
+			auto img = *p;
+			auto v = *it;
+			*p++ = *it;
+		}
+
+		return image;
+	}
+
+
+	void write_view(const char* file_path, view_t const& view)
+	{
+		auto image = make_image(view);
+
+		write_image(file_path, image);
+	}
+
+
+	void resize_image(image_t const& img_src, image_t& img_dst)
+	{
+		int channels = static_cast<int>(RGBA_CHANNELS);
+
+		int width_src = static_cast<int>(img_src.width);
+		int height_src = static_cast<int>(img_src.height);		
+		int stride_bytes_src = width_src * channels;
+
+		int width_dst = static_cast<int>(img_dst.width);
+		int height_dst = static_cast<int>(img_dst.height);
+		int stride_bytes_dst = width_dst * channels;
+
+		img_dst.data = (pixel_t*)malloc(sizeof(pixel_t) * img_dst.width * img_dst.height);
+
+		stbir_resize_uint8(
+			(u8*)img_src.data, width_src, height_src, stride_bytes_src,
+			(u8*)img_dst.data, width_dst, height_dst, stride_bytes_dst,
+			channels);
+	}
+
+
+	view_t make_resized_view(image_t const& img_src, image_t& img_dst)
+	{
+		resize_image(img_src, img_dst);
+
+		return make_view(img_dst);
 	}
 
 
@@ -250,11 +334,11 @@ namespace libimage_stb
 	}
 
 
-	void write_image(const char* file_path, image_t const& image)
+	void write_image(const char* file_path, gray::image_t const& image)
 	{
 		int width = static_cast<int>(image.width);
 		int height = static_cast<int>(image.height);
-		int channels = static_cast<int>(RGBA_CHANNELS);
+		int channels = 1;
 		auto const data = image.data;
 
 		auto ext = fs::path(file_path).extension();
@@ -277,22 +361,51 @@ namespace libimage_stb
 	}
 
 
-	static image_t make_image(view_t const& view)
+	static gray::image_t make_image(gray::view_t const& view)
 	{
-		image_t image(view.width, view.height);
+		gray::image_t image(view.width, view.height);
 
-		image.data = (pixel_t*)malloc(sizeof(pixel_t) * view.width * view.height);
-		std::transform(view.cbegin(), view.cend(), image.begin(), [](auto p) { return p; });		
+		image.data = (gray::pixel_t*)malloc(sizeof(gray::pixel_t) * view.width * view.height);
+		std::transform(view.cbegin(), view.cend(), image.begin(), [](auto p) { return p; });
 
 		return image;
 	}
 
 
-	void write_view(const char* file_path, view_t const& view)
+	void write_view(const char* file_path, gray::view_t const& view)
 	{
 		auto image = make_image(view);
 
 		write_image(file_path, image);
+	}
+
+
+	void resize_image(gray::image_t const& img_src, gray::image_t& img_dst)
+	{
+		int channels = 1;
+
+		int width_src = static_cast<int>(img_src.width);
+		int height_src = static_cast<int>(img_src.height);
+		int stride_bytes_src = width_src * channels;
+
+		int width_dst = static_cast<int>(img_dst.width);
+		int height_dst = static_cast<int>(img_dst.height);
+		int stride_bytes_dst = width_dst * channels;
+
+		img_dst.data = (gray::pixel_t*)malloc(sizeof(gray::pixel_t) * img_dst.width * img_dst.height);
+
+		stbir_resize_uint8(
+			(u8*)img_src.data, width_src, height_src, stride_bytes_src,
+			(u8*)img_dst.data, width_dst, height_dst, stride_bytes_dst,
+			channels);
+	}
+
+
+	gray::view_t make_resized_view(gray::image_t const& img_src, gray::image_t& img_dst)
+	{
+		resize_image(img_src, img_dst);
+
+		return make_view(img_dst);
 	}
 }
 
