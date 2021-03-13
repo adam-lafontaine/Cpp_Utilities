@@ -16,12 +16,6 @@
     <Filter Include="Header Files\stb">
       <UniqueIdentifier>{cee17004-d70f-4bc6-8323-1d9fe7f00147}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Header Files\for_each_in_range">
-      <UniqueIdentifier>{92020e4e-80a9-4bc5-9a13-fde8361100bb}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source Files\for_each_in_range">
-      <UniqueIdentifier>{cdf793d1-7300-4f25-9b5a-8c9b4c87119c}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Source Files\stb">
       <UniqueIdentifier>{3170d337-52ce-4cf0-aba6-b8781858d7a3}</UniqueIdentifier>
     </Filter>
@@ -48,15 +42,6 @@
     <ClInclude Include="..\..\libimage\stb\stb_image.h">
       <Filter>Header Files\stb</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\for_each_in_range\for_each_in_range.hpp">
-      <Filter>Header Files\for_each_in_range</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\for_each_in_range\index_range.hpp">
-      <Filter>Header Files\for_each_in_range</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\for_each_in_range\point_range_2d.hpp">
-      <Filter>Header Files\for_each_in_range</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\libimage\stb\libimage_stb.hpp">
       <Filter>Header Files\stb</Filter>
     </ClInclude>
@@ -70,6 +55,9 @@
       <Filter>Header Files\stb</Filter>
     </ClInclude>
     <ClInclude Include="..\..\libimage\stb\libimage_fs.hpp">
+      <Filter>Header Files\stb</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\libimage\stb\libimage_algorithm.hpp">
       <Filter>Header Files\stb</Filter>
     </ClInclude>
   </ItemGroup>
@@ -88,9 +76,6 @@
     </ClCompile>
     <ClCompile Include="..\..\libimage\draw.cpp">
       <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\for_each_in_range\for_each_in_range.cpp">
-      <Filter>Source Files\for_each_in_range</Filter>
     </ClCompile>
     <ClCompile Include="..\..\libimage\stb\libimage_stb.cpp">
       <Filter>Source Files\stb</Filter>

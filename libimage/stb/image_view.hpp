@@ -149,8 +149,8 @@ namespace libimage_stb
 			using iterator_category = std::forward_iterator_tag;
 			using value_type = pixel_t;
 			using difference_type = std::ptrdiff_t;
-			using pointer = const value_type*;
-			using reference = const value_type&;		
+			using pointer = value_type*;
+			using reference = value_type&;		
 
 			explicit iterator() {}
 
@@ -328,8 +328,8 @@ namespace libimage_stb
 				using iterator_category = std::forward_iterator_tag;
 				using value_type = pixel_t;
 				using difference_type = std::ptrdiff_t;
-				using pointer = const value_type*;
-				using reference = const value_type&;
+				using pointer = value_type*;
+				using reference = value_type&;
 
 				explicit iterator() {}
 

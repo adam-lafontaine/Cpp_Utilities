@@ -143,9 +143,6 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="..\..\for_each_in_range\for_each_in_range.hpp" />
-    <ClInclude Include="..\..\for_each_in_range\index_range.hpp" />
-    <ClInclude Include="..\..\for_each_in_range\point_range_2d.hpp" />
     <ClInclude Include="..\..\libimage\algorithm.hpp" />
     <ClInclude Include="..\..\libimage\boost_gil.hpp" />
     <ClInclude Include="..\..\libimage\conversions.hpp" />
@@ -153,6 +150,7 @@
     <ClInclude Include="..\..\libimage\libimage.hpp" />
     <ClInclude Include="..\..\libimage\math.hpp" />
     <ClInclude Include="..\..\libimage\stb\image_view.hpp" />
+    <ClInclude Include="..\..\libimage\stb\libimage_algorithm.hpp" />
     <ClInclude Include="..\..\libimage\stb\libimage_fs.hpp" />
     <ClInclude Include="..\..\libimage\stb\libimage_stb.hpp" />
     <ClInclude Include="..\..\libimage\stb\stb_image.h" />
@@ -160,7 +158,6 @@
     <ClInclude Include="..\..\libimage\stb\stb_image_write.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\for_each_in_range\for_each_in_range.cpp" />
     <ClCompile Include="..\..\libimage\algorithm.cpp" />
     <ClCompile Include="..\..\libimage\draw.cpp" />
     <ClCompile Include="..\..\libimage\libimage.cpp" />
