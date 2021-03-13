@@ -102,10 +102,14 @@ namespace libimage_stb
 
 		class iterator
 		{
-		private:
+		public:
 
 			u32 loc_x = 0;
 			u32 loc_y = 0;
+
+		private:
+
+			
 
 			u32 x_begin = 0;
 			u32 x_end = 0;
@@ -132,7 +136,7 @@ namespace libimage_stb
 				}
 			}
 
-			void next_in_row()
+			/*void next_in_row()
 			{
 				++loc_x;
 			}
@@ -142,7 +146,7 @@ namespace libimage_stb
 				++loc_y;
 			}
 
-			std::function<void()> increment = [&]() { next(); };
+			std::function<void()> increment = [&]() { next(); };*/
 
 		public:
 
@@ -167,27 +171,32 @@ namespace libimage_stb
 				loc_x = x_begin;
 				loc_y = y_begin;
 
-				if (y_begin == y_end)
+				/*if (y_end - y_begin == 1)
 				{
 					increment = [&]() { next_in_row(); };
 				}
-				else if (x_begin == x_end)
+				else if (x_end - x_begin == 1)
 				{
 					increment = [&]() { next_in_column(); };
-				}
+				}*/
 			}
 
 			iterator end()
 			{
-				loc_x = x_end;
-				loc_y = y_end;
+				loc_x = x_end - 1;
+				loc_y = y_end - 1;
+
+				//increment();
+				next();
 
 				return *this;
 			}
 
 			iterator& operator ++ ()
 			{
-				increment();
+				//increment();
+
+				next();
 
 				return *this;
 			}

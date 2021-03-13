@@ -160,18 +160,23 @@ namespace libimage_stb
 
 	static void make_image(view_t const& view, image_t& image_dst)
 	{
+		auto sz = sizeof(pixel_t);
+		unsigned count = 0;
+
+		auto v_begin = view.cbegin();
+		auto v_end = view.cend();
+
+		for (auto it = v_begin; it != v_end; ++it)
+		{
+			auto x = it.loc_x;
+			auto y = it.loc_y;
+			++count;
+		}
+
 		image_dst.width = view.width;
 		image_dst.height = view.height;
 		image_dst.data = (pixel_t*)malloc(sizeof(pixel_t) * view.width * view.height);
-		std::transform(view.cbegin(), view.cend(), image_dst.begin(), [](auto p) { return p; });
-
-		/*auto p = img_dst.begin();
-		for (auto it = view.cbegin(); it != view.cend(); ++it)
-		{
-			auto img = *p;
-			auto v = *it;
-			*p++ = *it;
-		}*/
+		std::transform(view.cbegin(), view.cend(), image_dst.begin(), [&](auto p) { ++count; return p; });
 	}
 
 

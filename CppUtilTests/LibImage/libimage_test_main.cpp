@@ -16,6 +16,8 @@ constexpr auto CADILLAC_PATH = "D:/repos/Cpp_Utilities/CppUtilTests/LibImage/in_
 constexpr auto SRC_IMAGE_PATH = CORVETTE_PATH;
 constexpr auto DST_IMAGE_ROOT = "D:/repos/Cpp_Utilities/CppUtilTests/LibImage/out_files";
 
+constexpr auto RED = "D:/repos/Cpp_Utilities/CppUtilTests/LibImage/in_files/png/red.bmp";
+
 
 void empty_dir(fs::path const& dir);
 void print(img::view_t const& view);
@@ -182,10 +184,23 @@ void basic_tests(fs::path const& out_dir)
 	std::cout << "basic:\n";
 
 	img::image_t image;
-	//auto image = img::read_image_from_file(fs::path(SRC_IMAGE_PATH));
 	img::read_image_from_file(fs::path(SRC_IMAGE_PATH), image);
+
+	img::write_image(image, out_dir / "image.png");
+	img::write_image(image, out_dir / "image.bmp");
+
+	img::image_t red_image;
+	img::read_image_from_file(RED, red_image);
+	auto red_view = img::make_view(red_image);
+	img::write_image(red_image, out_dir / "red_image.png");
+	img::write_view(red_view, out_dir / "red_view.png");
+	
+
 	auto view = img::make_view(image);
 	print(view);
+
+	img::write_view(view, out_dir / "view.png");
+	img::write_view(view, out_dir / "view.bmp");
 
 	auto w = view.width;
 	auto h = view.height;
