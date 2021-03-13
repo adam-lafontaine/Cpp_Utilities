@@ -32,6 +32,14 @@ namespace libimage_stb
 	}
 
 
+	void make_image(image_t& image_dst, u32 width, u32 height)
+	{
+		image_dst.width = width;
+		image_dst.height = height;
+		image_dst.data = (pixel_t*)malloc(sizeof(pixel_t) * width * height);
+	}
+
+
 	view_t make_view(image_t const& img)
 	{
 		view_t view;
@@ -158,15 +166,18 @@ namespace libimage_stb
 	}
 
 
+	
 
 
 	static void make_image(view_t const& view, image_t& image_dst)
 	{
-		image_dst.width = view.width;
-		image_dst.height = view.height;
-		image_dst.data = (pixel_t*)malloc(sizeof(pixel_t) * view.width * view.height);
+		make_image(image_dst, view.width, view.height);
+
 		std::transform(view.cbegin(), view.cend(), image_dst.begin(), [&](auto p) { return p; });
 	}
+
+
+	
 
 
 	void write_view(view_t const& view_src, const char* file_path_dst)
@@ -207,25 +218,29 @@ namespace libimage_stb
 	}
 
 
-	namespace gray
+	//======= GRAYSCALE OVERLOADS ==================
+
+	void read_image_from_file(const char* file_path_src, gray::image_t& image_dst)
 	{
-		void read_image_from_file(const char* file_path_src, image_t& image_dst)
-		{
-			int width = 0;
-			int height = 0;
-			int image_channels = 0;
-			int desired_channels = 1;
+		int width = 0;
+		int height = 0;
+		int image_channels = 0;
+		int desired_channels = 1;
 
-			auto data = (pixel_t*)stbi_load(file_path_src, &width, &height, &image_channels, desired_channels);
+		auto data = (gray::pixel_t*)stbi_load(file_path_src, &width, &height, &image_channels, desired_channels);
 
-			image_dst.data = data;
-			image_dst.width = width;
-			image_dst.height = height;
-		}
+		image_dst.data = data;
+		image_dst.width = width;
+		image_dst.height = height;
 	}
 
 
-	//======= GRAYSCALE OVERLOADS ==================
+	void make_image(gray::image_t& image_dst, u32 width, u32 height)
+	{
+		image_dst.width = width;
+		image_dst.height = height;
+		image_dst.data = (gray::pixel_t*)malloc(sizeof(gray::pixel_t) * width * height);
+	}
 
 
 	gray::view_t make_view(gray::image_t const& img)
@@ -356,9 +371,8 @@ namespace libimage_stb
 
 	static void make_image(gray::view_t const& view_src, gray::image_t& image_dst)
 	{
-		image_dst.width = view_src.width;
-		image_dst.height = view_src.height;
-		image_dst.data = (gray::pixel_t*)malloc(sizeof(gray::pixel_t) * view_src.width * view_src.height);
+		make_image(image_dst, view_src.width, view_src.height);
+		
 		std::transform(view_src.cbegin(), view_src.cend(), image_dst.begin(), [](auto p) { return p; });
 	}
 

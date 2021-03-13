@@ -32,14 +32,11 @@ namespace libimage_stb
 	}
 
 
-	namespace gray
+	inline void read_image_from_file(fs::path const& img_path_src, gray::image_t& image_dst)
 	{
-		inline void read_image_from_file(fs::path const& img_path_src, image_t& image_dst)
-		{
-			auto file_path_str = img_path_src.string();
+		auto file_path_str = img_path_src.string();
 
-			return read_image_from_file(file_path_str.c_str(), image_dst);
-		}
+		return read_image_from_file(file_path_str.c_str(), image_dst);
 	}
 
 

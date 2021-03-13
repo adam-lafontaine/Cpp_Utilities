@@ -14,6 +14,8 @@ namespace libimage_stb
 {
 	void read_image_from_file(const char* img_path_src, image_t& image_dst);
 
+	void make_image(image_t& image_dst, u32 width, u32 height);
+
 	view_t make_view(image_t const& image);
 
 	view_t sub_view(image_t const& image, pixel_range_t const& range);
@@ -37,12 +39,13 @@ namespace libimage_stb
 	view_t make_resized_view(image_t const& image_src, image_t& image_dst);
 
 
-	namespace gray
-	{
-		void read_image_from_file(const char* file_path_src, image_t& image_dst);
-	}	
+	
 
 	//======= GRAYSCALE OVERLOADS ================
+
+	void read_image_from_file(const char* file_path_src, gray::image_t& image_dst);
+
+	void make_image(gray::image_t& image_dst, u32 width, u32 height);
 
 	gray::view_t make_view(gray::image_t const& image);
 
