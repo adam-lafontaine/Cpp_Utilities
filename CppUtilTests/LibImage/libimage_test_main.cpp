@@ -217,9 +217,11 @@ void basic_tests(fs::path const& out_dir)
 
 	auto row_view = img::row_view(view, 2);
 	print(row_view);
+	img::write_view(row_view, out_dir / "row_view.png");
 
 	auto col_view = img::column_view(view, 2);
 	print(col_view);
+	img::write_view(col_view, out_dir / "col_view.png");
 
 
 	img::gray::image_t image_gray;
