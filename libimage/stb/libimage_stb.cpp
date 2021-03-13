@@ -26,6 +26,10 @@ namespace libimage_stb
 
 		auto data = (rgba_pixel*)stbi_load(img_path_src, &width, &height, &image_channels, desired_channels);
 
+		assert(data);
+		assert(width);
+		assert(height);
+
 		image_dst.data = data;
 		image_dst.width = width;
 		image_dst.height = height;
@@ -34,14 +38,23 @@ namespace libimage_stb
 
 	void make_image(image_t& image_dst, u32 width, u32 height)
 	{
+		assert(width);
+		assert(height);
+
 		image_dst.width = width;
 		image_dst.height = height;
 		image_dst.data = (pixel_t*)malloc(sizeof(pixel_t) * width * height);
+
+		assert(image_dst.data);
 	}
 
 
 	view_t make_view(image_t const& img)
 	{
+		assert(img.width);
+		assert(img.height);
+		assert(img.data);
+
 		view_t view;
 
 		view.image_data = img.data;
@@ -59,6 +72,10 @@ namespace libimage_stb
 
 	view_t sub_view(image_t const& image, pixel_range_t const& range)
 	{
+		assert(image.width);
+		assert(image.height);
+		assert(image.data);
+
 		view_t sub_view;
 
 		sub_view.image_data = image.data;
@@ -70,12 +87,24 @@ namespace libimage_stb
 		sub_view.width = range.x_end - range.x_begin;
 		sub_view.height = range.y_end - range.y_begin;
 
+		assert(sub_view.width);
+		assert(sub_view.height);
+
 		return sub_view;
 	}
 
 
 	view_t sub_view(view_t const& view, pixel_range_t const& range)
 	{
+		assert(view.width);
+		assert(view.height);
+		assert(view.image_data);
+
+		assert(range.x_begin >= view.x_begin);
+		assert(range.x_end <= view.x_end);
+		assert(range.y_begin >= view.y_begin);
+		assert(range.y_end <= view.y_end);
+
 		view_t sub_view;
 
 		sub_view.image_data = view.image_data;
@@ -86,6 +115,9 @@ namespace libimage_stb
 		sub_view.y_end = view.y_begin + range.y_end;
 		sub_view.width = range.x_end - range.x_begin;
 		sub_view.height = range.y_end - range.y_begin;
+
+		assert(sub_view.width);
+		assert(sub_view.height);
 
 		return sub_view;
 	}
@@ -141,32 +173,37 @@ namespace libimage_stb
 
 	void write_image(image_t const& image_src, const char* file_path_dst)
 	{
+		assert(image_src.width);
+		assert(image_src.height);
+		assert(image_src.data);
+
 		int width = static_cast<int>(image_src.width);
 		int height = static_cast<int>(image_src.height);
 		int channels = static_cast<int>(RGBA_CHANNELS);
 		auto const data = image_src.data;
 
+		int result = 0;
+
 		auto ext = fs::path(file_path_dst).extension();
 
 		if (ext == ".bmp" || ext == ".BMP")
 		{
-			stbi_write_bmp(file_path_dst, width, height, channels, data);
+			result = stbi_write_bmp(file_path_dst, width, height, channels, data);
 		}
 		else if (ext == ".png" || ext == ".PNG")
 		{
 			int stride_in_bytes = width * channels;
 
-			stbi_write_png(file_path_dst, width, height, channels, data, stride_in_bytes);
+			result = stbi_write_png(file_path_dst, width, height, channels, data, stride_in_bytes);
 		}
 		else if (ext == ".jpg" || ext == ".jpeg" || ext == ".JPG" || ext == ".JPEG")
 		{
 			// TODO: quality?
 			// stbi_write_jpg(char const *filename, int w, int h, int comp, const void *data, int quality);
 		}
+
+		assert(result);
 	}
-
-
-	
 
 
 	static void make_image(view_t const& view, image_t& image_dst)
@@ -175,9 +212,6 @@ namespace libimage_stb
 
 		std::transform(view.cbegin(), view.cend(), image_dst.begin(), [&](auto p) { return p; });
 	}
-
-
-	
 
 
 	void write_view(view_t const& view_src, const char* file_path_dst)
@@ -191,6 +225,12 @@ namespace libimage_stb
 
 	void resize_image(image_t const& image_src, image_t& image_dst)
 	{
+		assert(image_src.width);
+		assert(image_src.height);
+		assert(image_src.data);
+		assert(image_dst.width);
+		assert(image_dst.height);
+
 		int channels = static_cast<int>(RGBA_CHANNELS);
 
 		int width_src = static_cast<int>(image_src.width);
@@ -201,12 +241,16 @@ namespace libimage_stb
 		int height_dst = static_cast<int>(image_dst.height);
 		int stride_bytes_dst = width_dst * channels;
 
+		int result = 0;
+
 		image_dst.data = (pixel_t*)malloc(sizeof(pixel_t) * image_dst.width * image_dst.height);
 
-		stbir_resize_uint8(
+		result = stbir_resize_uint8(
 			(u8*)image_src.data, width_src, height_src, stride_bytes_src,
 			(u8*)image_dst.data, width_dst, height_dst, stride_bytes_dst,
 			channels);
+
+		assert(result);
 	}
 
 
@@ -229,6 +273,10 @@ namespace libimage_stb
 
 		auto data = (gray::pixel_t*)stbi_load(file_path_src, &width, &height, &image_channels, desired_channels);
 
+		assert(data);
+		assert(width);
+		assert(height);
+
 		image_dst.data = data;
 		image_dst.width = width;
 		image_dst.height = height;
@@ -237,14 +285,23 @@ namespace libimage_stb
 
 	void make_image(gray::image_t& image_dst, u32 width, u32 height)
 	{
+		assert(width);
+		assert(height);
+
 		image_dst.width = width;
 		image_dst.height = height;
 		image_dst.data = (gray::pixel_t*)malloc(sizeof(gray::pixel_t) * width * height);
+
+		assert(image_dst.data);
 	}
 
 
 	gray::view_t make_view(gray::image_t const& img)
 	{
+		assert(img.width);
+		assert(img.height);
+		assert(img.data);
+
 		gray::view_t view;
 
 		view.image_data = img.data;
@@ -262,6 +319,10 @@ namespace libimage_stb
 
 	gray::view_t sub_view(gray::image_t const& image, pixel_range_t const& range)
 	{
+		assert(image.width);
+		assert(image.height);
+		assert(image.data);
+
 		gray::view_t sub_view;
 
 		sub_view.image_data = image.data;
@@ -273,12 +334,24 @@ namespace libimage_stb
 		sub_view.width = range.x_end - range.x_begin;
 		sub_view.height = range.y_end - range.y_begin;
 
+		assert(sub_view.width);
+		assert(sub_view.height);
+
 		return sub_view;
 	}
 
 
 	gray::view_t sub_view(gray::view_t const& view, pixel_range_t const& range)
 	{
+		assert(view.width);
+		assert(view.height);
+		assert(view.image_data);
+
+		assert(range.x_begin >= view.x_begin);
+		assert(range.x_end <= view.x_end);
+		assert(range.y_begin >= view.y_begin);
+		assert(range.y_end <= view.y_end);
+
 		gray::view_t sub_view;
 
 		sub_view.image_data = view.image_data;
@@ -289,6 +362,9 @@ namespace libimage_stb
 		sub_view.y_end = view.y_begin + range.y_end;
 		sub_view.width = range.x_end - range.x_begin;
 		sub_view.height = range.y_end - range.y_begin;
+
+		assert(sub_view.width);
+		assert(sub_view.height);
 
 		return sub_view;
 	}
@@ -344,28 +420,36 @@ namespace libimage_stb
 
 	void write_image(gray::image_t const& image_src, const char* file_path_dst)
 	{
+		assert(image_src.width);
+		assert(image_src.height);
+		assert(image_src.data);
+
 		int width = static_cast<int>(image_src.width);
 		int height = static_cast<int>(image_src.height);
 		int channels = 1;
 		auto const data = image_src.data;
 
+		int result = 0;
+
 		auto ext = fs::path(file_path_dst).extension();
 
 		if (ext == ".bmp" || ext == ".BMP")
 		{
-			stbi_write_bmp(file_path_dst, width, height, channels, data);
+			result = stbi_write_bmp(file_path_dst, width, height, channels, data);
 		}
 		else if (ext == ".png" || ext == ".PNG")
 		{
 			int stride_in_bytes = width * channels;
 
-			stbi_write_png(file_path_dst, width, height, channels, data, stride_in_bytes);
+			result = stbi_write_png(file_path_dst, width, height, channels, data, stride_in_bytes);
 		}
 		else if (ext == ".jpg" || ext == ".jpeg" || ext == ".JPG" || ext == ".JPEG")
 		{
 			// TODO: quality?
 			// stbi_write_jpg(char const *filename, int w, int h, int comp, const void *data, int quality);
 		}
+
+		assert(result);
 	}
 
 
@@ -388,6 +472,12 @@ namespace libimage_stb
 
 	void resize_image(gray::image_t const& image_src, gray::image_t& image_dst)
 	{
+		assert(image_src.width);
+		assert(image_src.height);
+		assert(image_src.data);
+		assert(image_dst.width);
+		assert(image_dst.height);
+
 		int channels = 1;
 
 		int width_src = static_cast<int>(image_src.width);
@@ -398,12 +488,16 @@ namespace libimage_stb
 		int height_dst = static_cast<int>(image_dst.height);
 		int stride_bytes_dst = width_dst * channels;
 
+		int result = 0;
+
 		image_dst.data = (gray::pixel_t*)malloc(sizeof(gray::pixel_t) * image_dst.width * image_dst.height);
 
-		stbir_resize_uint8(
+		result = stbir_resize_uint8(
 			(u8*)image_src.data, width_src, height_src, stride_bytes_src,
 			(u8*)image_dst.data, width_dst, height_dst, stride_bytes_dst,
 			channels);
+
+		assert(result);
 	}
 
 

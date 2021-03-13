@@ -2,6 +2,7 @@
 #include <cstdint>
 #include <functional>
 #include <iterator>
+#include <cassert>
 
 using u8 = uint8_t;
 using u32 = uint32_t;
@@ -23,22 +24,19 @@ namespace libimage_stb
 
 
 	// color pixel
-	typedef struct rgba_pixel_t
+	typedef union rgba_pixel_t
 	{
-		union
+		struct
 		{
-			struct
-			{
-				u8 red;
-				u8 green;
-				u8 blue;
-				u8 alpha;
-			};
-
-			u8 channels[RGBA_CHANNELS];
-
-			u32 value;
+			u8 red;
+			u8 green;
+			u8 blue;
+			u8 alpha;
 		};
+
+		u8 channels[RGBA_CHANNELS];
+
+		u32 value;
 
 	}rgba_pixel;
 
@@ -88,12 +86,20 @@ namespace libimage_stb
 
 		pixel_t* row_begin(u32 y) const
 		{
+			assert(y < height);
+
 			auto offset = (y_begin + y) * image_width + x_begin;
-			return image_data + (u64)offset;
+
+			auto ptr = image_data + static_cast<u64>(offset);
+			assert(ptr);
+
+			return ptr;
 		}
 
 		pixel_t* xy_at(u32 x, u32 y) const
 		{
+			assert(y < height);
+			assert(x < width);
 			return row_begin(y) + x;
 		}
 
@@ -117,9 +123,16 @@ namespace libimage_stb
 
 			pixel_t* loc_ptr() const
 			{
-				auto offset = loc_y * image_width + loc_x;
+				assert(loc_x >= x_begin);
+				assert(loc_x < x_end);
+				assert(loc_y >= y_begin);
+				assert(loc_y < y_end);
 
-				return image_data + static_cast<u64>(offset);
+				auto offset = loc_y * image_width + loc_x;
+				auto ptr = image_data + static_cast<u64>(offset);
+				assert(ptr);
+
+				return ptr;
 			}
 
 			void next()
@@ -130,6 +143,11 @@ namespace libimage_stb
 					loc_x = x_begin;
 					++loc_y;
 				}
+
+				assert(loc_x >= x_begin);
+				assert(loc_x <= x_end);
+				assert(loc_y >= y_begin);
+				assert(loc_y <= y_end);
 			}
 
 			/*void next_in_row()
@@ -296,9 +314,16 @@ namespace libimage_stb
 
 				pixel_t* loc_ptr() const
 				{
-					auto offset = loc_y * image_width + loc_x;
+					assert(loc_x >= x_begin);
+					assert(loc_x < x_end);
+					assert(loc_y >= y_begin);
+					assert(loc_y < y_end);
 
-					return image_data + static_cast<u64>(offset);
+					auto offset = loc_y * image_width + loc_x;
+					auto ptr = image_data + static_cast<u64>(offset);
+					assert(ptr);
+
+					return ptr;
 				}
 
 				void next()
@@ -309,6 +334,11 @@ namespace libimage_stb
 						loc_x = x_begin;
 						++loc_y;
 					}
+
+					assert(loc_x >= x_begin);
+					assert(loc_x <= x_end);
+					assert(loc_y >= y_begin);
+					assert(loc_y <= y_end);
 				}
 
 				/*void next_in_row()

@@ -34,12 +34,20 @@ namespace libimage_stb
 
 		inline void transform_pixels(view_t& src, view_t& dst, tf_1src_func_t const& func)
 		{
+			assert(dst.width >= src.width);
+			assert(dst.height >= src.height);
+
 			std::transform(src.begin(), src.end(), dst.begin(), func);
 		}
 
 
 		inline void transform_pixels(view_t& src1, view_t& src2, view_t& dst, tf_2src_func_t const& func)
 		{
+			assert(src1.width == src2.width);
+			assert(src1.height == src2.height);
+			assert(dst.width >= src1.width);
+			assert(dst.height >= src1.height);
+
 			std::transform(src1.begin(), src1.end(), src2.begin(), dst.begin(), func);
 		}
 	}
@@ -63,12 +71,20 @@ namespace libimage_stb
 		
 		inline void transform_pixels(view_t& src, view_t& dst, tf_1src_func_t const& func)
 		{
+			assert(dst.width >= src.width);
+			assert(dst.height >= src.height);
+
 			std::transform(std::execution::par, src.begin(), src.end(), dst.begin(), func);
 		}
 
 
 		inline void transform_pixels(view_t& src1, view_t& src2, view_t& dst, tf_2src_func_t const& func)
 		{
+			assert(src1.width == src2.width);
+			assert(src1.height == src2.height);
+			assert(dst.width >= src1.width);
+			assert(dst.height >= src1.height);
+
 			std::transform(std::execution::par, src1.begin(), src1.end(), src2.begin(), dst.begin(), func);
 		}
 	}
@@ -102,12 +118,20 @@ namespace libimage_stb
 
 		inline void transform_pixels(gray::view_t& src, gray::view_t& dst, gray::tf_1src_func_t const& func)
 		{
+			assert(dst.width >= src.width);
+			assert(dst.height >= src.height);
+
 			std::transform(src.begin(), src.end(), dst.begin(), func);
 		}
 
 
 		inline void transform_pixels(gray::view_t& src1, gray::view_t& src2, gray::view_t& dst, gray::tf_2src_func_t const& func)
 		{
+			assert(src1.width == src2.width);
+			assert(src1.height == src2.height);
+			assert(dst.width >= src1.width);
+			assert(dst.height >= src1.height);
+
 			std::transform(src1.begin(), src1.end(), src2.begin(), dst.begin(), func);
 		}
 	}
@@ -131,12 +155,20 @@ namespace libimage_stb
 
 		inline void transform_pixels(gray::view_t& src, gray::view_t& dst, gray::tf_1src_func_t const& func)
 		{
+			assert(dst.width >= src.width);
+			assert(dst.height >= src.height);
+
 			std::transform(std::execution::par, src.begin(), src.end(), dst.begin(), func);
 		}
 
 
 		inline void transform_pixels(gray::view_t& src1, gray::view_t& src2, gray::view_t& dst, gray::tf_2src_func_t const& func)
 		{
+			assert(src1.width == src2.width);
+			assert(src1.height == src2.height);
+			assert(dst.width >= src1.width);
+			assert(dst.height >= src1.height);
+
 			std::transform(std::execution::par, src1.begin(), src1.end(), src2.begin(), dst.begin(), func);
 		}
 	}
