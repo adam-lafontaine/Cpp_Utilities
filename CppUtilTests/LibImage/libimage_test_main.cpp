@@ -215,22 +215,22 @@ void basic_tests(fs::path const& out_dir)
 	print(sub_view);
 	img::write_view(sub_view, out_dir / "sub.png");
 
-	auto row_view = img::row_view(view, 2);
+	auto row_view = img::row_view(view, h / 2);
 	print(row_view);
-	img::write_view(row_view, out_dir / "row_view.png");
+	img::write_view(row_view, out_dir / "row_view.bmp");
 
-	auto col_view = img::column_view(view, 2);
+	auto col_view = img::column_view(view, w / 2);
 	print(col_view);
-	img::write_view(col_view, out_dir / "col_view.png");
+	img::write_view(col_view, out_dir / "col_view.bmp");
 
 
 	img::gray::image_t image_gray;
 	img::gray::read_image_from_file(fs::path(SRC_IMAGE_PATH), image_gray);
+	img::write_image(image_gray, out_dir / "image_gray.bmp");
+
 	auto view_gray = img::make_view(image_gray);
 	print(view_gray);
-
-	w = view_gray.width;
-	h = view_gray.height;
+	img::write_view(view_gray, out_dir / "view_gray.bmp");
 
 	/*auto resized_image_gray = img::gray::image_t(h, w);
 	auto resized_view_gray = img::make_resized_view(image_gray, resized_image_gray);
@@ -239,13 +239,15 @@ void basic_tests(fs::path const& out_dir)
 
 	auto sub_view_gray = img::sub_view(view_gray, range);
 	print(sub_view_gray);
-	img::write_view(sub_view_gray, out_dir / "sub_gray.png");
+	img::write_view(sub_view_gray, out_dir / "sub_view_gray.png");
 
-	auto row_view_gray = img::row_view(view, 2);
+	auto row_view_gray = img::row_view(view_gray, view_gray.height / 2);
 	print(row_view_gray);
+	img::write_view(row_view_gray, out_dir / "row_view_gray.png");
 
-	auto col_view_gray = img::column_view(view, 2);
+	auto col_view_gray = img::column_view(view_gray, view_gray.width / 2);
 	print(col_view_gray);
+	img::write_view(col_view_gray, out_dir / "col_view_gray.png");
 
 	std::cout << '\n';
 }

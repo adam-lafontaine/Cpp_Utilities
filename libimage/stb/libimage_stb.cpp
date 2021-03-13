@@ -158,25 +158,14 @@ namespace libimage_stb
 	}
 
 
+
+
 	static void make_image(view_t const& view, image_t& image_dst)
 	{
-		auto sz = sizeof(pixel_t);
-		unsigned count = 0;
-
-		auto v_begin = view.cbegin();
-		auto v_end = view.cend();
-
-		for (auto it = v_begin; it != v_end; ++it)
-		{
-			auto x = it.loc_x;
-			auto y = it.loc_y;
-			++count;
-		}
-
 		image_dst.width = view.width;
 		image_dst.height = view.height;
 		image_dst.data = (pixel_t*)malloc(sizeof(pixel_t) * view.width * view.height);
-		std::transform(view.cbegin(), view.cend(), image_dst.begin(), [&](auto p) { ++count; return p; });
+		std::transform(view.cbegin(), view.cend(), image_dst.begin(), [&](auto p) { return p; });
 	}
 
 
@@ -281,8 +270,8 @@ namespace libimage_stb
 		sub_view.image_width = view.image_width;
 		sub_view.x_begin = view.x_begin + range.x_begin;
 		sub_view.y_begin = view.y_begin + range.y_begin;
-		sub_view.x_end = view.x_end + range.x_end;
-		sub_view.y_end = view.y_end + range.y_end;
+		sub_view.x_end = view.x_begin + range.x_end;
+		sub_view.y_end = view.y_begin + range.y_end;
 		sub_view.width = range.x_end - range.x_begin;
 		sub_view.height = range.y_end - range.y_begin;
 
@@ -296,7 +285,7 @@ namespace libimage_stb
 		range.x_begin = 0;
 		range.x_end = image.width;
 		range.y_begin = y;
-		range.y_end = y;
+		range.y_end = y + 1;
 
 		return sub_view(image, range);
 	}
@@ -308,7 +297,7 @@ namespace libimage_stb
 		range.x_begin = 0;
 		range.x_end = view.width;
 		range.y_begin = y;
-		range.y_end = y;
+		range.y_end = y + 1;
 
 		return sub_view(view, range);
 	}
@@ -318,7 +307,7 @@ namespace libimage_stb
 	{
 		pixel_range_t range;
 		range.x_begin = x;
-		range.x_end = x;
+		range.x_end = x + 1;
 		range.y_begin = 0;
 		range.y_end = image.height;
 
@@ -330,7 +319,7 @@ namespace libimage_stb
 	{
 		pixel_range_t range;
 		range.x_begin = x;
-		range.x_end = x;
+		range.x_end = x + 1;
 		range.y_begin = 0;
 		range.y_end = view.height;
 
@@ -365,11 +354,11 @@ namespace libimage_stb
 	}
 
 
-	static void make_image(gray::view_t const& view_src, gray::image_t image_dst)
+	static void make_image(gray::view_t const& view_src, gray::image_t& image_dst)
 	{
 		image_dst.width = view_src.width;
 		image_dst.height = view_src.height;
-		image_dst.data = (gray::pixel_t*)malloc(sizeof(pixel_t) * view_src.width * view_src.height);
+		image_dst.data = (gray::pixel_t*)malloc(sizeof(gray::pixel_t) * view_src.width * view_src.height);
 		std::transform(view_src.cbegin(), view_src.cend(), image_dst.begin(), [](auto p) { return p; });
 	}
 

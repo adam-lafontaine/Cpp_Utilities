@@ -102,14 +102,10 @@ namespace libimage_stb
 
 		class iterator
 		{
-		public:
-
-			u32 loc_x = 0;
-			u32 loc_y = 0;
-
 		private:
 
-			
+			u32 loc_x = 0;
+			u32 loc_y = 0;			
 
 			u32 x_begin = 0;
 			u32 x_end = 0;
@@ -121,7 +117,7 @@ namespace libimage_stb
 
 			pixel_t* loc_ptr() const
 			{
-				auto offset = (y_begin + loc_y) * image_width + x_begin + loc_x;
+				auto offset = loc_y * image_width + loc_x;
 
 				return image_data + static_cast<u64>(offset);
 			}
@@ -407,7 +403,7 @@ namespace libimage_stb
 
 				pixel_t* loc_ptr() const
 				{
-					auto offset = (y_begin + loc_y) * image_width + x_begin + loc_x;
+					auto offset = loc_y * image_width + loc_x;
 
 					return image_data + static_cast<u64>(offset);
 				}
