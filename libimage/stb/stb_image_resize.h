@@ -1,3 +1,9 @@
+/*
+
+March 13, 2021: Warnings removed by Adam Lafontaine
+
+*/
+
 /* stb_image_resize - v0.96 - public domain image resizing
    by Jorge L Rodriguez (@VinoBS) - 2014
    http://github.com/nothings/stb

@@ -397,7 +397,8 @@ static void stbiw__putc(stbi__write_context *s, unsigned char c)
 
 static void stbiw__write1(stbi__write_context *s, unsigned char a)
 {
-   if (s->buf_used + 1 > sizeof(s->buffer))
+   //if (s->buf_used + 1 > sizeof(s->buffer))
+   if ((size_t)(s->buf_used + 1) > sizeof(s->buffer))
       stbiw__write_flush(s);
    s->buffer[s->buf_used++] = a;
 }
