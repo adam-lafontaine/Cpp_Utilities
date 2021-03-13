@@ -115,6 +115,12 @@ namespace libimage_stb
 			std::for_each(view.begin(), view.end(), func);
 		}
 
+		template<typename F>
+		inline void for_each_pixel(gray::view_t const& view, F const& func)
+		{
+			std::for_each(view.cbegin(), view.cend(), func);
+		}
+
 
 		inline void transform_pixels(gray::view_t& src, gray::view_t& dst, gray::tf_1src_func_t const& func)
 		{

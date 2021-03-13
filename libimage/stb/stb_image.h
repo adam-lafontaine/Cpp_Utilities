@@ -1025,21 +1025,21 @@ static void *stbi__malloc_mad2(int a, int b, int add)
 {
    if (!stbi__mad2sizes_valid(a, b, add)) return NULL;
    //return stbi__malloc(a*b + add);
-   return stbi__malloc((size_t)(a*b + add));
+   return stbi__malloc(((size_t)a*b + add));
 }
 #endif
 
 static void *stbi__malloc_mad3(int a, int b, int c, int add)
 {
    if (!stbi__mad3sizes_valid(a, b, c, add)) return NULL;
-   return stbi__malloc(a*b*c + add);
+   return stbi__malloc((size_t)a*b*c + add);
 }
 
 #if !defined(STBI_NO_LINEAR) || !defined(STBI_NO_HDR)
 static void *stbi__malloc_mad4(int a, int b, int c, int d, int add)
 {
    if (!stbi__mad4sizes_valid(a, b, c, d, add)) return NULL;
-   return stbi__malloc(a*b*c*d + add);
+   return stbi__malloc((size_t)a*b*c*d + add);
 }
 #endif
 

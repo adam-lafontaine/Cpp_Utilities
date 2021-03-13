@@ -1677,7 +1677,8 @@ static void stbir__decode_and_resample_downsample(stbir__info* stbir_info, int n
     // Decode the nth scanline from the source image into the decode buffer.
     stbir__decode_scanline(stbir_info, n);
 
-    memset(stbir_info->horizontal_buffer, 0, stbir_info->output_w * stbir_info->channels * sizeof(float));
+    //memset(stbir_info->horizontal_buffer, 0, stbir_info->output_w * stbir_info->channels * sizeof(float));
+    memset(stbir_info->horizontal_buffer, 0, (size_t)stbir_info->output_w * stbir_info->channels * sizeof(float));
 
     // Now resample it into the horizontal buffer.
     if (stbir__use_width_upsampling(stbir_info))
