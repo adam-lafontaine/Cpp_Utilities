@@ -1,4 +1,4 @@
-#pragma on
+#pragma once
 #include <cstdint>
 #include <functional>
 #include <iterator>
@@ -54,8 +54,6 @@ namespace libimage_stb
 		u32 height = 0;
 
 		pixel_t* data = 0;
-
-		rgba_image_t(u32 width, u32 height) : width(width), height(height) {}
 
 		~rgba_image_t()
 		{
@@ -340,8 +338,6 @@ namespace libimage_stb
 			u32 height = 0;
 
 			pixel_t* data = 0;
-
-			image_t(u32 width, u32 height) : width(width), height(height) {}
 
 			~image_t()
 			{

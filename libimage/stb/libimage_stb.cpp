@@ -17,21 +17,22 @@ namespace fs = std::filesystem;
 
 namespace libimage_stb
 {
-	image_t read_image_from_file(const char* img_path)
+	void read_image_from_file(const char* img_path_src, image_t& image_dst)
 	{
 		int width = 0;
 		int height = 0;
 		int image_channels = 0;
 		int desired_channels = 4;
 
-		image_t image(width, height);
-		image.data = (rgba_pixel*)stbi_load(img_path, &width, &height, &image_channels, desired_channels);
+		auto data = (rgba_pixel*)stbi_load(img_path_src, &width, &height, &image_channels, desired_channels);
 
-		return image;
+		image_dst.data = data;
+		image_dst.width = width;
+		image_dst.height = height;
 	}
 
 
-	view_t make_view(image_t& img)
+	view_t make_view(image_t const& img)
 	{
 		view_t view;
 
@@ -48,7 +49,7 @@ namespace libimage_stb
 	}
 
 
-	view_t sub_view(image_t& image, pixel_range_t const& range)
+	view_t sub_view(image_t const& image, pixel_range_t const& range)
 	{
 		view_t sub_view;
 
@@ -82,7 +83,7 @@ namespace libimage_stb
 	}
 
 
-	view_t row_view(image_t& image, u32 y)
+	view_t row_view(image_t const& image, u32 y)
 	{
 		pixel_range_t range;
 		range.x_begin = 0;
@@ -94,7 +95,7 @@ namespace libimage_stb
 	}
 
 
-	view_t row_view(view_t& view, u32 y)
+	view_t row_view(view_t const& view, u32 y)
 	{
 		pixel_range_t range;
 		range.x_begin = 0;
@@ -106,7 +107,7 @@ namespace libimage_stb
 	}
 
 
-	view_t column_view(image_t& image, u32 x)
+	view_t column_view(image_t const& image, u32 x)
 	{
 		pixel_range_t range;
 		range.x_begin = x;
@@ -118,7 +119,7 @@ namespace libimage_stb
 	}
 
 
-	view_t column_view(view_t& view, u32 x)
+	view_t column_view(view_t const& view, u32 x)
 	{
 		pixel_range_t range;
 		range.x_begin = x;
@@ -130,24 +131,24 @@ namespace libimage_stb
 	}
 
 
-	void write_image(const char* file_path, image_t const& image)
+	void write_image(image_t const& image_src, const char* file_path_dst)
 	{
-		int width = static_cast<int>(image.width);
-		int height = static_cast<int>(image.height);
+		int width = static_cast<int>(image_src.width);
+		int height = static_cast<int>(image_src.height);
 		int channels = static_cast<int>(RGBA_CHANNELS);
-		auto const data = image.data;
+		auto const data = image_src.data;
 
-		auto ext = fs::path(file_path).extension();
+		auto ext = fs::path(file_path_dst).extension();
 
 		if (ext == ".bmp" || ext == ".BMP")
 		{
-			stbi_write_bmp(file_path, width, height, channels, data);
+			stbi_write_bmp(file_path_dst, width, height, channels, data);
 		}
 		else if (ext == ".png" || ext == ".PNG")
 		{
 			int stride_in_bytes = width * channels;
 
-			stbi_write_png(file_path, width, height, channels, data, stride_in_bytes);
+			stbi_write_png(file_path_dst, width, height, channels, data, stride_in_bytes);
 		}
 		else if (ext == ".jpg" || ext == ".jpeg" || ext == ".JPG" || ext == ".JPEG")
 		{
@@ -157,50 +158,49 @@ namespace libimage_stb
 	}
 
 
-	static image_t make_image(view_t const& view)
+	static void make_image(view_t const& view, image_t& image_dst)
 	{
-		image_t image(view.width, view.height);
+		image_dst.width = view.width;
+		image_dst.height = view.height;
+		image_dst.data = (pixel_t*)malloc(sizeof(pixel_t) * view.width * view.height);
+		std::transform(view.cbegin(), view.cend(), image_dst.begin(), [](auto p) { return p; });
 
-		image.data = (pixel_t*)malloc(sizeof(pixel_t) * view.width * view.height);
-		//std::transform(view.cbegin(), view.cend(), image.begin(), [](auto p) { return p; });
-
-		auto p = image.begin();
+		/*auto p = img_dst.begin();
 		for (auto it = view.cbegin(); it != view.cend(); ++it)
 		{
 			auto img = *p;
 			auto v = *it;
 			*p++ = *it;
-		}
-
-		return image;
+		}*/
 	}
 
 
-	void write_view(const char* file_path, view_t const& view)
+	void write_view(view_t const& view_src, const char* file_path_dst)
 	{
-		auto image = make_image(view);
+		image_t image;
+		make_image(view_src, image);
 
-		write_image(file_path, image);
+		write_image(image, file_path_dst);
 	}
 
 
-	void resize_image(image_t const& img_src, image_t& img_dst)
+	void resize_image(image_t const& image_src, image_t& image_dst)
 	{
 		int channels = static_cast<int>(RGBA_CHANNELS);
 
-		int width_src = static_cast<int>(img_src.width);
-		int height_src = static_cast<int>(img_src.height);		
+		int width_src = static_cast<int>(image_src.width);
+		int height_src = static_cast<int>(image_src.height);		
 		int stride_bytes_src = width_src * channels;
 
-		int width_dst = static_cast<int>(img_dst.width);
-		int height_dst = static_cast<int>(img_dst.height);
+		int width_dst = static_cast<int>(image_dst.width);
+		int height_dst = static_cast<int>(image_dst.height);
 		int stride_bytes_dst = width_dst * channels;
 
-		img_dst.data = (pixel_t*)malloc(sizeof(pixel_t) * img_dst.width * img_dst.height);
+		image_dst.data = (pixel_t*)malloc(sizeof(pixel_t) * image_dst.width * image_dst.height);
 
 		stbir_resize_uint8(
-			(u8*)img_src.data, width_src, height_src, stride_bytes_src,
-			(u8*)img_dst.data, width_dst, height_dst, stride_bytes_dst,
+			(u8*)image_src.data, width_src, height_src, stride_bytes_src,
+			(u8*)image_dst.data, width_dst, height_dst, stride_bytes_dst,
 			channels);
 	}
 
@@ -215,19 +215,18 @@ namespace libimage_stb
 
 	namespace gray
 	{
-		image_t read_image_from_file(const char* img_path)
+		void read_image_from_file(const char* file_path_src, image_t& image_dst)
 		{
 			int width = 0;
 			int height = 0;
 			int image_channels = 0;
 			int desired_channels = 1;
 
-			auto data = (pixel_t*)stbi_load(img_path, &width, &height, &image_channels, desired_channels);
+			auto data = (pixel_t*)stbi_load(file_path_src, &width, &height, &image_channels, desired_channels);
 
-			image_t image(width, height);
-			image.data = data;
-
-			return image;
+			image_dst.data = data;
+			image_dst.width = width;
+			image_dst.height = height;
 		}
 	}
 
@@ -235,7 +234,7 @@ namespace libimage_stb
 	//======= GRAYSCALE OVERLOADS ==================
 
 
-	gray::view_t make_view(gray::image_t& img)
+	gray::view_t make_view(gray::image_t const& img)
 	{
 		gray::view_t view;
 
@@ -252,7 +251,7 @@ namespace libimage_stb
 	}
 
 
-	gray::view_t sub_view(gray::image_t& image, pixel_range_t const& range)
+	gray::view_t sub_view(gray::image_t const& image, pixel_range_t const& range)
 	{
 		gray::view_t sub_view;
 
@@ -286,7 +285,7 @@ namespace libimage_stb
 	}
 
 
-	gray::view_t row_view(gray::image_t& image, u32 y)
+	gray::view_t row_view(gray::image_t const& image, u32 y)
 	{
 		pixel_range_t range;
 		range.x_begin = 0;
@@ -298,7 +297,7 @@ namespace libimage_stb
 	}
 
 
-	gray::view_t row_view(gray::view_t& view, u32 y)
+	gray::view_t row_view(gray::view_t const& view, u32 y)
 	{
 		pixel_range_t range;
 		range.x_begin = 0;
@@ -310,7 +309,7 @@ namespace libimage_stb
 	}
 
 
-	gray::view_t column_view(gray::image_t& image, u32 x)
+	gray::view_t column_view(gray::image_t const& image, u32 x)
 	{
 		pixel_range_t range;
 		range.x_begin = x;
@@ -322,7 +321,7 @@ namespace libimage_stb
 	}
 
 
-	gray::view_t column_view(gray::view_t& view, u32 x)
+	gray::view_t column_view(gray::view_t const& view, u32 x)
 	{
 		pixel_range_t range;
 		range.x_begin = x;
@@ -334,24 +333,24 @@ namespace libimage_stb
 	}
 
 
-	void write_image(const char* file_path, gray::image_t const& image)
+	void write_image(gray::image_t const& image_src, const char* file_path_dst)
 	{
-		int width = static_cast<int>(image.width);
-		int height = static_cast<int>(image.height);
+		int width = static_cast<int>(image_src.width);
+		int height = static_cast<int>(image_src.height);
 		int channels = 1;
-		auto const data = image.data;
+		auto const data = image_src.data;
 
-		auto ext = fs::path(file_path).extension();
+		auto ext = fs::path(file_path_dst).extension();
 
 		if (ext == ".bmp" || ext == ".BMP")
 		{
-			stbi_write_bmp(file_path, width, height, channels, data);
+			stbi_write_bmp(file_path_dst, width, height, channels, data);
 		}
 		else if (ext == ".png" || ext == ".PNG")
 		{
 			int stride_in_bytes = width * channels;
 
-			stbi_write_png(file_path, width, height, channels, data, stride_in_bytes);
+			stbi_write_png(file_path_dst, width, height, channels, data, stride_in_bytes);
 		}
 		else if (ext == ".jpg" || ext == ".jpeg" || ext == ".JPG" || ext == ".JPEG")
 		{
@@ -361,51 +360,50 @@ namespace libimage_stb
 	}
 
 
-	static gray::image_t make_image(gray::view_t const& view)
+	static void make_image(gray::view_t const& view_src, gray::image_t image_dst)
 	{
-		gray::image_t image(view.width, view.height);
-
-		image.data = (gray::pixel_t*)malloc(sizeof(gray::pixel_t) * view.width * view.height);
-		std::transform(view.cbegin(), view.cend(), image.begin(), [](auto p) { return p; });
-
-		return image;
+		image_dst.width = view_src.width;
+		image_dst.height = view_src.height;
+		image_dst.data = (gray::pixel_t*)malloc(sizeof(pixel_t) * view_src.width * view_src.height);
+		std::transform(view_src.cbegin(), view_src.cend(), image_dst.begin(), [](auto p) { return p; });
 	}
 
 
-	void write_view(const char* file_path, gray::view_t const& view)
+	void write_view(gray::view_t const& view_src, const char* file_path_dst)
 	{
-		auto image = make_image(view);
+		gray::image_t image;
+		make_image(view_src, image);
 
-		write_image(file_path, image);
+		write_image(image, file_path_dst);
 	}
 
 
-	void resize_image(gray::image_t const& img_src, gray::image_t& img_dst)
+	void resize_image(gray::image_t const& image_src, gray::image_t& image_dst)
 	{
 		int channels = 1;
 
-		int width_src = static_cast<int>(img_src.width);
-		int height_src = static_cast<int>(img_src.height);
+		int width_src = static_cast<int>(image_src.width);
+		int height_src = static_cast<int>(image_src.height);
 		int stride_bytes_src = width_src * channels;
 
-		int width_dst = static_cast<int>(img_dst.width);
-		int height_dst = static_cast<int>(img_dst.height);
+		int width_dst = static_cast<int>(image_dst.width);
+		int height_dst = static_cast<int>(image_dst.height);
 		int stride_bytes_dst = width_dst * channels;
 
-		img_dst.data = (gray::pixel_t*)malloc(sizeof(gray::pixel_t) * img_dst.width * img_dst.height);
+		image_dst.data = (gray::pixel_t*)malloc(sizeof(gray::pixel_t) * image_dst.width * image_dst.height);
 
 		stbir_resize_uint8(
-			(u8*)img_src.data, width_src, height_src, stride_bytes_src,
-			(u8*)img_dst.data, width_dst, height_dst, stride_bytes_dst,
+			(u8*)image_src.data, width_src, height_src, stride_bytes_src,
+			(u8*)image_dst.data, width_dst, height_dst, stride_bytes_dst,
 			channels);
 	}
 
 
-	gray::view_t make_resized_view(gray::image_t const& img_src, gray::image_t& img_dst)
+	gray::view_t make_resized_view(gray::image_t const& image_src, gray::image_t& image_dst)
 	{
-		resize_image(img_src, img_dst);
+		resize_image(image_src, image_dst);
 
-		return make_view(img_dst);
+		return make_view(image_dst);
 	}
 }
 

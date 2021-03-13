@@ -181,7 +181,9 @@ void basic_tests(fs::path const& out_dir)
 {
 	std::cout << "basic:\n";
 
-	auto image = img::read_image_from_file(fs::path(SRC_IMAGE_PATH));
+	img::image_t image;
+	//auto image = img::read_image_from_file(fs::path(SRC_IMAGE_PATH));
+	img::read_image_from_file(fs::path(SRC_IMAGE_PATH), image);
 	auto view = img::make_view(image);
 	print(view);
 
@@ -196,7 +198,7 @@ void basic_tests(fs::path const& out_dir)
 	img::pixel_range_t range = { w * 1 / 3, w * 2 / 3, h * 1 / 3, h * 2 / 3 };
 	auto sub_view = img::sub_view(view, range);
 	print(sub_view);
-	img::write_view(out_dir / "sub.png", sub_view);
+	img::write_view(sub_view, out_dir / "sub.png");
 
 	auto row_view = img::row_view(view, 2);
 	print(row_view);
@@ -205,7 +207,8 @@ void basic_tests(fs::path const& out_dir)
 	print(col_view);
 
 
-	auto image_gray = img::gray::read_image_from_file(fs::path(SRC_IMAGE_PATH));
+	img::gray::image_t image_gray;
+	img::gray::read_image_from_file(fs::path(SRC_IMAGE_PATH), image_gray);
 	auto view_gray = img::make_view(image_gray);
 	print(view_gray);
 
@@ -219,7 +222,7 @@ void basic_tests(fs::path const& out_dir)
 
 	auto sub_view_gray = img::sub_view(view_gray, range);
 	print(sub_view_gray);
-	img::write_view(out_dir / "sub_gray.png", sub_view_gray);
+	img::write_view(sub_view_gray, out_dir / "sub_gray.png");
 
 	auto row_view_gray = img::row_view(view, 2);
 	print(row_view_gray);
