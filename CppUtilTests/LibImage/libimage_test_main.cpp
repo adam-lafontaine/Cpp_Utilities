@@ -203,12 +203,7 @@ void basic_tests(fs::path const& out_dir)
 	img::write_view(view, out_dir / "view.bmp");
 
 	auto w = view.width;
-	auto h = view.height;
-
-	/*auto resized_image = img::image_t(h, w);
-	auto resized_view = img::make_resized_view(image, resized_image);
-	print(resized_view);
-	img::write_view(out_dir / "resized.png", resized_view);*/
+	auto h = view.height;	
 
 	img::pixel_range_t range = { w * 1 / 3, w * 2 / 3, h * 1 / 3, h * 2 / 3 };
 	auto sub_view = img::sub_view(view, range);
@@ -223,6 +218,14 @@ void basic_tests(fs::path const& out_dir)
 	print(col_view);
 	img::write_view(col_view, out_dir / "col_view.bmp");
 
+	img::image_t resize_image;
+	resize_image.width = w / 4;
+	resize_image.height = h / 2;
+	auto resize_view = img::make_resized_view(image, resize_image);
+	print(resize_view);
+	img::write_image(resize_image, out_dir / "resize_image.bmp");
+	img::write_view(resize_view, out_dir / "resize_view.bmp");
+
 
 	img::gray::image_t image_gray;
 	img::gray::read_image_from_file(fs::path(SRC_IMAGE_PATH), image_gray);
@@ -230,12 +233,7 @@ void basic_tests(fs::path const& out_dir)
 
 	auto view_gray = img::make_view(image_gray);
 	print(view_gray);
-	img::write_view(view_gray, out_dir / "view_gray.bmp");
-
-	/*auto resized_image_gray = img::gray::image_t(h, w);
-	auto resized_view_gray = img::make_resized_view(image_gray, resized_image_gray);
-	print(resized_view_gray);
-	img::write_view(out_dir / "resized_gray.png", resized_view_gray);*/
+	img::write_view(view_gray, out_dir / "view_gray.bmp");	
 
 	auto sub_view_gray = img::sub_view(view_gray, range);
 	print(sub_view_gray);
@@ -248,6 +246,14 @@ void basic_tests(fs::path const& out_dir)
 	auto col_view_gray = img::column_view(view_gray, view_gray.width / 2);
 	print(col_view_gray);
 	img::write_view(col_view_gray, out_dir / "col_view_gray.png");
+
+	img::gray::image_t resize_image_gray;
+	resize_image_gray.width = w / 4;
+	resize_image_gray.height = h / 2;
+	auto resize_view_gray = img::make_resized_view(image_gray, resize_image_gray);
+	print(resize_view_gray);
+	img::write_image(resize_image_gray, out_dir / "resize_image_gray.bmp");
+	img::write_view(resize_view_gray, out_dir / "resize_view_gray.bmp");
 
 	std::cout << '\n';
 }

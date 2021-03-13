@@ -206,109 +206,6 @@ namespace libimage_stb
 			reference operator * () const { return *loc_ptr(); }
 		};
 
-		//class const_iterator
-		//{
-		//private:
-
-		//	u32 loc_x = 0;
-		//	u32 loc_y = 0;
-
-		//	u32 x_begin = 0;
-		//	u32 x_end = 0;
-		//	u32 y_begin = 0;
-		//	u32 y_end = 0;
-
-		//	pixel_t* image_data = 0;
-		//	u32 image_width = 0;
-
-		//	//rgba_image_view_t* view = 0;
-
-		//	pixel_t* loc_ptr() const
-		//	{
-		//		auto offset = (y_begin + loc_y) * image_width + x_begin + loc_x;
-
-		//		return image_data + static_cast<u64>(offset);
-		//	}
-
-		//	void next()
-		//	{
-		//		++loc_x;
-		//		if (loc_x >= x_end)
-		//		{
-		//			loc_x = x_begin;
-		//			++loc_y;
-		//		}
-		//	}
-
-		//	void next_in_row()
-		//	{
-		//		++loc_x;
-		//	}
-
-		//	void next_in_column()
-		//	{
-		//		++loc_y;
-		//	}
-
-		//	std::function<void()> increment = [&]() { next(); };
-
-		//public:
-
-		//	using const_iterator_category = std::forward_iterator_tag;
-		//	using value_type = pixel_t;
-		//	using difference_type = std::ptrdiff_t;
-		//	using pointer = const value_type*;
-		//	using reference = const value_type&;
-
-		//	explicit const_iterator() {}
-
-		//	explicit const_iterator(view_t const& view)
-		//	{
-		//		image_data = view.image_data;
-		//		image_width = view.image_width;
-
-		//		x_begin = view.x_begin;
-		//		x_end = view.x_end;
-		//		y_begin = view.y_begin;
-		//		y_end = view.y_end;
-
-		//		loc_x = x_begin;
-		//		loc_y = y_begin;
-
-		//		if (y_begin == y_end)
-		//		{
-		//			increment = [&]() { next_in_row(); };
-		//		}
-		//		else if (x_begin == x_end)
-		//		{
-		//			increment = [&]() { next_in_column(); };
-		//		}
-		//	}
-
-		//	const_iterator end()
-		//	{
-		//		loc_x = view->x_end;
-		//		loc_y = view->y_end;
-
-		//		return *this;
-		//	}
-
-		//	const_iterator& operator ++ ()
-		//	{
-		//		increment();
-
-		//		return *this;
-		//	}
-
-		//	const_iterator operator ++ (int) { const_iterator result = *this; ++(*this); return result; }
-
-		//	bool operator == (const_iterator other) const { return loc_x == other.loc_x && loc_y == other.loc_y; }
-
-		//	bool operator != (const_iterator other) const { return !(*this == other); }
-
-		//	reference operator * () const { return *loc_ptr(); }
-		//};
-
 		
 		/******* ITERATOR ************/
 
@@ -319,10 +216,6 @@ namespace libimage_stb
 		iterator cbegin() const { return iterator(*this); }
 
 		iterator cend() const { return iterator(*this).end(); }
-
-		/*const_iterator begin() const { return const_iterator(*this); }
-
-		const_iterator end() const { return const_iterator(*this).end(); }*/
 
 	};
 
