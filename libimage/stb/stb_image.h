@@ -348,6 +348,7 @@ RECENT REVISION HISTORY:
 
 #define STBI_VERSION 1
 
+/*
 enum
 {
    STBI_default = 0, // only used for desired_channels
@@ -357,6 +358,13 @@ enum
    STBI_rgb        = 3,
    STBI_rgb_alpha  = 4
 };
+*/
+
+#define STBI_default 0
+#define STBI_grey 1
+#define STBI_grey_alpha 2
+#define STBI_rgb 3
+#define STBI_rgb_alpha 4
 
 #include <stdlib.h>
 typedef unsigned char stbi_uc;

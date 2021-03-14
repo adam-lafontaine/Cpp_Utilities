@@ -260,7 +260,7 @@ STBIRDEF int stbir_resize_uint8_srgb(const unsigned char *input_pixels , int inp
                                            unsigned char *output_pixels, int output_w, int output_h, int output_stride_in_bytes,
                                      int num_channels, int alpha_channel, int flags);
 
-
+/*
 typedef enum
 {
     STBIR_EDGE_CLAMP   = 1,
@@ -268,6 +268,13 @@ typedef enum
     STBIR_EDGE_WRAP    = 3,
     STBIR_EDGE_ZERO    = 4,
 } stbir_edge;
+*/
+
+#define STBIR_EDGE_CLAMP 1
+#define STBIR_EDGE_REFLECT 2
+#define STBIR_EDGE_WRAP 3
+#define STBIR_EDGE_ZERO 4
+#define stbir_edge unsigned char
 
 // This function adds the ability to specify how requests to sample off the edge of the image are handled.
 STBIRDEF int stbir_resize_uint8_srgb_edgemode(const unsigned char *input_pixels , int input_w , int input_h , int input_stride_in_bytes,
@@ -290,6 +297,7 @@ STBIRDEF int stbir_resize_uint8_srgb_edgemode(const unsigned char *input_pixels 
 //     * sRGB colorspace available for all types
 //     * context parameter for passing to STBIR_MALLOC
 
+/*
 typedef enum
 {
     STBIR_FILTER_DEFAULT      = 0,  // use same filter type that easy-to-use API chooses
@@ -299,6 +307,15 @@ typedef enum
     STBIR_FILTER_CATMULLROM   = 4,  // An interpolating cubic spline
     STBIR_FILTER_MITCHELL     = 5,  // Mitchell-Netrevalli filter with B=1/3, C=1/3
 } stbir_filter;
+*/
+
+#define STBIR_FILTER_DEFAULT 0
+#define STBIR_FILTER_BOX 1
+#define STBIR_FILTER_TRIANGLE 2
+#define STBIR_FILTER_CUBICBSPLINE 3
+#define STBIR_FILTER_CATMULLROM 4
+#define STBIR_FILTER_MITCHELL 5
+#define stbir_filter unsigned char
 
 typedef enum
 {
@@ -343,6 +360,7 @@ STBIRDEF int stbir_resize_float_generic( const float *input_pixels         , int
 //     * can specify scale explicitly for subpixel correctness
 //     * can specify image source tile using texture coordinates
 
+/*
 typedef enum
 {
     STBIR_TYPE_UINT8 ,
@@ -352,6 +370,14 @@ typedef enum
 
     STBIR_MAX_TYPES
 } stbir_datatype;
+*/
+
+#define STBIR_TYPE_UINT8 0
+#define STBIR_TYPE_UINT16 1
+#define STBIR_TYPE_UINT32 2
+#define STBIR_TYPE_FLOAT 3
+#define STBIR_MAX_TYPES 4
+#define stbir_datatype unsigned char
 
 STBIRDEF int stbir_resize(         const void *input_pixels , int input_w , int input_h , int input_stride_in_bytes,
                                          void *output_pixels, int output_w, int output_h, int output_stride_in_bytes,
@@ -892,7 +918,8 @@ static int stbir__get_filter_pixel_width(stbir_filter filter, float scale)
     STBIR_ASSERT(filter < STBIR__ARRAY_SIZE(stbir__filter_info_table));
 
     if (stbir__use_upsampling(scale))
-        return (int)ceil(stbir__filter_info_table[filter].support(1/scale) * 2);
+        return (int)ceil(stbir__filter_info_table[(size_t)filter].support(1 / scale) * 2);
+        //return (int)ceil(stbir__filter_info_table[filter].support(1/scale) * 2);
     else
         return (int)ceil(stbir__filter_info_table[filter].support(scale) * 2 / scale);
 }
@@ -1252,8 +1279,10 @@ static void stbir__decode_scanline(stbir__info* stbir_info, int n)
     int c;
     int channels = stbir_info->channels;
     int alpha_channel = stbir_info->alpha_channel;
-    int type = stbir_info->type;
-    int colorspace = stbir_info->colorspace;
+    //int type = stbir_info->type;
+    int type = (int)stbir_info->type;
+    //int colorspace = stbir_info->colorspace;
+    int colorspace = (int)stbir_info->colorspace;
     int input_w = stbir_info->input_w;
     size_t input_stride_bytes = stbir_info->input_stride_bytes;
     float* decode_buffer = stbir__get_decode_buffer(stbir_info);

@@ -1,3 +1,9 @@
+/*
+
+March 13, 2021: Warnings removed by Adam Lafontaine
+
+*/
+
 /* stb_image_write - v1.15 - public domain - http://nothings.org/stb
    writes out PNG/BMP/TGA/JPEG/HDR images to C stdio - Sean Barrett 2010-2015
                                      no warranty implied; use at your own risk
@@ -469,7 +475,8 @@ static void stbiw__write_pixels(stbi__write_context *s, int rgb_dir, int vdir, i
 
    for (; j != j_end; j += vdir) {
       for (i=0; i < x; ++i) {
-         unsigned char *d = (unsigned char *) data + (j*x+i)*comp;
+         //unsigned char *d = (unsigned char *) data + (j*x+i)*comp;
+          unsigned char* d = (unsigned char*)data + (size_t)comp * (j * x + i);
          stbiw__write_pixel(s, rgb_dir, comp, write_alpha, expand_mono, d);
       }
       stbiw__write_flush(s);
