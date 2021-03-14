@@ -1,5 +1,6 @@
 #include "../../libimage/stb/libimage_fs.hpp"
 #include "../../libimage/stb/libimage_algorithm.hpp"
+#include "../../libimage/stb/libimage_math.hpp"
 
 #include <iostream>
 #include <mutex>
@@ -20,12 +21,12 @@ constexpr auto RED = "D:/repos/Cpp_Utilities/CppUtilTests/LibImage/in_files/png/
 void empty_dir(fs::path const& dir);
 void print(img::view_t const& view);
 void print(img::gray::view_t const& view);
-//void print(img::stats_t const& stats);
+void print(img::stats_t const& stats);
 
 void basic_tests(fs::path const& out_dir);
 void for_each_tests(fs::path const& out_dir);
 void transform_tests(fs::path const& out_dir);
-void math_tests();
+void math_tests(fs::path const& out_dir);
 void draw_tests(fs::path const& out_dir);
 
 
@@ -34,11 +35,11 @@ int main()
 	auto dst_root = fs::path(DST_IMAGE_ROOT);
 	empty_dir(dst_root);
 
-	basic_tests(dst_root);
-	for_each_tests(dst_root);
-	transform_tests(dst_root);
-	math_tests();
-	draw_tests(dst_root);
+	//basic_tests(dst_root);
+	//for_each_tests(dst_root);
+	//transform_tests(dst_root);
+	math_tests(dst_root);
+	//draw_tests(dst_root);
 
 	std::cout << "\nDone.\n";
 	char ch;
@@ -53,47 +54,24 @@ void draw_tests(fs::path const& out_dir)
 }
 
 
-void math_tests()
+void math_tests(fs::path const& out_dir)
 {
-	/*std::cout << "math:\n";
+	std::cout << "math:\n";
 
-	auto image = img::read_image_from_file(fs::path(SRC_IMAGE_PATH));
-	auto view = img::make_view(image);
-
-	auto stats = img::make_stats(view);
-	std::cout << "  red: ";
-	print(stats.r);
-	std::cout << "green: ";
-	print(stats.g);
-	std::cout << " blue: ";
-	print(stats.b);
-
-	auto image_gray = img::gray::read_image_from_file(fs::path(SRC_IMAGE_PATH));
+	img::gray::image_t image_gray;
+	img::read_image_from_file(SRC_IMAGE_PATH, image_gray);
 	auto view_gray = img::make_view(image_gray);
 
-	auto stats_gray = img::make_stats(view_gray);
-	std::cout << " gray: ";
+	auto stats_gray = img::calc_stats(view_gray);
+
+	img::gray::image_t stats_image_gray;
+	img::draw_stats(stats_gray, stats_image_gray);
+
 	print(stats_gray);
 
-	img::pixel_range_t range;
-	range.x_begin = 245;
-	range.x_end = 345;
-	range.y_begin = 270;
-	range.y_end = 300;
+	img::write_image(stats_image_gray, out_dir / "stats_image_gray.png");
 
-	stats = img::make_stats(view, range);
-	std::cout << "  range red: ";
-	print(stats.r);
-	std::cout << "range green: ";
-	print(stats.g);
-	std::cout << " range blue: ";
-	print(stats.b);
-
-	stats_gray = img::make_stats(view_gray, range);
-	std::cout << " range gray: ";
-	print(stats_gray);
-
-	std::cout << '\n';*/
+	std::cout << '\n';
 }
 
 
@@ -308,7 +286,7 @@ void print(img::gray::view_t const& view)
 }
 
 
-//void print(img::stats_t const& stats)
-//{
-//	std::cout << "mean = " << (double)stats.mean << " sigma = " << (double)stats.sigma << '\n';
-//}
+void print(img::stats_t const& stats)
+{
+	std::cout << "mean = " << (double)stats.mean << " sigma = " << (double)stats.std_dev << '\n';
+}

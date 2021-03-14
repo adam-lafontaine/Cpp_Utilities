@@ -83,5 +83,8 @@
     <ClCompile Include="..\..\libimage\stb\libimage_stb.cpp">
       <Filter>Source Files\stb</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\libimage\stb\libimage_math.cpp">
+      <Filter>Source Files\stb</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>

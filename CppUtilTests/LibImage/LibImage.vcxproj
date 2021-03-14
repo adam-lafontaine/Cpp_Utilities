@@ -163,6 +163,7 @@
     <ClCompile Include="..\..\libimage\draw.cpp" />
     <ClCompile Include="..\..\libimage\libimage.cpp" />
     <ClCompile Include="..\..\libimage\math.cpp" />
+    <ClCompile Include="..\..\libimage\stb\libimage_math.cpp" />
     <ClCompile Include="..\..\libimage\stb\libimage_stb.cpp" />
     <ClCompile Include="libimage_test_main.cpp" />
   </ItemGroup>

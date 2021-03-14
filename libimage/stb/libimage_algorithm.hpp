@@ -94,7 +94,12 @@ namespace libimage_stb
 
 	namespace gray
 	{
-		using fe_func_t = std::function<void(pixel_t& p)>;
+		// for_each
+		using fe_ref_t = std::function<void(pixel_t& p)>;
+		using fe_cref_t = std::function<void(pixel_t const& p)>;
+		using fe_xy_t = std::function<void(u32 x, u32 y)>;
+
+
 		using tf_1src_func_t = std::function<pixel_t(pixel_t& p)>;
 		using tf_2src_func_t = std::function<pixel_t(pixel_t& p1, pixel_t& p2)>;
 	}
@@ -140,6 +145,7 @@ namespace libimage_stb
 
 			std::transform(src1.begin(), src1.end(), src2.begin(), dst.begin(), func);
 		}
+		
 	}
 
 
