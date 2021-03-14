@@ -43,5 +43,7 @@ namespace libimage_stb
 
 	stats_t calc_stats(gray::view_t const& view);
 
-	void draw_stats(stats_t const& stats, gray::image_t& image_dst);
+	void draw_histogram(hist_t const& hist, gray::image_t& image_dst);
+
+	void draw_histogram(rgb_stats_t const& rgb_stats, image_t& image_dst);
 }

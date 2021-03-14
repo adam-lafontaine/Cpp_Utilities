@@ -431,4 +431,21 @@ namespace libimage_stb
 	
 	namespace grey = gray;
 
+	inline pixel_t to_pixel(u8 red, u8 green, u8 blue, u8 alpha)
+	{
+		pixel_t pixel{};
+		pixel.red = red;
+		pixel.green = green;
+		pixel.blue = blue;
+		pixel.alpha = alpha;
+
+		return pixel;
+	}
+
+
+	inline pixel_t to_pixel(u8 red, u8 green, u8 blue)
+	{
+		return to_pixel(red, green, blue, 255);
+	}
+
 }

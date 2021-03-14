@@ -27,7 +27,6 @@ void basic_tests(fs::path const& out_dir);
 void for_each_tests(fs::path const& out_dir);
 void transform_tests(fs::path const& out_dir);
 void math_tests(fs::path const& out_dir);
-void draw_tests(fs::path const& out_dir);
 
 
 int main()
@@ -35,22 +34,14 @@ int main()
 	auto dst_root = fs::path(DST_IMAGE_ROOT);
 	empty_dir(dst_root);
 
-	//basic_tests(dst_root);
-	//for_each_tests(dst_root);
-	//transform_tests(dst_root);
+	basic_tests(dst_root);
+	for_each_tests(dst_root);
+	transform_tests(dst_root);
 	math_tests(dst_root);
-	//draw_tests(dst_root);
 
 	std::cout << "\nDone.\n";
 	char ch;
 	std::cin >> ch;
-}
-
-
-void draw_tests(fs::path const& out_dir)
-{
-	/*draw::histogram(fs::path(CORVETTE_PATH), out_dir / "hist_corvette.png");
-	draw::histogram(fs::path(CADILLAC_PATH), out_dir / "hist_cadillac.png");*/
 }
 
 
@@ -65,11 +56,27 @@ void math_tests(fs::path const& out_dir)
 	auto stats_gray = img::calc_stats(view_gray);
 
 	img::gray::image_t stats_image_gray;
-	img::draw_stats(stats_gray, stats_image_gray);
+	img::draw_histogram(stats_gray.hist, stats_image_gray);
 
 	print(stats_gray);
 
 	img::write_image(stats_image_gray, out_dir / "stats_image_gray.png");
+
+
+	img::image_t image;
+	img::read_image_from_file(SRC_IMAGE_PATH, image);
+	auto view = img::make_view(image);
+
+	auto stats = img::calc_stats(view);
+
+	img::image_t stats_image;
+	img::draw_histogram(stats, stats_image);
+
+	print(stats.red);
+	print(stats.green);
+	print(stats.blue);
+
+	img::write_image(stats_image, out_dir / "stats_image.png");
 
 	std::cout << '\n';
 }
