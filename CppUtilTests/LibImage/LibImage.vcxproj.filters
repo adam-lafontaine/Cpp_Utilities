@@ -39,30 +39,6 @@
     <ClInclude Include="..\..\libimage\draw.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\libimage\stb\stb_image.h">
-      <Filter>Header Files\stb</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\libimage\stb\libimage_stb.hpp">
-      <Filter>Header Files\stb</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\libimage\stb\image_view.hpp">
-      <Filter>Header Files\stb</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\libimage\stb\stb_image_resize.h">
-      <Filter>Header Files\stb</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\libimage\stb\stb_image_write.h">
-      <Filter>Header Files\stb</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\libimage\stb\libimage_fs.hpp">
-      <Filter>Header Files\stb</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\libimage\stb\libimage_algorithm.hpp">
-      <Filter>Header Files\stb</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\libimage\stb\libimage_math.hpp">
-      <Filter>Header Files\stb</Filter>
-    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\libimage\libimage.cpp">
