@@ -540,8 +540,7 @@ static int stbi_write_tga_core(stbi__write_context *s, int x, int y, int comp, v
       return stbiw__outfile(s, -1, -1, x, y, comp, 0, (void *) data, has_alpha, 0,
          "111 221 2222 11", 0, 0, format, 0, 0, 0, 0, 0, x, y, (colorbytes + has_alpha) * 8, has_alpha * 8);
    } else {
-      //int i,j,k;
-      size_t i, j, k;
+      int i,j,k;
       int jend, jdir;
 
       stbiw__writef(s, "111 221 2222 11", 0,0,format+8, 0,0,0, 0,0,x,y, (colorbytes + has_alpha) * 8, has_alpha * 8);
@@ -777,7 +776,8 @@ static int stbi_write_hdr_core(stbi__write_context *s, int x, int y, int comp, f
       s->func(s->context, buffer, len);
 
       for(i=0; i < y; i++)
-         stbiw__write_hdr_scanline(s, x, comp, scratch, data + comp*x*(stbi__flip_vertically_on_write ? y-1-i : i));
+          stbiw__write_hdr_scanline(s, x, comp, scratch, data + (size_t)comp * x * (stbi__flip_vertically_on_write ? y - 1 - i : i));
+         //stbiw__write_hdr_scanline(s, x, comp, scratch, data + comp*x*(stbi__flip_vertically_on_write ? y-1-i : i));
       STBIW_FREE(scratch);
       return 1;
    }
@@ -904,9 +904,7 @@ STBIWDEF unsigned char * stbi_zlib_compress(unsigned char *data, int data_len, i
    static unsigned short distc[]   = { 1,2,3,4,5,7,9,13,17,25,33,49,65,97,129,193,257,385,513,769,1025,1537,2049,3073,4097,6145,8193,12289,16385,24577, 32768 };
    static unsigned char  disteb[]  = { 0,0,0,0,1,1,2,2,3,3,4,4,5,5,6,6,7,7,8,8,9,9,10,10,11,11,12,12,13,13 };
    unsigned int bitbuf=0;
-   //int i,j, bitcount=0;
-   size_t i, j = 0;
-   int bitcount = 0;
+   int i,j, bitcount=0;
    unsigned char *out = NULL;
    unsigned char ***hash_table = (unsigned char***) STBIW_MALLOC(stbiw__ZHASH * sizeof(unsigned char**));
    if (hash_table == NULL)
@@ -929,7 +927,7 @@ STBIWDEF unsigned char * stbi_zlib_compress(unsigned char *data, int data_len, i
       unsigned char **hlist = hash_table[h];
       int n = stbiw__sbcount(hlist);
       for (j=0; j < n; ++j) {
-         if (hlist[j]-data > i-32768) { // if entry lies within window
+         if (hlist[j]-data > (size_t)i-32768) { // if entry lies within window
             int d = stbiw__zlib_countm(hlist[j], data+i, data_len-i);
             if (d >= best) { best=d; bestloc=hlist[j]; }
          }

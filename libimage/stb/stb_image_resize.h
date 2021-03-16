@@ -317,6 +317,7 @@ typedef enum
 #define STBIR_FILTER_MITCHELL 5
 #define stbir_filter unsigned char
 
+/*
 typedef enum
 {
     STBIR_COLORSPACE_LINEAR,
@@ -324,6 +325,12 @@ typedef enum
 
     STBIR_MAX_COLORSPACES,
 } stbir_colorspace;
+*/
+
+#define STBIR_COLORSPACE_LINEAR 0
+#define STBIR_COLORSPACE_SRGB 1
+#define STBIR_MAX_COLORSPACES 2
+#define stbir_colorspace unsigned char
 
 // The following functions are all identical except for the type of the image data
 

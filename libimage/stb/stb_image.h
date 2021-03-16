@@ -410,6 +410,7 @@ STBIDEF stbi_uc *stbi_load_from_callbacks(stbi_io_callbacks const *clbk  , void 
 STBIDEF stbi_uc *stbi_load            (char const *filename, int *x, int *y, int *channels_in_file, int desired_channels);
 STBIDEF stbi_uc *stbi_load_from_file  (FILE *f, int *x, int *y, int *channels_in_file, int desired_channels);
 // for stbi_load_from_file, file pointer is left pointing immediately after image
+
 #endif
 
 #ifndef STBI_NO_GIF
@@ -3012,7 +3013,7 @@ static int stbi__parse_entropy_coded_data(stbi__jpeg *z)
                         int x2 = (i*z->img_comp[n].h + x);
                         int y2 = (j*z->img_comp[n].v + y);
                         //short* data = z->img_comp[n].coeff + 64 * (x2 + y2 * z->img_comp[n].coeff_w);
-                        short *data = z->img_comp[n].coeff + (size_t)64 * (x2 + y2 * z->img_comp[n].coeff_w);
+                        short *data = z->img_comp[n].coeff + 64 * ((size_t)x2 + y2 * z->img_comp[n].coeff_w);
                         if (!stbi__jpeg_decode_block_prog_dc(z, data, &z->huff_dc[z->img_comp[n].hd], n))
                            return 0;
                      }
@@ -7091,7 +7092,8 @@ static float *stbi__hdr_load(stbi__context *s, int *x, int *y, int *comp, int re
             stbi_uc rgbe[4];
            main_decode_loop:
             stbi__getn(s, rgbe, 4);
-            stbi__hdr_convert(hdr_data + (size_t)j * width * req_comp + i * req_comp, rgbe, req_comp);
+            //stbi__hdr_convert(hdr_data + (size_t)j * width * req_comp + i * req_comp, rgbe, req_comp);
+            stbi__hdr_convert(hdr_data + (size_t)j * width * req_comp + (size_t)i * req_comp, rgbe, req_comp);
          }
       }
    } else {
@@ -7148,7 +7150,8 @@ static float *stbi__hdr_load(stbi__context *s, int *x, int *y, int *comp, int re
             }
          }
          for (i=0; i < width; ++i)
-            stbi__hdr_convert(hdr_data+((size_t)j*width + i)*req_comp, scanline + i*4, req_comp);
+             stbi__hdr_convert(hdr_data + ((size_t)j * width + i) * req_comp, scanline + (size_t)i * 4, req_comp);
+            //stbi__hdr_convert(hdr_data+(j*width + i)*req_comp, scanline + i*4, req_comp);
       }
       if (scanline)
          STBI_FREE(scanline);
