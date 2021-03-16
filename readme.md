@@ -31,10 +31,19 @@ A collection of small utilities I like having around
 
 
 * libimage
-    * Basic image processing library using Boost GIL
-    * Add _CRT_SECURE_NO_WARNINGS to Preprocessor Definitions in Visual Studio
-    * Sequential and parallel for_each and transform algorithms
-
+    * Basic image processing library using Boost GIL or stb_image
+    * Boost GIL
+        * C++17
+        * Add _CRT_SECURE_NO_WARNINGS to Preprocessor Definitions in Visual Studio
+        * Sequential and parallel for_each and transform algorithms
+    * stb_image
+        * C++17
+        * Similar interface to boost::gil::image_t and image_view_t
+        * Create an image object and load image data into it
+        * Image exposes begin and end pointers to raw memory
+        * Create a view from the image
+        * Process the view if operations are non-trivial
+        
 
 * normalize
     * C++17
