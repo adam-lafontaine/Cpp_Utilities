@@ -18,6 +18,21 @@
       <Platform>x64</Platform>
     </ProjectConfiguration>
   </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\..\libimage\stb\libimage_math.cpp" />
+    <ClCompile Include="..\..\libimage\stb\libimage_stb.cpp" />
+    <ClCompile Include="libimage_test_main.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\..\libimage\stb\image_view.hpp" />
+    <ClInclude Include="..\..\libimage\stb\libimage_algorithm.hpp" />
+    <ClInclude Include="..\..\libimage\stb\libimage_fs.hpp" />
+    <ClInclude Include="..\..\libimage\stb\libimage_math.hpp" />
+    <ClInclude Include="..\..\libimage\stb\libimage_stb.hpp" />
+    <ClInclude Include="..\..\libimage\stb\stb_image.h" />
+    <ClInclude Include="..\..\libimage\stb\stb_image_resize.h" />
+    <ClInclude Include="..\..\libimage\stb\stb_image_write.h" />
+  </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>
     <Keyword>Win32Proj</Keyword>
@@ -142,23 +157,6 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
   </ItemDefinitionGroup>
-  <ItemGroup>
-    <ClInclude Include="..\..\libimage\algorithm.hpp" />
-    <ClInclude Include="..\..\libimage\boost_gil.hpp" />
-    <ClInclude Include="..\..\libimage\conversions.hpp" />
-    <ClInclude Include="..\..\libimage\draw.hpp" />
-    <ClInclude Include="..\..\libimage\libimage.hpp" />
-    <ClInclude Include="..\..\libimage\math.hpp" />
-  </ItemGroup>
-  <ItemGroup>
-    <ClCompile Include="..\..\libimage\algorithm.cpp" />
-    <ClCompile Include="..\..\libimage\draw.cpp" />
-    <ClCompile Include="..\..\libimage\libimage.cpp" />
-    <ClCompile Include="..\..\libimage\math.cpp" />
-    <ClCompile Include="..\..\libimage\stb\libimage_math.cpp" />
-    <ClCompile Include="..\..\libimage\stb\libimage_stb.cpp" />
-    <ClCompile Include="libimage_test_main.cpp" />
-  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>

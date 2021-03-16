@@ -21,46 +21,40 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\..\libimage\libimage.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\libimage\conversions.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\libimage\boost_gil.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\libimage\algorithm.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\libimage\math.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\libimage\draw.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-  </ItemGroup>
-  <ItemGroup>
-    <ClCompile Include="..\..\libimage\libimage.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="libimage_test_main.cpp">
       <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\libimage\algorithm.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\libimage\math.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\libimage\draw.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\libimage\stb\libimage_stb.cpp">
-      <Filter>Source Files\stb</Filter>
     </ClCompile>
     <ClCompile Include="..\..\libimage\stb\libimage_math.cpp">
       <Filter>Source Files\stb</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\libimage\stb\libimage_stb.cpp">
+      <Filter>Source Files\stb</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\..\libimage\stb\image_view.hpp">
+      <Filter>Header Files\stb</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\libimage\stb\libimage_algorithm.hpp">
+      <Filter>Header Files\stb</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\libimage\stb\libimage_fs.hpp">
+      <Filter>Header Files\stb</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\libimage\stb\libimage_math.hpp">
+      <Filter>Header Files\stb</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\libimage\stb\libimage_stb.hpp">
+      <Filter>Header Files\stb</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\libimage\stb\stb_image.h">
+      <Filter>Header Files\stb</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\libimage\stb\stb_image_resize.h">
+      <Filter>Header Files\stb</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\libimage\stb\stb_image_write.h">
+      <Filter>Header Files\stb</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

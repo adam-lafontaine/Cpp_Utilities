@@ -825,8 +825,7 @@ STBIWDEF int stbi_write_hdr(char const *filename, int x, int y, int comp, const 
 
 static void *stbiw__sbgrowf(void **arr, int increment, int itemsize)
 {
-   //int m = *arr ? 2*stbiw__sbm(*arr)+increment : increment+1;
-   size_t m = *arr ? 2 * stbiw__sbm(*arr) + increment : increment + 1;
+   int m = *arr ? 2*stbiw__sbm(*arr)+increment : increment+1;
    void *p = STBIW_REALLOC_SIZED(*arr ? stbiw__sbraw(*arr) : 0, *arr ? (stbiw__sbm(*arr)*itemsize + sizeof(int)*2) : 0, itemsize * m + sizeof(int)*2);
    STBIW_ASSERT(p);
    if (p) {
@@ -927,7 +926,8 @@ STBIWDEF unsigned char * stbi_zlib_compress(unsigned char *data, int data_len, i
       unsigned char **hlist = hash_table[h];
       int n = stbiw__sbcount(hlist);
       for (j=0; j < n; ++j) {
-         if (hlist[j]-data > (size_t)i-32768) { // if entry lies within window
+         //if (hlist[j]-data > i-32768)
+          if (hlist[j] - data > (long long)i - 32768) { // if entry lies within window
             int d = stbiw__zlib_countm(hlist[j], data+i, data_len-i);
             if (d >= best) { best=d; bestloc=hlist[j]; }
          }
