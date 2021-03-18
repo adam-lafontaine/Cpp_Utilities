@@ -476,7 +476,7 @@ static void stbiw__write_pixels(stbi__write_context *s, int rgb_dir, int vdir, i
    for (; j != j_end; j += vdir) {
       for (i=0; i < x; ++i) {
          //unsigned char *d = (unsigned char *) data + (j*x+i)*comp;
-          unsigned char* d = (unsigned char*)data + (size_t)comp * (j * x + i); // TODO: warning
+          unsigned char* d = (unsigned char*)data + (size_t)comp * ((size_t)j * x + i);
          stbiw__write_pixel(s, rgb_dir, comp, write_alpha, expand_mono, d);
       }
       stbiw__write_flush(s);
@@ -555,22 +555,22 @@ static int stbi_write_tga_core(stbi__write_context *s, int x, int y, int comp, v
          jdir = -1;
       }
       for (; j != jend; j += jdir) {
-         unsigned char* row = (unsigned char*)data + j * x * comp; // TODO: warning
+         unsigned char* row = (unsigned char*)data + (size_t)j * x * comp;
          //int len;
          int len = 0;
 
          for (i = 0; i < x; i += len) {
-            unsigned char *begin = row + i * comp; // TODO: warning
+            unsigned char *begin = row + (size_t)i * comp;
             int diff = 1;
             len = 1;
 
             if (i < x - 1) {
                ++len;
-               diff = memcmp(begin, row + (i + 1) * comp, comp); // TODO: warning
+               diff = memcmp(begin, row + ((size_t)i + 1) * comp, comp);
                if (diff) {
                   const unsigned char *prev = begin;
                   for (k = i + 2; k < x && len < 128; ++k) {
-                     if (memcmp(prev, row + k * comp, comp)) { // TODO: warning
+                     if (memcmp(prev, row + (size_t)k * comp, comp)) {
                         prev += comp;
                         ++len;
                      } else {
@@ -580,7 +580,7 @@ static int stbi_write_tga_core(stbi__write_context *s, int x, int y, int comp, v
                   }
                } else {
                   for (k = i + 2; k < x && len < 128; ++k) {
-                     if (!memcmp(begin, row + k * comp, comp)) { // TODO: warning
+                     if (!memcmp(begin, row + (size_t)k * comp, comp)) {
                         ++len;
                      } else {
                         break;
@@ -593,7 +593,7 @@ static int stbi_write_tga_core(stbi__write_context *s, int x, int y, int comp, v
                unsigned char header = STBIW_UCHAR(len - 1);
                stbiw__write1(s, header);
                for (k = 0; k < len; ++k) {
-                  stbiw__write_pixel(s, -1, comp, has_alpha, 0, begin + k * comp); // TODO: warning
+                  stbiw__write_pixel(s, -1, comp, has_alpha, 0, begin + (size_t)k * comp);
                }
             } else {
                unsigned char header = STBIW_UCHAR(len - 129);
@@ -945,7 +945,7 @@ STBIWDEF unsigned char * stbi_zlib_compress(unsigned char *data, int data_len, i
          hlist = hash_table[h];
          n = stbiw__sbcount(hlist);
          for (j=0; j < n; ++j) {
-            if (hlist[j]-data > i-32767) { // TODO: warning
+            if (hlist[j]-data > (size_t)i-32767) {
                int e = stbiw__zlib_countm(hlist[j], data+i+1, data_len-i-1);
                if (e > best) { // if next match is better, bail on current match
                   bestloc = NULL;
