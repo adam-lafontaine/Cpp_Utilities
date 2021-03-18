@@ -29,6 +29,7 @@
     <ClInclude Include="..\..\libimage\stb\libimage_fs.hpp" />
     <ClInclude Include="..\..\libimage\stb\libimage_math.hpp" />
     <ClInclude Include="..\..\libimage\stb\libimage_stb.hpp" />
+    <ClInclude Include="..\..\libimage\stb\stb_all.hpp" />
     <ClInclude Include="..\..\libimage\stb\stb_image.h" />
     <ClInclude Include="..\..\libimage\stb\stb_image_resize.h" />
     <ClInclude Include="..\..\libimage\stb\stb_image_write.h" />

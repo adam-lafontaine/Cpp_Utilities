@@ -3799,7 +3799,8 @@ static stbi_uc stbi__blinn_8x8(stbi_uc x, stbi_uc y)
    return (stbi_uc) ((t + (t >>8)) >> 8);
 }
 
-static stbi_uc *load_jpeg_image(stbi__jpeg *z, int *out_x, int *out_y, int *comp, int req_comp)
+//static stbi_uc *load_jpeg_image(stbi__jpeg *z, int *out_x, int *out_y, int *comp, int req_comp)
+static stbi_uc *load_jpeg_image(stbi__jpeg *z, int *out_x, int *out_y, int *comp, int req_comp, stbi_uc* output = NULL)
 {
    int n, decode_n, is_rgb;
    z->s->img_n = 0; // make stbi__cleanup_jpeg safe
@@ -3824,7 +3825,7 @@ static stbi_uc *load_jpeg_image(stbi__jpeg *z, int *out_x, int *out_y, int *comp
    {
       int k;
       unsigned int i,j;
-      stbi_uc *output;
+      //stbi_uc *output;
       stbi_uc *coutput[4] = { NULL, NULL, NULL, NULL };
 
       stbi__resample res_comp[4];
@@ -3853,7 +3854,14 @@ static stbi_uc *load_jpeg_image(stbi__jpeg *z, int *out_x, int *out_y, int *comp
       }
 
       // can't error after this so, this is safe
-      output = (stbi_uc *) stbi__malloc_mad3(n, z->s->img_x, z->s->img_y, 1);
+      //output = (stbi_uc *) stbi__malloc_mad3(n, z->s->img_x, z->s->img_y, 1);
+      //if (!output) { stbi__cleanup_jpeg(z); return stbi__errpuc("outofmem", "Out of memory"); }
+
+      if (!output)
+      {
+          output = (stbi_uc*)stbi__malloc_mad3(n, z->s->img_x, z->s->img_y, 1);
+      }
+      
       if (!output) { stbi__cleanup_jpeg(z); return stbi__errpuc("outofmem", "Out of memory"); }
 
       // now go ahead and resample
@@ -7835,3 +7843,175 @@ ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 ------------------------------------------------------------------------------
 */
+
+// NEW INTERFACE
+
+int stbi2_load_to_buffer(char const* filename, int* x, int* y, int* channels_in_file, int desired_channels, stbi_uc* buffer);
+
+
+
+// IMPLEMENTATION
+
+#ifdef STB_IMAGE_IMPLEMENTATION
+
+#define STBI2_SUCCESS 1
+#define STBI2_FAIL 0
+
+
+#ifndef STBI_NO_JPEG
+static int stbi2__jpeg_load(stbi__context* s, int* x, int* y, int* comp, int req_comp, stbi__result_info* ri, stbi_uc* buffer)
+{
+    stbi__jpeg* j = (stbi__jpeg*)stbi__malloc(sizeof(stbi__jpeg));
+    STBI_NOTUSED(ri);
+    j->s = s;
+    stbi__setup_jpeg(j);
+    buffer = load_jpeg_image(j, x, y, comp, req_comp, buffer);
+    STBI_FREE(j);
+
+    return buffer ? STBI2_SUCCESS : STBI2_FAIL;
+}
+#endif
+
+
+#ifndef STBI_NO_PNG
+
+#endif
+
+
+#ifndef STBI_NO_BMP
+
+#endif
+
+
+#ifndef STBI_NO_GIF
+
+#endif
+
+
+#ifndef STBI_NO_PSD
+
+#endif
+
+
+#ifndef STBI_NO_PIC
+
+#endif
+
+
+#ifndef STBI_NO_PNM
+
+#endif
+
+
+#ifndef STBI_NO_HDR
+
+#endif
+
+
+#ifndef STBI_NO_TGA
+
+#endif
+
+
+static int stbi2__load_main(stbi__context* s, int* x, int* y, int* comp, int req_comp, stbi__result_info* ri, int bpc, stbi_uc* buffer)
+{
+    memset(ri, 0, sizeof(*ri)); // make sure it's initialized if we add new fields
+    ri->bits_per_channel = 8; // default is 8 so most paths don't have to be changed
+    ri->channel_order = STBI_ORDER_RGB; // all current input & output are this, but this is here so we can add BGR order
+    ri->num_channels = 0;
+
+#ifndef STBI_NO_JPEG
+    if (stbi__jpeg_test(s)) return stbi2__jpeg_load(s, x, y, comp, req_comp, ri, buffer);
+#endif
+#ifndef STBI_NO_PNG
+    if (stbi__png_test(s))  return stbi2__png_load(s, x, y, comp, req_comp, ri);
+#endif
+#ifndef STBI_NO_BMP
+    if (stbi__bmp_test(s))  return stbi2__bmp_load(s, x, y, comp, req_comp, ri);
+#endif
+#ifndef STBI_NO_GIF
+    if (stbi__gif_test(s))  return stbi2__gif_load(s, x, y, comp, req_comp, ri);
+#endif
+#ifndef STBI_NO_PSD
+    if (stbi__psd_test(s))  return stbi2__psd_load(s, x, y, comp, req_comp, ri, bpc);
+#else
+    STBI_NOTUSED(bpc);
+#endif
+#ifndef STBI_NO_PIC
+    if (stbi__pic_test(s))  return stbi2__pic_load(s, x, y, comp, req_comp, ri);
+#endif
+#ifndef STBI_NO_PNM
+    if (stbi__pnm_test(s))  return stbi2__pnm_load(s, x, y, comp, req_comp, ri);
+#endif
+
+#ifndef STBI_NO_HDR
+    if (stbi__hdr_test(s)) {
+        float* hdr = stbi__hdr_load(s, x, y, comp, req_comp, ri);
+        return stbi__hdr_to_ldr(hdr, *x, *y, req_comp ? req_comp : *comp);
+    }
+#endif
+
+#ifndef STBI_NO_TGA
+    // test tga last because it's a crappy test!
+    if (stbi__tga_test(s))
+        return stbi__tga_load(s, x, y, comp, req_comp, ri);
+#endif
+
+    return STBI2_FAIL; // stbi__errpuc("unknown image type", "Image not of any known type, or corrupt");
+}
+
+
+static int stbi2__load_and_postprocess_8bit(stbi__context* s, int* x, int* y, int* comp, int req_comp, stbi_uc* buffer)
+{
+    stbi__result_info ri;
+    int result = stbi2__load_main(s, x, y, comp, req_comp, &ri, 8, buffer);
+
+    if (!result)
+        return result;
+
+    // it is the responsibility of the loaders to make sure we get either 8 or 16 bit.
+    //STBI_ASSERT(ri.bits_per_channel == 8 || ri.bits_per_channel == 16);
+
+    // only supporting 8 bit channels
+    STBI_ASSERT(ri.bits_per_channel == 8);
+
+    if (ri.bits_per_channel != 8) {
+        buffer = stbi__convert_16_to_8((stbi__uint16*)buffer, *x, *y, req_comp == 0 ? *comp : req_comp);
+        ri.bits_per_channel = 8;
+    }
+
+    // @TODO: move stbi__convert_format to here
+
+    if (stbi__vertically_flip_on_load) {
+        int channels = req_comp ? req_comp : *comp;
+        stbi__vertical_flip(buffer, *x, *y, channels * sizeof(stbi_uc));
+    }
+
+    return STBI2_SUCCESS;
+}
+
+
+static int stbi2_load_from_file_to_buffer(FILE* f, int* x, int* y, int* comp, int req_comp, stbi_uc* buffer)
+{
+    stbi__context s;
+    stbi__start_file(&s, f);
+    int result = stbi2__load_and_postprocess_8bit(&s, x, y, comp, req_comp, buffer);
+    if (result) {
+        // need to 'unget' all the characters in the IO buffer
+        fseek(f, -(int)(s.img_buffer_end - s.img_buffer), SEEK_CUR);
+    }
+    return result;
+}
+
+
+int stbi2_load_to_buffer(char const* filename, int* x, int* y, int* comp, int req_comp, stbi_uc* buffer)
+{
+    FILE* f = stbi__fopen(filename, "rb");
+    if (!f) return STBI2_FAIL;
+    stbi2_load_from_file_to_buffer(f, x, y, comp, req_comp, buffer);
+    fclose(f);
+
+    return STBI2_SUCCESS;
+}
+
+#endif

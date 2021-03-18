@@ -56,5 +56,8 @@
     <ClInclude Include="..\..\libimage\stb\stb_image_write.h">
       <Filter>Header Files\stb</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\libimage\stb\stb_all.hpp">
+      <Filter>Header Files\stb</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>
