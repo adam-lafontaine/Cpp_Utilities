@@ -36,12 +36,14 @@ A collection of small utilities I like having around
         * C++17
         * Add _CRT_SECURE_NO_WARNINGS to Preprocessor Definitions in Visual Studio
         * Sequential and parallel for_each and transform algorithms
+        * Has problems with color bmp images
     * stb_image
         * C++17
         * Similar interface to boost::gil::image_t and image_view_t
         * Create an image object and load image data into it
         * Image exposes begin and end pointers to raw memory
         * Create a view from the image
+        * A view is a subsection of the original image and points to the image's memory
         * Process the view if operations are non-trivial
         
 

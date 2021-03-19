@@ -130,7 +130,7 @@ namespace libimage
 		make_image(image_dst, image_width, image_height);
 		std::fill(image_dst.begin(), image_dst.end(), 255);
 
-		auto max = std::accumulate(hist.begin(), hist.end(), (r32)0);
+		auto max = std::accumulate(hist.begin(), hist.end(), 0.0f);
 
 		const auto norm = [&](u32 count)
 		{
