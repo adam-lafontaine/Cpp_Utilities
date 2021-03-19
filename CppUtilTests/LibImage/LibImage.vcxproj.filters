@@ -27,7 +27,7 @@
     <ClCompile Include="..\..\libimage\stb\libimage_math.cpp">
       <Filter>Source Files\stb</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\libimage\stb\libimage_stb.cpp">
+    <ClCompile Include="..\..\libimage\stb\libimage.cpp">
       <Filter>Source Files\stb</Filter>
     </ClCompile>
   </ItemGroup>
@@ -44,9 +44,6 @@
     <ClInclude Include="..\..\libimage\stb\libimage_math.hpp">
       <Filter>Header Files\stb</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\libimage\stb\libimage_stb.hpp">
-      <Filter>Header Files\stb</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\libimage\stb\stb_image.h">
       <Filter>Header Files\stb</Filter>
     </ClInclude>
@@ -57,6 +54,9 @@
       <Filter>Header Files\stb</Filter>
     </ClInclude>
     <ClInclude Include="..\..\libimage\stb\stb_all.hpp">
+      <Filter>Header Files\stb</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\libimage\stb\libimage.hpp">
       <Filter>Header Files\stb</Filter>
     </ClInclude>
   </ItemGroup>

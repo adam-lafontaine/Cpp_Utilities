@@ -8,7 +8,7 @@
 using r32 = float;
 
 
-namespace libimage_stb
+namespace libimage
 {
 	constexpr size_t CHANNEL_SIZE = 256; // 8 bit channel
 	constexpr size_t N_HIST_BUCKETS = 16;

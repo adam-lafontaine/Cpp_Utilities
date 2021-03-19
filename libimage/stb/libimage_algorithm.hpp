@@ -6,7 +6,7 @@
 #include <algorithm>
 #include <execution>
 
-namespace libimage_stb
+namespace libimage
 {
 	// for_each
 	using fe_ref_t = std::function<void(pixel_t& p)>;

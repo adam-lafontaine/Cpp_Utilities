@@ -3013,7 +3013,7 @@ static int stbi__parse_entropy_coded_data(stbi__jpeg *z)
                         int x2 = (i*z->img_comp[n].h + x);
                         int y2 = (j*z->img_comp[n].v + y);
                         //short* data = z->img_comp[n].coeff + 64 * (x2 + y2 * z->img_comp[n].coeff_w);
-                        short *data = z->img_comp[n].coeff + 64 * ((size_t)x2 + y2 * z->img_comp[n].coeff_w);
+                        short *data = z->img_comp[n].coeff + 64 * (x2 + (size_t)y2 * z->img_comp[n].coeff_w);
                         if (!stbi__jpeg_decode_block_prog_dc(z, data, &z->huff_dc[z->img_comp[n].hd], n))
                            return 0;
                      }
@@ -3521,7 +3521,7 @@ static stbi_uc *stbi__resample_row_hv_2_simd(stbi_uc *out, stbi_uc *in_near, stb
 
       // pack and write output
       __m128i outv = _mm_packus_epi16(de0, de1);
-      _mm_storeu_si128((__m128i *) (out + i*2), outv);
+      _mm_storeu_si128((__m128i *) (out + (size_t)i*2), outv);
 #elif defined(STBI_NEON)
       // load and perform the vertical filtering pass
       // this uses 3*x + y = 4*x + (y - x)
@@ -4719,7 +4719,7 @@ static int stbi__create_png_image_raw(stbi__png *a, stbi_uc *raw, stbi__uint32 r
    if (depth < 8) {
       for (j=0; j < y; ++j) {
          stbi_uc *cur = a->out + stride*j;
-         stbi_uc *in  = a->out + stride*j + x*out_n - img_width_bytes;
+         stbi_uc *in  = a->out + stride*j + (size_t)x*out_n - img_width_bytes;
          // unpack 1/2/4-bit into a 8-bit buffer. allows us to keep the common 8-bit path optimal at minimal cost for 1/2/4-bit
          // png guarante byte alignment, if width is not multiple of 8/4/2 we'll decode dummy trailing data that will be skipped in the later loop
          stbi_uc scale = (color == 0) ? stbi__depth_scale_table[depth] : 1; // scale grayscale values to 0..255 range
@@ -4833,8 +4833,8 @@ static int stbi__create_png_image(stbi__png *a, stbi_uc *image_data, stbi__uint3
                int out_x = i*xspc[p]+xorig[p];
                //memcpy(final + out_y*a->s->img_x*out_bytes + out_x*out_bytes,
                //    a->out + (j*x+i) * out_bytes, out_bytes);
-               memcpy(final + out_y*a->s->img_x*out_bytes + out_x*out_bytes,
-                      a->out + (size_t)(j*x+i)*out_bytes, out_bytes);
+               memcpy(final + (size_t)out_y*a->s->img_x*out_bytes + (size_t)out_x*out_bytes,
+                      a->out + ((size_t)j*x+i)*out_bytes, out_bytes);
             }
          }
          STBI_FREE(a->out);
@@ -5593,7 +5593,7 @@ static void *stbi__bmp_load(stbi__context *s, int *x, int *y, int *comp, int req
           //stbi_uc* p1 = out + j * s->img_x * target;
           //stbi_uc* p2 = out + (s->img_y - 1 - j) * s->img_x * target;
          stbi_uc *p1 = out +      (size_t)j     *s->img_x*target;
-         stbi_uc *p2 = out + (size_t)(s->img_y-1-j)*s->img_x*target;
+         stbi_uc *p2 = out + ((size_t)s->img_y-1-j)*s->img_x*target;
          for (i=0; i < (int) s->img_x*target; ++i) {
             t = p1[i]; p1[i] = p2[i]; p2[i] = t;
          }

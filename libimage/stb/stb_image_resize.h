@@ -925,7 +925,7 @@ static int stbir__get_filter_pixel_width(stbir_filter filter, float scale)
     STBIR_ASSERT(filter < STBIR__ARRAY_SIZE(stbir__filter_info_table));
 
     if (stbir__use_upsampling(scale))
-        return (int)ceil(stbir__filter_info_table[(size_t)filter].support(1 / scale) * 2);
+        return (int)ceil((size_t)stbir__filter_info_table[filter].support(1 / scale) * 2);
         //return (int)ceil(stbir__filter_info_table[filter].support(1/scale) * 2);
     else
         return (int)ceil(stbir__filter_info_table[filter].support(scale) * 2 / scale);
@@ -941,9 +941,9 @@ static int stbir__get_filter_pixel_margin(stbir_filter filter, float scale)
 static int stbir__get_coefficient_width(stbir_filter filter, float scale)
 {
     if (stbir__use_upsampling(scale))
-        return (int)ceil(stbir__filter_info_table[filter].support(1 / scale) * 2);
+        return (int)ceil((size_t)stbir__filter_info_table[filter].support(1 / scale) * 2);
     else
-        return (int)ceil(stbir__filter_info_table[filter].support(scale) * 2);
+        return (int)ceil((size_t)stbir__filter_info_table[filter].support(scale) * 2);
 }
 
 static int stbir__get_contributors(float scale, stbir_filter filter, int input_size, int output_size)
@@ -1081,7 +1081,7 @@ static void stbir__calculate_coefficients_upsample(stbir_filter filter, float sc
     float total_filter = 0;
     float filter_scale;
 
-    STBIR_ASSERT(in_last_pixel - in_first_pixel <= (int)ceil(stbir__filter_info_table[filter].support(1/scale) * 2)); // Taken directly from stbir__get_coefficient_width() which we can't call because we don't know if we're horizontal or vertical.
+    STBIR_ASSERT(in_last_pixel - in_first_pixel <= (int)ceil((size_t)stbir__filter_info_table[filter].support(1/scale) * 2)); // Taken directly from stbir__get_coefficient_width() which we can't call because we don't know if we're horizontal or vertical.
 
     contributor->n0 = in_first_pixel;
     contributor->n1 = in_last_pixel;
@@ -1129,7 +1129,7 @@ static void stbir__calculate_coefficients_downsample(stbir_filter filter, float 
 {
     int i;
 
-     STBIR_ASSERT(out_last_pixel - out_first_pixel <= (int)ceil(stbir__filter_info_table[filter].support(scale_ratio) * 2)); // Taken directly from stbir__get_coefficient_width() which we can't call because we don't know if we're horizontal or vertical.
+     STBIR_ASSERT(out_last_pixel - out_first_pixel <= (int)ceil((size_t)stbir__filter_info_table[filter].support(scale_ratio) * 2)); // Taken directly from stbir__get_coefficient_width() which we can't call because we don't know if we're horizontal or vertical.
 
     contributor->n0 = out_first_pixel;
     contributor->n1 = out_last_pixel;

@@ -826,7 +826,7 @@ STBIWDEF int stbi_write_hdr(char const *filename, int x, int y, int comp, const 
 static void *stbiw__sbgrowf(void **arr, int increment, int itemsize)
 {
    int m = *arr ? 2*stbiw__sbm(*arr)+increment : increment+1;
-   void *p = STBIW_REALLOC_SIZED(*arr ? stbiw__sbraw(*arr) : 0, *arr ? (stbiw__sbm(*arr)*itemsize + sizeof(int)*2) : 0, itemsize * m + sizeof(int)*2); // TODO: warning
+   void *p = STBIW_REALLOC_SIZED(*arr ? stbiw__sbraw(*arr) : 0, *arr ? ((size_t)stbiw__sbm(*arr)*itemsize + sizeof(int)*2) : 0, (size_t)itemsize * m + sizeof(int)*2); // TODO: warning
    STBIW_ASSERT(p);
    if (p) {
       if (!*arr) ((int *) p)[1] = 0; // TODO: warning

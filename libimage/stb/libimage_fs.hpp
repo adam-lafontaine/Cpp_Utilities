@@ -1,12 +1,12 @@
 #pragma once
 
-#include "libimage_stb.hpp"
+#include "libimage.hpp"
 
 #include <filesystem>
 
 namespace fs = std::filesystem;
 
-namespace libimage_stb
+namespace libimage
 {
 	inline void read_image_from_file(fs::path const& img_path_src, image_t& image_dst)
 	{
