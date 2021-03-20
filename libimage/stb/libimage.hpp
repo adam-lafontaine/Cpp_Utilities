@@ -10,7 +10,7 @@ using u32 = uint32_t;
 using u64 = uint64_t;
 
 
-namespace libimage_stb
+namespace libimage
 {
 	void read_image_from_file(const char* img_path_src, image_t& image_dst);
 

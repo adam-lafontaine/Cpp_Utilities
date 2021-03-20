@@ -1,10 +1,10 @@
 #include "libimage_math.hpp"
-#include "libimage_stb.hpp"
+#include "libimage.hpp"
 
 #include <numeric>
 
 
-namespace libimage_stb
+namespace libimage
 {
 	rgb_stats_t calc_stats(view_t const& view)
 	{
@@ -130,7 +130,7 @@ namespace libimage_stb
 		make_image(image_dst, image_width, image_height);
 		std::fill(image_dst.begin(), image_dst.end(), 255);
 
-		auto max = std::accumulate(hist.begin(), hist.end(), (r32)0);
+		auto max = std::accumulate(hist.begin(), hist.end(), 0.0f);
 
 		const auto norm = [&](u32 count)
 		{
@@ -143,32 +143,19 @@ namespace libimage_stb
 		bar_range.y_begin = 0;
 		bar_range.y_end = image_height;
 
-		pixel_range_t cap_range;
-		cap_range.x_begin = bar_range.x_begin;
-		cap_range.x_end = bar_range.x_end;
-		cap_range.y_begin = 0;
-		cap_range.y_end = 0;
-
 		for (u8 bucket = 0; bucket < n_buckets; ++bucket)
 		{
-			cap_range.y_begin = norm(hist[bucket]);
-			cap_range.y_end = cap_range.y_begin + 1;
-			bar_range.y_begin = cap_range.y_end;
-
-			auto cap_view = sub_view(image_dst, cap_range);
-			std::fill(cap_view.begin(), cap_view.end(), 0);
+			bar_range.y_begin = norm(hist[bucket]);
 
 			if (bar_range.y_end > bar_range.y_begin)
 			{
-				u8 shade = n_buckets * (bucket + 1) - 1;
+				u8 shade = 50;// n_buckets* (bucket + 1) - 1;
 				auto bar_view = sub_view(image_dst, bar_range);
 				std::fill(bar_view.begin(), bar_view.end(), shade);
 			}
 
 			bar_range.x_begin += (bucket_spacing + bucket_width);
 			bar_range.x_end += (bucket_spacing + bucket_width);
-			cap_range.x_begin += (bucket_spacing + bucket_width);
-			cap_range.x_end += (bucket_spacing + bucket_width);
 		}
 
 	}
@@ -184,18 +171,17 @@ namespace libimage_stb
 		constexpr auto n_channels = RGBA_CHANNELS - 1;
 
 		u32 const max_relative_qty = 200;
-		u32 const image_height = max_relative_qty + 1;
+		u32 const channel_spacing = 1;
+		u32 const channel_height = max_relative_qty + channel_spacing;
+		u32 const image_height = channel_height * n_channels;
 
 		u8 const n_buckets = static_cast<u8>(N_HIST_BUCKETS);
 
-		u32 const c_bucket_width = 10;
-		u32 const c_bucket_spacing = 1;
-		u32 const bucket_width = n_channels * (c_bucket_width + c_bucket_spacing);
-		u32 const bucket_spacing = 3;
+		u32 const bucket_width = 20;
+		u32 const bucket_spacing = 1;
 		u32 const image_width = n_buckets * (bucket_spacing + bucket_width) + bucket_spacing;
 
 		pixel_t white = to_pixel(255, 255, 255);
-		pixel_t black = to_pixel(0, 0, 0);
 
 		make_image(image_dst, image_width, image_height);
 		std::fill(image_dst.begin(), image_dst.end(), white);
@@ -204,37 +190,25 @@ namespace libimage_stb
 		{
 			auto& hist = rgb_stats.stats[c].hist;
 
-			auto max = std::accumulate(hist.begin(), hist.end(), (r32)0);
+			auto max = std::accumulate(hist.begin(), hist.end(), 0.0f);
 
 			const auto norm = [&](u32 count)
 			{
-				return max_relative_qty - static_cast<u32>(count / max * max_relative_qty);
+				return static_cast<u32>(count / max * max_relative_qty);
 			};
 
 			pixel_range_t bar_range;
-			bar_range.x_begin = bucket_spacing + c * (c_bucket_width + c_bucket_spacing);
-			bar_range.x_end = bar_range.x_begin + c_bucket_width;
+			bar_range.x_begin = bucket_spacing;
+			bar_range.x_end = bar_range.x_begin + bucket_width;
 			bar_range.y_begin = 0;
-			bar_range.y_end = image_height;
-
-			pixel_range_t cap_range;
-			cap_range.x_begin = bar_range.x_begin;
-			cap_range.x_end = bar_range.x_end;
-			cap_range.y_begin = 0;
-			cap_range.y_end = 0;
+			bar_range.y_end = channel_height * (c + 1);
 
 			for (u8 bucket = 0; bucket < n_buckets; ++bucket)
 			{
-				cap_range.y_begin = norm(hist[bucket]);
-				cap_range.y_end = cap_range.y_begin + 1;
-				bar_range.y_begin = cap_range.y_end;
-
-				auto cap_view = sub_view(image_dst, cap_range);
-				std::fill(cap_view.begin(), cap_view.end(), black);
-
+				bar_range.y_begin = bar_range.y_end - norm(hist[bucket]);
 				if (bar_range.y_end > bar_range.y_begin)
 				{
-					u8 shade = n_buckets * (bucket + 1) - 1;
+					u8 shade = 200; // n_buckets* (bucket + 1) - 1;
 					pixel_t color = to_pixel(0, 0, 0, 255);
 					color.channels[c] = shade;
 					auto bar_view = sub_view(image_dst, bar_range);
@@ -243,10 +217,11 @@ namespace libimage_stb
 
 				bar_range.x_begin += (bucket_spacing + bucket_width);
 				bar_range.x_end += (bucket_spacing + bucket_width);
-				cap_range.x_begin += (bucket_spacing + bucket_width);
-				cap_range.x_end += (bucket_spacing + bucket_width);
 			}
 		}
+
+
+
 
 	}
 }

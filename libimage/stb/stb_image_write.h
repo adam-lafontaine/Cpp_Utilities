@@ -476,7 +476,7 @@ static void stbiw__write_pixels(stbi__write_context *s, int rgb_dir, int vdir, i
    for (; j != j_end; j += vdir) {
       for (i=0; i < x; ++i) {
          //unsigned char *d = (unsigned char *) data + (j*x+i)*comp;
-          unsigned char* d = (unsigned char*)data + (size_t)comp * (j * x + i);
+          unsigned char* d = (unsigned char*)data + (size_t)comp * ((size_t)j * x + i);
          stbiw__write_pixel(s, rgb_dir, comp, write_alpha, expand_mono, d);
       }
       stbiw__write_flush(s);
@@ -555,22 +555,22 @@ static int stbi_write_tga_core(stbi__write_context *s, int x, int y, int comp, v
          jdir = -1;
       }
       for (; j != jend; j += jdir) {
-         unsigned char* row = (unsigned char*)data + j * x * comp;
+         unsigned char* row = (unsigned char*)data + (size_t)j * x * comp;
          //int len;
          int len = 0;
 
          for (i = 0; i < x; i += len) {
-            unsigned char *begin = row + i * comp;
+            unsigned char *begin = row + (size_t)i * comp;
             int diff = 1;
             len = 1;
 
             if (i < x - 1) {
                ++len;
-               diff = memcmp(begin, row + (i + 1) * comp, comp);
+               diff = memcmp(begin, row + ((size_t)i + 1) * comp, comp);
                if (diff) {
                   const unsigned char *prev = begin;
                   for (k = i + 2; k < x && len < 128; ++k) {
-                     if (memcmp(prev, row + k * comp, comp)) {
+                     if (memcmp(prev, row + (size_t)k * comp, comp)) {
                         prev += comp;
                         ++len;
                      } else {
@@ -580,7 +580,7 @@ static int stbi_write_tga_core(stbi__write_context *s, int x, int y, int comp, v
                   }
                } else {
                   for (k = i + 2; k < x && len < 128; ++k) {
-                     if (!memcmp(begin, row + k * comp, comp)) {
+                     if (!memcmp(begin, row + (size_t)k * comp, comp)) {
                         ++len;
                      } else {
                         break;
@@ -593,7 +593,7 @@ static int stbi_write_tga_core(stbi__write_context *s, int x, int y, int comp, v
                unsigned char header = STBIW_UCHAR(len - 1);
                stbiw__write1(s, header);
                for (k = 0; k < len; ++k) {
-                  stbiw__write_pixel(s, -1, comp, has_alpha, 0, begin + k * comp);
+                  stbiw__write_pixel(s, -1, comp, has_alpha, 0, begin + (size_t)k * comp);
                }
             } else {
                unsigned char header = STBIW_UCHAR(len - 129);
@@ -826,10 +826,10 @@ STBIWDEF int stbi_write_hdr(char const *filename, int x, int y, int comp, const 
 static void *stbiw__sbgrowf(void **arr, int increment, int itemsize)
 {
    int m = *arr ? 2*stbiw__sbm(*arr)+increment : increment+1;
-   void *p = STBIW_REALLOC_SIZED(*arr ? stbiw__sbraw(*arr) : 0, *arr ? (stbiw__sbm(*arr)*itemsize + sizeof(int)*2) : 0, itemsize * m + sizeof(int)*2);
+   void *p = STBIW_REALLOC_SIZED(*arr ? stbiw__sbraw(*arr) : 0, *arr ? ((size_t)stbiw__sbm(*arr)*itemsize + sizeof(int)*2) : 0, (size_t)itemsize * m + sizeof(int)*2); // TODO: warning
    STBIW_ASSERT(p);
    if (p) {
-      if (!*arr) ((int *) p)[1] = 0;
+      if (!*arr) ((int *) p)[1] = 0; // TODO: warning
       *arr = (void *) ((int *) p + 2);
       stbiw__sbm(*arr) = m;
    }
@@ -945,7 +945,7 @@ STBIWDEF unsigned char * stbi_zlib_compress(unsigned char *data, int data_len, i
          hlist = hash_table[h];
          n = stbiw__sbcount(hlist);
          for (j=0; j < n; ++j) {
-            if (hlist[j]-data > i-32767) {
+            if (hlist[j]-data > (size_t)i-32767) {
                int e = stbiw__zlib_countm(hlist[j], data+i+1, data_len-i-1);
                if (e > best) { // if next match is better, bail on current match
                   bestloc = NULL;
@@ -1144,7 +1144,7 @@ STBIWDEF unsigned char *stbi_write_png_to_mem(const unsigned char *pixels, int s
             // Estimate the entropy of the line using this filter; the less, the better.
             est = 0;
             for (i = 0; i < x*n; ++i) {
-               est += abs((signed char) line_buffer[i]);
+               est += abs((signed char) line_buffer[i]); // TODO: warning
             }
             if (est < best_filter_val) {
                best_filter_val = est;
@@ -1159,7 +1159,7 @@ STBIWDEF unsigned char *stbi_write_png_to_mem(const unsigned char *pixels, int s
       // when we get here, filter_type contains the filter type, and line_buffer contains the data
       filt[j*(x*n+1)] = (unsigned char) filter_type;
       //STBIW_MEMMOVE(filt+j*(x*n+1)+1, line_buffer, x*n);
-      STBIW_MEMMOVE(filt + (size_t)j * (x * n + 1) + 1, line_buffer, x * n);
+      STBIW_MEMMOVE(filt + (size_t)j * (x * n + 1) + 1, line_buffer, x * n); // TODO: warning
    }
    STBIW_FREE(line_buffer);
    zlib = stbi_zlib_compress(filt, y*( x*n+1), &zlen, stbi_write_png_compression_level);
@@ -1167,12 +1167,12 @@ STBIWDEF unsigned char *stbi_write_png_to_mem(const unsigned char *pixels, int s
    if (!zlib) return 0;
 
    // each tag requires 12 bytes of overhead
-   out = (unsigned char *) STBIW_MALLOC(8 + 12+13 + 12+zlen + 12);
+   out = (unsigned char *) STBIW_MALLOC(8 + 12+13 + 12+zlen + 12); // TODO: warning
    if (!out) return 0;
    *out_len = 8 + 12+13 + 12+zlen + 12;
 
    o=out;
-   STBIW_MEMMOVE(o,sig,8); o+= 8;
+   STBIW_MEMMOVE(o,sig,8); o+= 8; // TODO: warning
    stbiw__wp32(o, 13); // header length
    stbiw__wptag(o, "IHDR");
    stbiw__wp32(o, x);

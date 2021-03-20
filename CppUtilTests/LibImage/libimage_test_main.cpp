@@ -6,8 +6,7 @@
 #include <mutex>
 
 namespace fs = std::filesystem;
-//namespace img = libimage;
-namespace img = libimage_stb;
+namespace img = libimage;
 
 constexpr auto CORVETTE_PATH = "D:/repos/Cpp_Utilities/CppUtilTests/LibImage/in_files/png/corvette.png";
 constexpr auto CADILLAC_PATH = "D:/repos/Cpp_Utilities/CppUtilTests/LibImage/in_files/png/cadillac.png";

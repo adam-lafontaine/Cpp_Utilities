@@ -1,13 +1,5 @@
-#include "libimage_stb.hpp"
-
-#define STB_IMAGE_IMPLEMENTATION
-#include "stb_image.h"
-
-#define STB_IMAGE_WRITE_IMPLEMENTATION
-#include "stb_image_write.h"
-
-#define STB_IMAGE_RESIZE_IMPLEMENTATION
-#include "stb_image_resize.h"
+#include "libimage.hpp"
+#include "stb_all.hpp"
 
 #include <algorithm>
 #include <execution>
@@ -15,7 +7,7 @@
 
 namespace fs = std::filesystem;
 
-namespace libimage_stb
+namespace libimage
 {
 	void read_image_from_file(const char* img_path_src, image_t& image_dst)
 	{
