@@ -38,6 +38,7 @@ A collection of small utilities I like having around
         * Sequential and parallel for_each and transform algorithms
         * Has problems with color bmp images
     * stb_image
+        * Now deprecated by https://github.com/adam-lafontaine/LibImage
         * C++17
         * Similar interface to boost::gil::image_t and image_view_t
         * Create an image object and load image data into it
