@@ -1,6 +1,11 @@
 #### C++ Utilities
 A collection of small utilities I like having around
 
+* allocator
+    * Memory allocator on the cheap
+    * Stack behavior for pre-allocated memory
+    * CUDA version available
+
 * command_line
     * C++17
     * For processing command line arguments
