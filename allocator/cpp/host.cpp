@@ -1,38 +1,16 @@
-#include "device.hpp"
+#include "host.hpp"
 
-#include <cuda_runtime.h>
 #include <cassert>
-
-#define CUDA_PRINT_ERROR
-
-#ifdef CUDA_PRINT_ERROR
-
-#include <cstdio>
-
-#endif
+#include <cstdlib>
 
 
-static void check_error(cudaError_t err)
-{
-    if(err == cudaSuccess)
-    {
-        return;
-    }
-
-    #ifdef CUDA_PRINT_ERROR
-
-    printf("\n*** CUDA ERROR ***\n\n");
-    printf("%s", cudaGetErrorString(err));
-    printf("\n\n******************\n\n");
-
-    #endif
-}
-
-
-namespace device
+namespace host
 {
     bool malloc(MemoryBuffer& buffer, size_t n_bytes)
     {
+        assert(n_bytes);
+        assert(!buffer.data);
+
         assert(n_bytes);
         assert(!buffer.data);
 
@@ -41,17 +19,17 @@ namespace device
             return false;
         }
 
-        cudaError_t err = cudaMalloc((void**)&(buffer.data), n_bytes);
-        check_error(err);
+        auto ptr = std::malloc(n_bytes);
 
-        bool result = err == cudaSuccess;
-
-        if(result)
+        if(!ptr)
         {
-            buffer.capacity = n_bytes;
+            return false;
         }
-        
-        return result;
+
+        buffer.data = (u8*)ptr;
+        buffer.capacity = n_bytes;
+
+        return true;
     }
 
 
@@ -62,12 +40,7 @@ namespace device
 
         if(buffer.data)
         {
-            cudaError_t err = cudaFree(buffer.data);
-            check_error(err);
-
-            buffer.data = nullptr;
-
-            return err == cudaSuccess;
+            std::free(buffer.data);
         }
 
         return true;

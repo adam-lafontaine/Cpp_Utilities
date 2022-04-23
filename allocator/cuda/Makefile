@@ -286,6 +286,7 @@ device_o   := $(build)/device.o
 object_files   += $(device_o)
 
 ALL_CCFLAGS += -O3 -DNDEBUG
+GPP := g++-10 -std=c++17 -O3 -DNDEBUG
 
 
 check.deps: 
@@ -295,9 +296,9 @@ else
 	@echo "Sample is ready - all dependencies have been met"
 endif
 
-$(main_o): $(main_c) $(libimage_h) $(proc_h) $(math_h) $(charts_h)
+$(main_o): $(main_c) $(device_h)
 	@echo "\n main"
-	$(EXEC) $(NVCC) $(INCLUDES) $(ALL_CCFLAGS) $(GENCODE_FLAGS) -o $@ -c $<
+	$(GPP) -o $@ -c $<
 
 $(device_o): $(device_c) $(device_h)
 	@echo "\n device"
