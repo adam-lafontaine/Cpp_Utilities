@@ -51,6 +51,54 @@ void malloc_free_test()
 }
 
 
+void unified_malloc_test()
+{
+    printf("\nunified_malloc_test:\n");
+
+    size_t n_bytes = 100;
+
+    device::MemoryBuffer buffer;
+
+    bool result;
+    auto const print_result = [&](const char* label){ printf("%-17s: %4s\n", label, (result ? "PASS" : "FAIL")); };
+
+    result = !device::unified_malloc(buffer, 0);
+    print_result("no bytes");
+    
+    result = device::unified_malloc(buffer, n_bytes);
+    print_result("malloc");
+
+    if(!result)
+    {
+        return;
+    }
+
+    result = buffer.data;
+    print_result("malloc data");
+
+    result = buffer.capacity == n_bytes;
+    print_result("malloc capacity");
+
+    result = buffer.size == 0;
+    print_result("malloc size");
+
+    result = !device::unified_malloc(buffer, 1);
+    print_result("malloc allocated");
+
+    result = device::free(buffer);
+    print_result("free");
+
+    result = !buffer.data;
+    print_result("free data");
+
+    result = buffer.capacity == 0;
+    print_result("free capacity");
+
+    result = buffer.size == 0;
+    print_result("free size");
+}
+
+
 void push_bytes_test()
 {
     printf("\npush_bytes_test:\n");
@@ -129,6 +177,7 @@ void pop_bytes_test()
 int main()
 {
     malloc_free_test();
+    unified_malloc_test();
     push_bytes_test();
     pop_bytes_test();
 }

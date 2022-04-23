@@ -18,6 +18,8 @@ namespace device
 
     bool malloc(MemoryBuffer& buffer, size_t n_bytes);
 
+    bool unified_malloc(MemoryBuffer& buffer, size_t n_bytes);
+
     bool free(MemoryBuffer& buffer);
 
     u8* push_bytes(MemoryBuffer& buffer, size_t n_bytes);

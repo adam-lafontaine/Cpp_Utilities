@@ -55,6 +55,30 @@ namespace device
     }
 
 
+    bool unified_malloc(MemoryBuffer& buffer, size_t n_bytes)
+    {
+        assert(n_bytes);
+        assert(!buffer.data);
+
+        if(!n_bytes || buffer.data)
+        {
+            return false;
+        }
+
+        cudaError_t err = cudaMallocManaged((void**)&(buffer.data), n_bytes);
+        check_error(err);
+
+        bool result = err == cudaSuccess;
+
+        if(result)
+        {
+            buffer.capacity = n_bytes;
+        }
+        
+        return result;
+    }
+
+
     bool free(MemoryBuffer& buffer)
     {
         buffer.capacity = 0;
