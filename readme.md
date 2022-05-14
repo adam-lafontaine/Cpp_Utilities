@@ -52,6 +52,8 @@ A collection of small utilities I like having around
         * A view is a subsection of the original image and points to the image's memory
         * Process the view if operations are non-trivial
         
+* make_start
+    * Makefile starting point
 
 * normalize
     * C++17
