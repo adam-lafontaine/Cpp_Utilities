@@ -8,13 +8,13 @@
 namespace fs = std::filesystem;
 namespace img = libimage;
 
-constexpr auto CORVETTE_PATH = "D:/repos/Cpp_Utilities/CppUtilTests/LibImage/in_files/png/corvette.png";
-constexpr auto CADILLAC_PATH = "D:/repos/Cpp_Utilities/CppUtilTests/LibImage/in_files/png/cadillac.png";
+constexpr auto CORVETTE_PATH = "C:/D_Data/repos/Cpp_Utilities/CppUtilTests/LibImage/in_files/png/corvette.png";
+constexpr auto CADILLAC_PATH = "C:/D_Data/repos/Cpp_Utilities/CppUtilTests/LibImage/in_files/png/cadillac.png";
 
 constexpr auto SRC_IMAGE_PATH = CORVETTE_PATH;
-constexpr auto DST_IMAGE_ROOT = "D:/repos/Cpp_Utilities/CppUtilTests/LibImage/out_files";
+constexpr auto DST_IMAGE_ROOT = "C:/D_Data/repos/Cpp_Utilities/CppUtilTests/LibImage/out_files";
 
-constexpr auto RED = "D:/repos/Cpp_Utilities/CppUtilTests/LibImage/in_files/png/red.bmp";
+constexpr auto RED = "C:/D_Data/repos/Cpp_Utilities/CppUtilTests/LibImage/in_files/png/red.bmp";
 
 
 void empty_dir(fs::path const& dir);
