@@ -9,8 +9,7 @@ A collection of small utilities I like having around
 * command_line
     * C++17
     * For processing command line arguments
-    * Demonstrated in example_main.cpp
-    
+    * Demonstrated in example_main.cpp    
 
 * config_reader
     * C++ 17
@@ -19,21 +18,21 @@ A collection of small utilities I like having around
     * Comment lines with '#'
     * Overload for specifying required keys
 
-
 * directory_helper
     * C++17
     * Provides file paths of a given extension in a directory
 
+* execute
+    * C++17
+    * Easy parallel execution
 
 * for_each_in_range
     * C++17
     * Iterate over 1D and 2D integer ranges
     * Sequential or parallel
 
-
 * leak_check
     * Check for memory leaks using Visual Studio
-
 
 * libimage
     * Basic image processing library using Boost GIL or stb_image
@@ -69,7 +68,6 @@ A collection of small utilities I like having around
         * TODO: bytemap.hpp
     * convert.hpp/cpp
         * Used with charmap.hpp to convert multiple values into a string
-
 
 * stopwatch
     * C++17
