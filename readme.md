@@ -18,6 +18,10 @@ A collection of small utilities I like having around
     * Comment lines with '#'
     * Overload for specifying required keys
 
+* cuda
+    * Helpers and macros for CUDA programming
+    * Templated stack for managing device memory
+
 * directory_helper
     * C++17
     * Provides file paths of a given extension in a directory
@@ -42,7 +46,7 @@ A collection of small utilities I like having around
         * Sequential and parallel for_each and transform algorithms
         * Has problems with color bmp images
     * stb_image
-        * Now deprecated by https://github.com/adam-lafontaine/LibImage
+        * Now deprecated by https://github.com/adam-lafontaine/SimpleImage
         * C++17
         * Similar interface to boost::gil::image_t and image_view_t
         * Create an image object and load image data into it
@@ -53,6 +57,9 @@ A collection of small utilities I like having around
         
 * make_start
     * Makefile starting point
+
+* memory_buffer
+    * Templated stack implementation
 
 * normalize
     * C++17

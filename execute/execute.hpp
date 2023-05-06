@@ -1,14 +1,14 @@
 #pragma once
 
-#include "../defines.hpp"
-
 #include <algorithm>
 #include <functional>
 #include <array>
 #include <vector>
 
+using u32 = unsigned;
 
-#ifndef SIMPLE_NO_PARALLEL
+
+#ifndef EXECUTE_NO_PARALLEL
 
 #include <execution>
 // -ltbb
@@ -26,7 +26,7 @@ inline void execute_parallel(std::vector<std::function<void()>> const& f_list)
     std::for_each(std::execution::par, f_list.begin(), f_list.end(), [](auto const& f){ f(); });
 }
 
-#endif // !SIMPLE_NO_PARALLEL
+#endif // !EXECUTE_NO_PARALLEL
 
 
 template <size_t N>

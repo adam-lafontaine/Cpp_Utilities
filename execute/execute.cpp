@@ -1,6 +1,9 @@
 #include "execute.hpp"
 
-#ifndef SIMPLE_NO_PARALLEL
+#include <cassert>
+
+
+#ifndef EXECUTE_NO_PARALLEL
 
 template <class LIST_T, class FUNC_T>
 static void do_for_each(LIST_T const& list, FUNC_T const& func)
@@ -16,7 +19,10 @@ static void do_for_each(LIST_T const& list, FUNC_T const& func)
 	std::for_each(list.begin(), list.end(), func);
 }
 
-#endif // !SIMPLE_NO_PARALLEL
+#endif // !EXECUTE_NO_PARALLEL
+
+
+constexpr size_t N_THREADS = 16;
 
 
 class ThreadProcess
