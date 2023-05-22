@@ -76,6 +76,9 @@ A collection of small utilities I like having around
     * convert.hpp/cpp
         * Used with charmap.hpp to convert multiple values into a string
 
+* ring_buffer
+    * Templated ring/circular buffer
+
 * stopwatch
     * C++17
     * Wraps std::chrono to easily time code execution
