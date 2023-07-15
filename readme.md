@@ -76,6 +76,9 @@ A collection of small utilities I like having around
     * convert.hpp/cpp
         * Used with charmap.hpp to convert multiple values into a string
 
+* profiler
+    * Simple profiler for function calls
+
 * ring_buffer
     * Templated ring/circular buffer
 
