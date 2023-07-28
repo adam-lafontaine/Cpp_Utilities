@@ -7,11 +7,9 @@ namespace perf
 {
     void profile_init();
 
-
     void profile_clear();
 
-
-    void profile_report();
+    void profile_report(cstr report_label = 0);
 }
 
 
@@ -30,8 +28,8 @@ namespace perf
     
     private:
 
-        u64 cpu_start;
-        u64 cpu_end;
+        u64 cpu_start = 0;
+        u64 cpu_end = 0;
     };
 
 }
