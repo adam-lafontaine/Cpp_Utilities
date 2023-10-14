@@ -40,13 +40,13 @@ A collection of small utilities I like having around
 
 * libimage
     * Basic image processing library using Boost GIL or stb_image
+    * Now deprecated by https://github.com/adam-lafontaine/SimpleImage
     * Boost GIL
         * C++17
         * Add _CRT_SECURE_NO_WARNINGS to Preprocessor Definitions in Visual Studio
         * Sequential and parallel for_each and transform algorithms
         * Has problems with color bmp images
-    * stb_image
-        * Now deprecated by https://github.com/adam-lafontaine/SimpleImage
+    * stb_image        
         * C++17
         * Similar interface to boost::gil::image_t and image_view_t
         * Create an image object and load image data into it
@@ -54,6 +54,9 @@ A collection of small utilities I like having around
         * Create a view from the image
         * A view is a subsection of the original image and points to the image's memory
         * Process the view if operations are non-trivial
+
+* libuvc
+    * Single header file created from the Libuvc library (https://github.com/libuvc/libuvc)
         
 * make_start
     * Makefile starting point
