@@ -47,6 +47,7 @@ extern "C"
 
 #include <stdio.h> // FILE
 #include <stdint.h>
+#include <sys/time.h>
 
   struct libusb_context;
   struct libusb_device_handle;
@@ -1601,7 +1602,7 @@ extern "C"
 #include <string.h>
 #include <pthread.h>
 #include <signal.h>
-#include <libusb.h>
+#include <libusb-1.0/libusb.h>
 
 /** Converts an unaligned four-byte little-endian integer into an int32 */
 #define DW_TO_INT(p) ((p)[0] | ((p)[1] << 8) | ((p)[2] << 16) | ((p)[3] << 24))
