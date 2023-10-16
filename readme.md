@@ -60,7 +60,7 @@ A collection of small utilities I like having around
     * #include "libuvc.h" for access to api
         * #define LIBUVC_IMPLEMENTATION in exactly one file before including the header
     * Need to install libusb and libjpeg
-        * sudo apt install - y libusb-1.0-0-dev libjpeg-dev
+        * sudo apt install -y libusb-1.0-0-dev libjpeg-dev
         
 * make_start
     * Makefile starting point
