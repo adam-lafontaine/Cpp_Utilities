@@ -66,7 +66,7 @@ A collection of small utilities I like having around
     * Makefile starting point
 
 * memory_buffer
-    * Templated stack implementation
+    * Encapsulated memory allocation and pointer arithemtic
 
 * normalize
     * C++17
@@ -85,6 +85,10 @@ A collection of small utilities I like having around
 
 * profiler
     * Simple profiler for function calls
+
+* qsprintf
+    * Wrapper for stb_sprintf.h
+    * Defined macro for renaming to qsprintf etc.
 
 * ring_buffer
     * Templated ring/circular buffer
