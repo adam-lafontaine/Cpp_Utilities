@@ -35,6 +35,10 @@ A collection of small utilities I like having around
     * Iterate over 1D and 2D integer ranges
     * Sequential or parallel
 
+* imgui_start
+    * Starting code for an application using Dear Imgui
+    * Currently only setup for Windows
+
 * leak_check
     * Check for memory leaks using Visual Studio
 
