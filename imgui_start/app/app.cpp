@@ -10,8 +10,10 @@ namespace
     public:
 
         bool app_running = false;
-
         bool message_visible = false;
+        bool is_counting = false;
+
+        uint8_t counter = 0;
     };
 
 
@@ -28,13 +30,15 @@ namespace
     public:
 
         bool stop_app_running = false;
-        bool button_clicked = false;
+        bool toggle_message = false;
+        bool toggle_counting = false;
 
         bool has_command()
         {
             return false ||
                 stop_app_running ||
-                button_clicked;
+                toggle_message ||
+                toggle_counting;
         }
     };
 }
@@ -74,19 +78,27 @@ namespace ui
 
         if (ImGui::Button("Toggle message", ImVec2(120, 30)))
         {
-            cmd.button_clicked = true;
+            cmd.toggle_message = true;
+        }
+
+        ImGui::SameLine();
+        if (ImGui::Button("End program", ImVec2(120, 30)))
+        {
+            cmd.stop_app_running = true;
         }
 
         if (state.message_visible)
         {
             ImGui::TextColored(GREEN, "Hello %s", input.user_name);
-        }
+            ImGui::TextColored(WHITE, "Background thread: %hhu", state.counter);
 
-        ImGui::SetCursorPosY(150);
-        if (ImGui::Button("End program", ImVec2(120, 30)))
-        {
-            cmd.stop_app_running = true;
-        }
+            ImGui::SameLine();
+            auto content = state.is_counting ? "Stop" : "Start";
+            if (ImGui::Button(content))
+            {
+                cmd.toggle_counting = true;
+            }
+        }        
 
         ImGui::End();
     }
@@ -98,10 +110,17 @@ static void process_command(UI_Command const& cmd, App_State& state)
     if (cmd.stop_app_running)
     {
         state.app_running = false;
+        return;
     }
-    else if (cmd.button_clicked)
+
+    if (cmd.toggle_message)
     {
         state.message_visible = !state.message_visible;
+    }
+
+    if (cmd.toggle_counting)
+    {
+        state.is_counting = !state.is_counting;
     }
 }
 
@@ -112,12 +131,23 @@ static UI_Input g_user_input;
 
 static void start_app()
 {
-    // startup background work
+    auto& state = g_app_state;    
 
-    while (g_app_state.app_running)
+    // startup background work
+    state.counter = 0;
+
+    while (state.app_running)
     {
         // run while app is running
-        std::this_thread::sleep_for(std::chrono::milliseconds(20));
+        long long delay = 20;
+
+        if (state.is_counting)
+        {
+            state.counter++;
+            delay = 500;
+        }
+
+        std::this_thread::sleep_for(std::chrono::milliseconds(delay));
     }
 }
 
