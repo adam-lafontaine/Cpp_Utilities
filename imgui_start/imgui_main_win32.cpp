@@ -6,11 +6,31 @@
 // This is because we need ImTextureID to carry a 64-bit value and by default ImTextureID is defined as void*.
 // This define is set in the example .vcxproj file and need to be replicated in your app or by adding it to your imconfig.h file.
 
-#include "imgui_include.hpp"
+
 
 #include "app/app.hpp"
 
 
+#include "imgui/misc/single_file/imgui_single_file.cpp"
+
+#include "imgui/imgui_impl_win32.h"
+#include "imgui/imgui_impl_dx12.h"
+
+#include <d3d12.h>
+#include <dxgi1_4.h>
+#include <tchar.h>
+
+#ifdef _DEBUG
+#define DX12_ENABLE_DEBUG_LAYER
+#endif
+
+#ifdef DX12_ENABLE_DEBUG_LAYER
+#include <dxgidebug.h>
+#pragma comment(lib, "dxguid.lib")
+#endif
+
+#pragma comment(lib, "d3d12.lib")
+#pragma comment(lib, "dxgi.lib")
 
 struct FrameContext
 {
@@ -130,7 +150,6 @@ int main(int, char**)
     ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
 
     app::init();
-
     auto app_th = app::start_worker();
 
     // Main loop
@@ -153,7 +172,6 @@ int main(int, char**)
         {
             break;
         }
-            
 
         // Start the Dear ImGui frame
         ImGui_ImplDX12_NewFrame();
@@ -164,7 +182,7 @@ int main(int, char**)
 
         //state.ui_frame_ms = 1000.0f / io.Framerate;
 
-#ifdef PLC_IMGUI_SHOW_DEMO
+#ifdef IMGUI_SHOW_DEMO
 #ifndef NDEBUG
 
         // 1. Show the big demo window (Most of the sample code is in ImGui::ShowDemoWindow()! You can browse its code to learn more about Dear ImGui!).
@@ -205,7 +223,7 @@ int main(int, char**)
         }
 
 #endif // !NDEBUG
-#endif // PLC_IMGUI_SHOW_DEMO
+#endif // IMGUI_SHOW_DEMO
 
         // Rendering
         ImGui::Render();
@@ -256,7 +274,7 @@ int main(int, char**)
     WaitForLastSubmittedFrame();
 
     app::shutdown();
-    app_th.join();    
+    app_th.join();
 
     // Cleanup
     ImGui_ImplDX12_Shutdown();
@@ -505,3 +523,8 @@ LRESULT WINAPI WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
     }
     return ::DefWindowProcW(hWnd, msg, wParam, lParam);
 }
+
+
+
+#include "imgui/imgui_impl_dx12.cpp"
+#include "imgui/imgui_impl_win32.cpp"
