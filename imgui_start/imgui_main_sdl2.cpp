@@ -7,6 +7,9 @@
 // because it provides a rather limited API to the end-user. We provide this backend for the sake of completeness.
 // For a multi-platform app consider using e.g. SDL+DirectX on Windows and SDL+OpenGL on Linux/OSX.
 
+
+// `sdl2-config --cflags --libs`
+
 #include "app/app.hpp"
 
 

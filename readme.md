@@ -37,7 +37,9 @@ A collection of small utilities I like having around
 
 * imgui_start
     * Starting code for an application using Dear Imgui
-    * Currently only setup for Windows
+    * Windows (DX12)
+    * SDL2
+    * Sample app that accepts user input and modifies state in the background
 
 * leak_check
     * Check for memory leaks using Visual Studio
