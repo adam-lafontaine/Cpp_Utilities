@@ -1,2 +1,5 @@
+#pragma once
+
 #define STB_SPRINTF_IMPLEMENTATION
-#include "qsprintf.hpp"
+#define STB_SPRINTF_DECORATE(name) q##name
+#include "stb_sprintf.h"
