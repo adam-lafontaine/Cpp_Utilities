@@ -67,12 +67,17 @@ A collection of small utilities I like having around
         * #define LIBUVC_IMPLEMENTATION in exactly one file before including the header
     * Need to install libusb and libjpeg
         * sudo apt install -y libusb-1.0-0-dev libjpeg-dev
+    * libuvc2.hpp
+        * Wrapped everything in a uvc namespace and modified functionality
+    * libuvc3.hpp
+        * Removed user callback and associated mutex locking
         
 * make_start
     * Makefile starting point
 
 * memory_buffer
     * Encapsulated memory allocation and pointer arithemtic
+    * malloc wrapper for tracking allocations
 
 * normalize
     * C++17
@@ -89,6 +94,9 @@ A collection of small utilities I like having around
     * convert.hpp/cpp
         * Used with charmap.hpp to convert multiple values into a string
 
+* numeric
+    * Mostly constexpr math library
+
 * profiler
     * Simple profiler for function calls
 
@@ -98,6 +106,12 @@ A collection of small utilities I like having around
 
 * ring_buffer
     * Templated ring/circular buffer
+
+* sdl
+    * SDL2 utility and input recording for games/apps
+
+* span
+    * SIMD wrapped functions for linear arrays
 
 * stopwatch
     * C++17
