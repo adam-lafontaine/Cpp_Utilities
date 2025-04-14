@@ -1,19 +1,15 @@
 #pragma once
 
 #include "alloc_type.hpp"
-#include "../span/span.hpp"
 
 #include <cstdlib>
-#include <cassert>
-#include <vector>
-#include <cstdio>
 
-template <typename T>
-using List = std::vector<T>;
 
 //#define LOG_ALLOC_TYPE
 
 #if !defined NDEBUG && defined LOG_ALLOC_TYPE
+
+#include <cstdio>
 
 #define alloc_type_log(...) printf(__VA_ARGS__)
 
@@ -45,9 +41,9 @@ namespace mem
     }
 
     
-    void* malloc_memory(u32 n_elements, u32 element_size, cstr tag)
+    void* alloc_memory(u32 n_elements, u32 element_size, cstr tag)
     {
-        alloc_type_log("malloc_memory(%u, %u, %s)\n", n_elements, element_size, tag);
+        alloc_type_log("alloc_memory(%u, %u, %s)\n", n_elements, element_size, tag);
 
 #if defined _WIN32
 
@@ -99,6 +95,12 @@ namespace mem
 }
 
 #else
+
+#include "../span/span.hpp"
+
+#include <vector>
+template <typename T>
+using List = std::vector<T>;
 
 
 namespace counts
@@ -207,7 +209,14 @@ namespace counts
 
         size_t const n_bytes = n_elements * ac.element_size;
 
-        auto data = std::aligned_alloc(ac.element_size, n_bytes);
+        void* data = 0;
+
+        #if defined _WIN32
+        data = std::malloc(n_bytes);
+        #else
+        data = std::aligned_alloc(ac.element_size, n_bytes);
+        #endif
+        
         assert(data && "Allocation failed");
         if (!data)
         {
@@ -355,7 +364,7 @@ namespace mem
 
 namespace mem
 {
-    void* malloc_memory(u32 n_elements, u32 element_size, cstr tag)
+    void* alloc_memory(u32 n_elements, u32 element_size, cstr tag)
     {
         switch (element_size)
         {

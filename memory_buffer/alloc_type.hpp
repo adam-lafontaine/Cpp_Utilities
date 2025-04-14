@@ -3,12 +3,12 @@
 #include "../util/types.hpp"
 
 
-//#define ALLOC_NO_COUNT
+//#define ALLOC_COUNT
 
 
 namespace mem
 {    
-    void* malloc_memory(u32 n_elements, u32 element_size, cstr tag);
+    void* alloc_memory(u32 n_elements, u32 element_size, cstr tag);
 
     void free_memory(void* ptr, u32 element_size);    
 
@@ -23,23 +23,23 @@ namespace mem
 namespace mem
 {
     template <typename T>
-    inline T* malloc(u32 n_elements, cstr tag)
+    inline T* alloc(u32 n_elements, cstr tag)
     {
-        return (T*)malloc_memory(n_elements, (u32)sizeof(T), tag);
+        return (T*)alloc_memory(n_elements, (u32)sizeof(T), tag);
     }
 
 
     template <typename T>
-    inline T* malloc()
+    inline T* alloc()
     {
-        return malloc<T>(1, "");
+        return alloc<T>(1, "");
     }
 
 
     template <typename T>
-    inline T* malloc(cstr tag)
+    inline T* alloc(cstr tag)
     {
-        return malloc<T>(1, tag);
+        return alloc<T>(1, tag);
     }
 
 
