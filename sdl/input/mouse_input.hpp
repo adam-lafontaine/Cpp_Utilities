@@ -16,7 +16,7 @@
 
 namespace input
 {
-	constexpr size_t N_MOUSE_BUTTONS =
+	constexpr unsigned N_MOUSE_BUTTONS =
 	MOUSE_LEFT + 
 	MOUSE_RIGHT + 
 	MOUSE_MIDDLE + 

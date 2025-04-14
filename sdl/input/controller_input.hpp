@@ -1,6 +1,6 @@
 #pragma once
 
-#define SINGLE_CONTROLLER 1
+//#define SINGLE_CONTROLLER 1
 
 
 #define CONTROLLER_BTN_DPAD_UP 1
@@ -33,7 +33,7 @@
 
 namespace input
 {
-    constexpr size_t N_CONTROLLER_BUTTONS = 
+    constexpr unsigned N_CONTROLLER_BUTTONS = 
     CONTROLLER_BTN_DPAD_UP +
     CONTROLLER_BTN_DPAD_DOWN +
     CONTROLLER_BTN_DPAD_LEFT +

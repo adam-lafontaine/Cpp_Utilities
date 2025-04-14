@@ -7,7 +7,7 @@
 #define KEYBOARD_C 0
 #define KEYBOARD_D 1
 #define KEYBOARD_E 0
-#define KEYBOARD_F 1
+#define KEYBOARD_F 0
 #define KEYBOARD_G 0
 #define KEYBOARD_H 0
 #define KEYBOARD_I 0
@@ -19,7 +19,7 @@
 #define KEYBOARD_O 0
 #define KEYBOARD_P 1
 #define KEYBOARD_Q 0
-#define KEYBOARD_R 1
+#define KEYBOARD_R 0
 #define KEYBOARD_S 1
 #define KEYBOARD_T 0
 #define KEYBOARD_U 0
@@ -66,7 +66,7 @@
 
 namespace input
 {
-	constexpr size_t N_KEYBOARD_KEYS = 
+	constexpr unsigned N_KEYBOARD_KEYS = 
 	KEYBOARD_A + 
 	KEYBOARD_B + 
 	KEYBOARD_C + 
