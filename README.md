@@ -6,6 +6,10 @@ A collection of small utilities I like having around
     * Stack behavior for pre-allocated memory
     * CUDA version available
 
+* assets_to_bin
+    * Convert assets to binary file
+    * Convert small images to array
+
 * command_line
     * C++17
     * For processing command line arguments
@@ -109,6 +113,7 @@ A collection of small utilities I like having around
 
 * sdl
     * SDL2 utility and input recording for games/apps
+    * Window and audio with SDL Mixer
 
 * span
     * SIMD wrapped functions for linear arrays

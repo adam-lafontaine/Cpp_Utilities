@@ -1,7 +1,10 @@
 #pragma once
 
+#include "types.hpp"
+
 #include <cstdint>
 #include <cstddef>
+#include <cassert>
 
 using u8 = uint8_t;
 using u16 = uint16_t;
@@ -20,34 +23,83 @@ using b32 = u32;
 using b8 = u8;
 
 using uangle = u16;
+using iangle = i16;
 
-using cstr = const char*;
 
+#ifdef __AVX__
+#define NUMERIC_SIMD_128
+// -mavx -mavx2 -mfma
 
-#define NO_NUMERIC_CMATH
+#include <immintrin.h>
 
-#ifdef NO_NUMERIC_CMATH
 
 namespace numeric
 {
-    inline constexpr f64 fma(f64 a, f64 b, f64 c)
+    static inline __m128 to_128(f32 val32)
     {
-        return a * b + c;
+        return _mm_set_ss(val32);
     }
 
 
-    inline constexpr f32 fmaf(f32 a, f32 b, f32 c)
+    static inline f32 to_f32(__m128 val128)
     {
-        return a * b + c;
+        return _mm_cvtss_f32(val128);
+    }
+
+
+    static inline __m128d to_128(f64 val64)
+    {
+        return _mm_set_sd(val64);
+    }
+
+
+    static inline f64 to_f64(__m128d val128)
+    {
+        return _mm_cvtsd_f64(val128);
     }
 }
 
 #else
 
-// WARNING: no constexpr fma
 #include <cmath>
 
 #endif
+
+namespace numeric
+{
+
+    inline f64 fma(f64 a, f64 b, f64 c)
+    {
+#ifdef NUMERIC_SIMD_128
+        auto a128 = to_128(a);
+        auto b128 = to_128(b);
+        auto c128 = to_128(c);
+
+        auto res = _mm_fmadd_sd(a128, b128, c128);
+
+        return to_f64(res);
+#else
+        return a * b + c;
+#endif
+    }
+
+
+    inline f32 fmaf(f32 a, f32 b, f32 c)
+    {
+#ifdef NUMERIC_SIMD_128
+        auto a128 = to_128(a);
+        auto b128 = to_128(b);
+        auto c128 = to_128(c);
+
+        auto res = _mm_fmadd_ss(a128, b128, c128);
+
+        return to_f32(res);
+#else
+        return a * b + c;
+#endif
+    }
+
+}
 
 
 
@@ -108,25 +160,7 @@ namespace numeric
 
 
     template <typename T>
-    inline constexpr T cxpr_round_to_signed(f32 value)
-    {
-        static_assert(!is_unsigned<T>());
-
-        return (T)(value + sign<f32, f32>(value) * 0.5f);
-    }
-
-
-    template <typename T>
-    inline constexpr T cxpr_round_to_signed(f64 value)
-    {
-        static_assert(!is_unsigned<T>());
-
-        return (T)(value + sign<f64, f64>(value) * 0.5);
-    }
-
-
-    template <typename T>
-    inline constexpr T round_to_signed(f32 value)
+    inline T round_to_signed(f32 value)
     {
         static_assert(!is_unsigned<T>());
 
@@ -135,33 +169,11 @@ namespace numeric
 
 
     template <typename T>
-    inline constexpr T round_to_signed(f64 value)
+    inline T round_to_signed(f64 value)
     {
         static_assert(!is_unsigned<T>());
 
         return (T)fma(sign<f64, f64>(value), 0.5, value);
-    }
-
-
-    inline constexpr f32 pow(f32 base, u32 exp)
-    {
-        f32 val = 1.0f;
-        for (u32 i = 0; i < exp; i++)
-        {
-            val *= base;
-        }
-
-        return val;
-    }
-
-
-    template <size_t N>
-    inline constexpr f32 round(f32 value)
-    {
-        constexpr auto f = pow(10.0f, N);
-        constexpr auto i_f = 1.0f / f;
-
-        return round_to_signed<i32>(value * f) * i_f;
     }
 
 
@@ -200,17 +212,48 @@ namespace numeric
     }
 
 
-    template <typename T>
-    inline constexpr T cxpr_floor(T value)
-    { 
-        return (T)cxpr_round_to_signed<i64>(value - 0.5f);
+    inline f32 min(f32 a, f32 b)
+    {
+#ifdef NUMERIC_SIMD_128
+        auto a128 = to_128(a);
+        auto b128 = to_128(b);
+
+        auto res = _mm_min_ss(a128, b128);
+
+        return to_f32(res);
+#else
+        return a < b ? a : b;
+#endif
+    }
+
+
+    inline f64 min(f64 a, f64 b)
+    {
+#ifdef NUMERIC_SIMD_128
+        auto a128 = to_128(a);
+        auto b128 = to_128(b);
+
+        auto res = _mm_min_sd(a128, b128);
+
+        return to_f64(res);
+#else
+        return a < b ? a : b;
+#endif
     }
 
 
     template <typename T>
-    inline constexpr T floor(T value)
+    inline T floor(T value)
     { 
         return (T)round_to_signed<i64>(value - 0.5f);
+    }
+
+
+    template <typename T>
+    inline T ceil(T value)
+    { 
+        auto f = floor(value);
+        return (T)(f + (f != value));
     }
 
 
@@ -276,7 +319,7 @@ namespace numeric
     }
     
     
-    inline f32 q_rsqrt(f32 number)
+    /*inline f32 q_rsqrt(f32 number)
     {
         long i;
         float x2, y;
@@ -291,16 +334,16 @@ namespace numeric
         // y  = y * ( threehalfs - ( x2 * y * y ) );   // 2nd iteration, this can be removed
 
         return y;
-    }
+    }*/
 
 
-    inline f32 q_sqrt(f32 number)
+    /*inline f32 q_sqrt(f32 number)
     {
         if (number <= 0.0f)
         {
             return 0.0f;
         }
-
+        
         long i;
         float x2, y;
         constexpr float threehalfs = 1.5F;
@@ -314,12 +357,56 @@ namespace numeric
         y  = y * ( threehalfs - ( x2 * y * y ) );   // 2nd iteration
 
         return 1.0f / y;
+    }*/
+
+
+    /*inline f32 q_hypot(f32 a, f32 b)
+    {
+        return q_sqrt(a * a + b * b);
+    }*/
+    
+    
+    inline f32 rsqrt(f32 number)
+    {
+#ifdef NUMERIC_SIMD_128
+        auto num128 = to_128(number);
+        auto res = _mm_rsqrt_ss(num128);
+        return to_f32(res);
+#else
+        return 1.0f / std::sqrt(number);
+#endif
     }
 
 
-    inline f32 q_hypot(f32 a, f32 b)
+    inline f32 sqrt(f32 number)
     {
-        return q_sqrt(a * a + b * b);
+        if (number <= 0.0f)
+        {
+            return 0.0f;
+        }
+
+#ifdef NUMERIC_SIMD_128
+        auto num = to_128(number);
+        auto sqrt = _mm_sqrt_ss(num);
+
+        return to_f32(sqrt);        
+#else
+        return std::sqrt(number);
+#endif
+    }
+
+
+    inline f32 hypot(f32 a, f32 b)
+    {
+        //return sqrt(a * a + b * b);
+        return sqrt(fmaf(a, a, b * b));
+    }
+
+
+    inline f32 rhypot(f32 a, f32 b)
+    {
+        //return rsqrt(a * a + b * b);
+        return rsqrt(fmaf(a, a, b * b));
     }
 }
 
@@ -334,8 +421,7 @@ namespace numeric
         auto const x = (f32)vec.x;
         auto const y = (f32)vec.y;
 
-        return q_hypot(x, y);
-        //return std::hypotf(x, y);
+        return hypot(x, y);
     }
 }
 
@@ -345,42 +431,9 @@ namespace numeric
 namespace numeric
 {
     static constexpr f64 PI = 3.14159265358979323846;
-
-
-    template <typename T>
-    inline constexpr T cxpr_sin_approx(T rad)
-    {
-        // best for small angles e.g. 0 - 45deg
-
-        constexpr T B = (T)(4.0) / (T)(PI);
-        constexpr T C = (T)(-4.0) / ((T)(PI * PI));
-        constexpr T P = (T)(0.225);
-
-        T y = B * rad + C * rad * abs(rad);
-        y = P * (y * abs(y) - y) + y;
-
-        return y;
-    }
-
-
-    template <typename T>
-    inline constexpr T cxpr_cos_approx(T rad)
-    {
-        // best for small angles e.g. 0 - 45deg
-
-        constexpr T tp = (T)(1.0) / (T)(2 * PI);
-
-        T x = rad * tp;
-
-        x -= (T)(0.25) + floor(x + T(0.25));
-        x *= (T)(16.0) * (abs(x) - (T)(0.5));
-        x += (T)(0.225) * x * (abs(x) - (T)(1.0));
-
-        return x;
-    }
     
 
-    inline constexpr f32 sin_approx(f32 rad)
+    inline f32 sin_approx(f32 rad)
     {
         // best for small angles e.g. 0 - 45deg
 
@@ -395,7 +448,7 @@ namespace numeric
     }
     
 
-    inline constexpr f32 cos_approx(f32 rad)
+    inline f32 cos_approx(f32 rad)
     {
         // best for small angles e.g. 0 - 45deg
 
@@ -411,7 +464,7 @@ namespace numeric
     }
 
 
-    inline constexpr f32 atan_approx(f32 tan)
+    inline f32 atan_approx(f32 tan)
     {
         f32 sq = tan * tan;
 
@@ -479,14 +532,13 @@ namespace numeric
         static_assert(is_unsigned<uT>());
 
         constexpr f32 TP = (f32)(2 * PI);
-        constexpr f32 TP_I = (f32)1.0 / TP;
-
-        rad = rad < 0.0 ? rad + TP : rad;
-        rad = rad > TP ? rad - TP : rad;
-
         constexpr f32 max = max_angle_f32<uT>();
 
-        return round_to_unsigned<uT>(max * rad * TP_I);
+        auto n = rad / TP;
+        auto f = n - (i64)n;
+        f = f < 0.0f ? f + 1.0f : f;
+
+        return round_to_unsigned<uT>(max * f);
     }
 
 
@@ -502,7 +554,7 @@ namespace numeric
     }
 
 
-    inline bool is_power_of_2(u64 num)
+    inline constexpr bool is_power_of_2(u64 num)
     {
         return (num && !(num & (num - 1)));
     }
@@ -513,7 +565,7 @@ namespace numeric
 
 namespace numeric
 {
-    inline constexpr f32 sin(uangle a)
+    inline f32 sin(uangle a)
     {
         static_assert(sizeof(uangle) <= sizeof(u32));
 
@@ -542,6 +594,287 @@ namespace numeric
     }
 
 
+    inline f32 cos(uangle a)
+    {
+        static_assert(sizeof(uangle) <= sizeof(u32));
+
+        constexpr f32 P = (f32)PI;
+        constexpr f32 TP = (f32)(2 * PI);
+        constexpr f32 HP = (f32)(PI / 2);
+
+        // split full rotation into 8 x 45deg sections
+        constexpr u64 max = max_angle_u64<uangle>();
+        constexpr u64 oct = max / 8;
+        
+        auto rad = unsigned_to_rad(a);
+
+        switch (a / oct)
+        {
+            case 0: return cos_approx(rad);
+            case 1: return sin_approx(HP - rad);
+            case 2: return -sin_approx(rad - HP);
+            case 3: return -cos_approx(P - rad);
+            case 4: return -cos_approx(rad - P);
+            case 5: return -sin_approx(P + HP - rad);
+            case 6: return sin_approx(rad - (P + HP));
+            case 7: return cos_approx(TP - rad);
+            default: return 0.0f;
+        }
+    }
+
+
+    inline f32 sin(f32 rad)
+    {
+        return sin(rad_to_unsigned<uangle>(rad));
+    }
+
+
+    inline f32 cos(f32 rad)
+    {
+        return cos(rad_to_unsigned<uangle>(rad));
+    }
+
+
+    inline uangle atan2(f32 sin, f32 cos)
+    { 
+        constexpr f32 P = (f32)PI;
+        constexpr f32 TP = (f32)(2 * PI);
+        constexpr f32 HP = (f32)(PI / 2);
+        constexpr f32 QP = (f32)(PI / 4);
+
+        assert(abs((cos * cos + sin * sin) - 1.0f) < 0.001f);
+
+        auto pcos = abs(cos);
+        auto psin = abs(sin);
+
+        auto flip_45 = pcos < psin;
+        auto flip_y = cos < 0.0f;
+        auto flip_x = sin < 0.0f;
+
+        auto key_y = (int)flip_y << 2;
+        auto key_x = (int)flip_x << 1;
+        auto key_45 = (int)flip_45;
+
+        int oct_key = key_y | key_x | key_45;
+
+        auto tan = flip_45 ? pcos / psin : psin / pcos;
+        auto rad = atan_approx(tan);
+        
+        assert(rad >= 0.0f);
+        assert(rad <= QP);
+
+        switch (oct_key)
+        {
+        case 0b000:
+            // octant 0
+            break;
+
+        case 0b001:
+            rad = HP - rad; // octant 1
+            break;
+
+        case 0b101:
+            rad = HP + rad; // octant 2
+            break;
+
+        case 0b100:
+            rad = P - rad; // octant 3
+            break;
+
+        case 0b110:
+            rad = P + rad; // octant 4
+            break;
+
+        case 0b111:
+            rad = 3 * HP - rad; // octant 5
+            break;
+
+        case 0b011:
+            rad = 3 * HP + rad; // octant 6
+            break;
+
+        case 0b010:
+            rad = TP - rad; // octant 7
+            break;
+        
+        default:
+            break;
+        }
+
+        return rad_to_unsigned<uangle>(rad);
+    }
+}
+
+
+namespace numeric
+{
+namespace cxpr
+{
+    inline constexpr f32 max(f32 a, f32 b)
+    {
+        return a > b ? a : b;
+    }
+
+
+    inline constexpr f64 fma(f64 a, f64 b, f64 c)
+    {
+        return a * b + c;
+    }
+
+
+    inline constexpr f32 fmaf(f32 a, f32 b, f32 c)
+    {
+        return a * b + c;
+    }
+
+
+    template <typename T>
+    inline constexpr T round_to_signed(f32 value)
+    {
+        static_assert(!is_unsigned<T>());
+
+        return (T)(value + sign<f32, f32>(value) * 0.5f);
+    }
+
+
+    template <typename T>
+    inline constexpr T round_to_signed(f64 value)
+    {
+        static_assert(!is_unsigned<T>());
+
+        return (T)(value + sign<f64, f64>(value) * 0.5);
+    }
+
+
+    inline constexpr f32 pow(f32 base, u32 exp)
+    {
+        f32 val = 1.0f;
+        for (u32 i = 0; i < exp; i++)
+        {
+            val *= base;
+        }
+
+        return val;
+    }
+
+
+    template <u32 N>
+    inline constexpr f32 round(f32 value)
+    {
+        constexpr auto f = pow(10.0f, N);
+        constexpr auto i_f = 1.0f / f;
+
+        return round_to_signed<i32>(value * f) * i_f;
+    }
+
+
+    template <typename T>
+    inline constexpr T floor(T value)
+    { 
+        return (T)round_to_signed<i64>(value - 0.5f);
+    }
+
+
+    template <typename T>
+    inline constexpr T ceil(T value)
+    { 
+        auto f = floor(value);
+        return (T)(f + (f != value));
+    }
+
+
+    template <typename T>
+    inline constexpr T min(T a, T b)
+    {
+        return a < b ? a : b;
+    }
+
+
+    template <typename T>
+    inline constexpr T max(T a, T b)
+    {
+        return a > b ? a : b;
+    }
+
+
+    template <typename T>
+    inline constexpr T sin_approx(T rad)
+    {
+        // best for small angles e.g. 0 - 45deg
+
+        constexpr T B = (T)(4.0) / (T)(PI);
+        constexpr T C = (T)(-4.0) / ((T)(PI * PI));
+        constexpr T P = (T)(0.225);
+
+        T y = B * rad + C * rad * abs(rad);
+        y = P * (y * abs(y) - y) + y;
+
+        return y;
+    }
+
+
+    template <typename T>
+    inline constexpr T cos_approx(T rad)
+    {
+        // best for small angles e.g. 0 - 45deg
+
+        constexpr T tp = (T)(1.0) / (T)(2 * PI);
+
+        T x = rad * tp;
+
+        x -= (T)(0.25) + floor(x + T(0.25));
+        x *= (T)(16.0) * (abs(x) - (T)(0.5));
+        x += (T)(0.225) * x * (abs(x) - (T)(1.0));
+
+        return x;
+    }
+
+
+    inline constexpr f32 atan_approx(f32 tan)
+    {
+        f32 sq = tan * tan;
+
+        constexpr f32 a1  =  0.99997726f;
+        constexpr f32 a3  = -0.33262347f;
+        constexpr f32 a5  =  0.19354346f;
+        constexpr f32 a7  = -0.11643287f;
+        constexpr f32 a9  =  0.05265332f;
+        constexpr f32 a11 = -0.01172120f;        
+
+        //return tan * (a1 + sq * (a3 + sq * (a5 + sq * (a7 + sq * (a9 + sq * a11)))));
+        return tan * fmaf(sq, fmaf(sq, fmaf(sq, fmaf(sq, fmaf(sq, a11, a9), a7), a5), a3), a1);
+    }
+
+
+    inline constexpr f32 sin(uangle a)
+    {
+        static_assert(sizeof(uangle) <= sizeof(u32));
+
+        constexpr f32 P = (f32)PI;
+        constexpr f32 TP = (f32)(2 * PI);
+        constexpr f32 HP = (f32)(PI / 2);
+
+        // split full rotation into 8 x 45deg sections
+        constexpr u64 max = max_angle_u64<uangle>();
+        constexpr u64 oct = max / 8;
+        
+        auto rad = unsigned_to_rad(a);
+
+        switch (a / oct)
+        {
+            case 0: return sin_approx(rad);
+            case 1: return cos_approx(HP - rad);
+            case 2: return cos_approx(rad - HP);
+            case 3: return sin_approx(P - rad);
+            case 4: return -sin_approx(rad - P);
+            case 5: return -cos_approx(P + HP - rad);
+            case 6: return -cos_approx(rad - (P + HP));
+            case 7: return -sin_approx(TP - rad);
+            default: return 0.0f;
+        }
+    } 
+
+
     inline constexpr f32 cos(uangle a)
     {
         static_assert(sizeof(uangle) <= sizeof(u32));
@@ -568,6 +901,18 @@ namespace numeric
             case 7: return cos_approx(TP - rad);
             default: return 0.0f;
         }
+    }   
+
+
+    inline constexpr f32 sin(f32 rad)
+    {
+        return sin(rad_to_unsigned<uangle>(rad));
+    }
+
+
+    inline constexpr f32 cos(f32 rad)
+    {
+        return cos(rad_to_unsigned<uangle>(rad));
     }
 
 
@@ -639,4 +984,5 @@ namespace numeric
 
         return rad_to_unsigned<uangle>(rad);
     }
+}
 }
