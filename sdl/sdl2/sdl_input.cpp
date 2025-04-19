@@ -1146,4 +1146,28 @@ namespace input
 
         record_controller_input(pre, cur, input.n_controllers);
     }
+
+
+    void record_input(InputArray& input, event_cb handle_event)
+    {
+        auto& pre = input.pre();
+        auto& cur = input.cur();
+
+        copy_input_state(pre, cur);
+        cur.frame = pre.frame + 1;
+        cur.dt_frame = 1.0f / 60.0f; // TODO
+        cur.window_size_changed = 0;
+
+        SDL_Event event;
+        while (SDL_PollEvent(&event))
+        {
+            handle_event(&event);
+            sdl::handle_sdl_event(event, cur);
+            record_keyboard_input(event, pre.keyboard, cur.keyboard);
+            record_mouse_input(event, pre.mouse, cur.mouse);
+            record_joystick_input(event, pre, cur, input.n_joysticks);
+        }
+
+        record_controller_input(pre, cur, input.n_controllers);
+    }
 }
