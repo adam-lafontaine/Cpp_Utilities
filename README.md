@@ -1,14 +1,24 @@
 #### C++ Utilities
 A collection of small utilities I like having around
 
+* alloc_type
+    * Wrapper around malloc
+    * Ability to track allocation by type
+
 * allocator
     * Memory allocator on the cheap
     * Stack behavior for pre-allocated memory
     * CUDA version available
 
+* ascii_image
+    * For simple text rendering
+
 * assets_to_bin
     * Convert assets to binary file
     * Convert small images to array
+
+* color_space
+    * Convert pixels between color spaces
 
 * command_line
     * C++17
@@ -38,6 +48,10 @@ A collection of small utilities I like having around
     * C++17
     * Iterate over 1D and 2D integer ranges
     * Sequential or parallel
+
+* image
+    * Image processing
+    * Used stb_image (included)
 
 * imgui_start
     * Starting code for an application using Dear Imgui
@@ -104,10 +118,6 @@ A collection of small utilities I like having around
 * profiler
     * Simple profiler for function calls
 
-* qsprintf
-    * Wrapper for stb_sprintf.h
-    * Defined macro for renaming to qsprintf etc.
-
 * ring_buffer
     * Templated ring/circular buffer
 
@@ -117,6 +127,11 @@ A collection of small utilities I like having around
 
 * span
     * SIMD wrapped functions for linear arrays
+
+* stb_libs
+    * stb librairies
+    * Image read, write, resize
+    * qsprintf - wrapper for stb_sprintf
 
 * stopwatch
     * C++17
