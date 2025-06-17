@@ -48,6 +48,7 @@ A collection of small utilities I like having around
     * C++17
     * Iterate over 1D and 2D integer ranges
     * Sequential or parallel
+    * Could simply use tbb::parallel_for() instead
 
 * image
     * Image processing

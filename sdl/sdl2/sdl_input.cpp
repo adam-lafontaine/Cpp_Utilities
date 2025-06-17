@@ -7,119 +7,407 @@
 namespace num = numeric;
 
 
-/* gamepad device */
+/* add/remove inputs */
 
 namespace sdl
 {
-    class GamepadDevice
+    static inline u64 to_input_handle(SDL_JoystickID id)
+    {
+        return (u64)(id + 1024);
+    }
+
+    
+    static void add_gamepad_input(input::InputArray& inputs, SDL_JoystickID id)
+    {
+        auto handle = to_input_handle(id);
+        for (u32 i = 0; i < input::MAX_GAMEPADS; i++)
+        {
+            if (inputs.prev().gamepads[i].handle)
+            {
+                continue;
+            }
+
+            inputs.prev().gamepads[i].handle = handle;
+            inputs.curr().gamepads[i].handle = handle;
+            inputs.n_gamepads++;
+
+        #ifdef PRINT_MESSAGES
+            printf("Gamepad id %d added\n", id);
+        #endif
+
+            break;
+        }
+    }
+
+
+    static void add_joystick_input(input::InputArray& inputs, SDL_JoystickID id)
+    {
+        auto handle = to_input_handle(id);
+        for (u32 i = 0; i < input::MAX_JOYSTICKS; i++)
+        {
+            if (inputs.prev().joysticks[i].handle)
+            {
+                continue;
+            }
+
+            inputs.prev().joysticks[i].handle = handle;
+            inputs.curr().joysticks[i].handle = handle;
+            inputs.n_joysticks++;
+
+        #ifdef PRINT_MESSAGES
+            printf("Joystick id %d added\n", id);
+        #endif
+
+            break;
+        }
+    }
+
+
+    static void remove_gamepad_input(input::InputArray& inputs, SDL_JoystickID id)
+    {
+        auto handle = to_input_handle(id);
+        for (u32 i = 0; i < input::MAX_GAMEPADS; i++)
+        {
+            if (inputs.curr().gamepads[i].handle == handle)
+            {
+                inputs.prev().gamepads[i].handle = 0;
+                inputs.curr().gamepads[i].handle = 0;
+                inputs.n_gamepads--;
+
+            #ifdef PRINT_MESSAGES
+                printf("Gamepad id %d removed\n", id);
+            #endif
+
+                break;
+            }
+        }
+    }
+
+
+    static void remove_joystick_input(input::InputArray& inputs, SDL_JoystickID id)
+    {
+        auto handle = to_input_handle(id);
+        for (u32 i = 0; i < input::MAX_JOYSTICKS; i++)
+        {
+            if (inputs.curr().joysticks[i].handle == handle)
+            {
+                inputs.prev().joysticks[i].handle = 0;
+                inputs.curr().joysticks[i].handle = 0;
+                inputs.n_joysticks--;
+
+            #ifdef PRINT_MESSAGES
+                printf("Joystick id %d removed\n", id);
+            #endif
+
+                break;
+            }
+        }
+    }
+
+
+    static i32 find_gamepad(SDL_JoystickID id, input::Input const& input)
+    {
+        auto handle = to_input_handle(id);
+
+        for (i32 i = 0; i < input::MAX_GAMEPADS; i++)
+        {
+            if (handle == input.gamepads[i].handle)
+            {
+                return i;
+            }
+        }
+
+        return -1;
+    }
+
+
+    static i32 find_joystick(SDL_JoystickID id, input::Input const& input)
+    {
+        auto handle = to_input_handle(id);
+
+        for (i32 i = 0; i < input::MAX_JOYSTICKS; i++)
+        {
+            if (handle == input.joysticks[i].handle)
+            {
+                return i;
+            }
+        }
+
+        return -1;
+    }
+}
+
+
+/* devices */
+
+namespace sdl
+{
+    template <class T, u32 CAP>
+    class DeviceArray
     {
     public:
-        u32 n_controllers = 0;
+        static constexpr u32 capacity = CAP;
 
-        SDL_GameController* controllers[input::MAX_CONTROLLERS];
-        SDL_Haptic* rumbles[input::MAX_CONTROLLERS];
-
-        u32 n_joysticks = 0;
-
-        SDL_Joystick* joysticks[input::MAX_JOYSTICKS];
+        T data[CAP];
     };
 
 
-    static void open_gamepad_device(GamepadDevice& device, input::InputArray& input)
-    {        
-        int cmax = (int)input::MAX_CONTROLLERS;
-        int jmax = (int)input::MAX_JOYSTICKS;
+    class GamepadDevice
+    {
+    public:
+        SDL_JoystickID id = -1;
+        SDL_GameController* gamepad = 0;
+        SDL_Haptic* rumble = 0;
+    };
 
-        #ifdef NO_CONTROLLER
-        cmax = 0;
-        #endif
 
-        #ifdef NO_JOYSTICK
-        jmax = 0;
-        #endif
+    class JoystickDevice
+    {
+    public:
+        SDL_JoystickID id = -1;
+        SDL_Joystick* joystick = 0;
+    };
+
+
+    using GamepadDeviceArray = DeviceArray<GamepadDevice, input::MAX_GAMEPADS>;
+    using JoystickDeviceArray = DeviceArray<JoystickDevice, input::MAX_JOYSTICKS>;
+
+
+    class InputDeviceList
+    {
+    public:
+        GamepadDeviceArray gamepads;
+        JoystickDeviceArray joysticks;
+    };
+
+}
+
+
+/* close devices */
+
+namespace sdl
+{
+    static void close_device(GamepadDevice& device)
+    {
+        if (device.gamepad)
+        {
+            SDL_GameControllerClose(device.gamepad);
+            device.gamepad = 0;
+        }
+
+        if (device.rumble)
+        {
+            SDL_HapticClose(device.rumble);
+            device.rumble = 0;
+        }
+
+        device.id = -1;
+    }
+
+
+    static void close_device(JoystickDevice& device)
+    {
+        if (device.joystick)
+        {
+            SDL_JoystickClose(device.joystick);
+            device.joystick = 0;
+            device.id = -1;
+        }
+    }
+
+
+    static void close_input_devices(InputDeviceList& devices)
+    {
+        for (u32 i = 0; i < devices.gamepads.capacity; i++)
+        {
+            close_device(devices.gamepads.data[i]);
+        }
         
-        int c = 0;
-        int j = 0;
+        for (u32 i = 0; i < devices.joysticks.capacity; i++)
+        {
+            close_device(devices.joysticks.data[i]);
+        }
+    }
 
+
+    static void remove_input_device(InputDeviceList& devices, SDL_JoystickID id, input::InputArray& inputs)
+    {
+        for (u32 i = 0; i < input::MAX_GAMEPADS; i++)
+        {
+            auto& d_gamepad = devices.gamepads.data[i];
+            if (id == d_gamepad.id)
+            {
+                close_device(d_gamepad);
+                remove_gamepad_input(inputs, id);
+                return;
+            }
+        }
+
+        for (u32 i = 0; i < input::MAX_JOYSTICKS; i++)
+        {
+            auto& d_joystick = devices.joysticks.data[i];
+            if (id == d_joystick.id)
+            {
+                close_device(d_joystick);
+                remove_joystick_input(inputs, id);
+                return;
+            }
+        }
+    }
+}
+
+
+/* open devices */
+
+namespace sdl
+{
+    static SDL_JoystickID add_gamepad_device(GamepadDeviceArray& devices, int index)
+    {
+        SDL_JoystickID id = -1;
+
+    #ifndef NO_GAMEPAD
+
+        for (u32 i = 0; i < devices.capacity; i++)
+        {
+            auto& device = devices.data[i];
+            if (device.gamepad)
+            {
+                continue;
+            }
+
+            auto gc = SDL_GameControllerOpen(index);
+            if (!gc)
+            {
+                sdl::print_error("SDL_GameControllerOpen()");
+                return -1;
+            }
+
+            auto js = SDL_GameControllerGetJoystick(gc);
+            if (!js)
+            {
+                SDL_GameControllerClose(gc);
+                sdl::print_error("SDL_GameControllerGetJoystick()");
+                return -1;
+            }
+
+            auto h = SDL_HapticOpenFromJoystick(js);
+            if (!h)
+            {
+                sdl::print_message("no rumble from joystick");
+            }
+            else if (SDL_HapticRumbleInit(h) != 0)
+            {
+                sdl::print_error("SDL_HapticRumbleInit()");
+                SDL_HapticClose(h);
+            }
+            else
+            {
+                sdl::print_message("found a rumble");
+            }
+
+            id = SDL_JoystickInstanceID(js);
+            if (id < 0)
+            {
+                sdl::print_error("SDL_JoystickInstanceID()");
+                return id;
+            }
+
+            device.id = id;
+            device.gamepad = gc;
+            device.rumble = h;
+            break;
+        }
+
+    #endif
+
+        return id;
+    }
+
+
+    static SDL_JoystickID add_joystick_device(JoystickDeviceArray& devices, int index)
+    {
+        SDL_JoystickID id = -1;
+
+    #ifndef NO_JOYSTICK
+    
+        for (u32 i = 0; i < devices.capacity; i++)
+        {
+            auto& device = devices.data[i];
+            if (device.joystick)
+            {
+                continue;
+            }
+
+            auto js = SDL_JoystickOpen(index);
+            if (!js)
+            {
+                sdl::print_error("SDL_JoystickOpen()");
+                return -1;
+            }
+            
+            id = SDL_JoystickInstanceID(js);
+            if (id < 0)
+            {
+                sdl::print_error("SDL_JoystickInstanceID()");
+                return id;
+            }
+
+            device.id = id;
+            device.joystick = js;
+            break;
+        }
+
+        //auto name = SDL_JoystickName(js);
+        //auto axes = SDL_JoystickNumAxes(js);
+        //auto buttons = SDL_JoystickNumButtons(js);
+        //printf("%s | %d | %d\n", name, axes, buttons);
+
+    #endif
+
+        return id;
+    }
+
+
+    static void add_input_device(InputDeviceList& devices, SDL_JoystickID id, input::InputArray& inputs)
+    {
+        auto handle = to_input_handle(id);
+
+        if (SDL_IsGameController(id))
+        {
+            if (find_gamepad(id, inputs.curr()) >= 0)
+            {
+                return;
+            }
+
+            id = add_gamepad_device(devices.gamepads, id);
+            if (id >= 0)
+            {
+                add_gamepad_input(inputs, id);
+            }
+        }
+        else
+        {
+            if (find_joystick(id, inputs.curr()) >= 0)
+            {
+                return;
+            }
+
+            id = add_joystick_device(devices.joysticks, id);
+            if (id >= 0)
+            {
+                add_joystick_input(inputs, id);
+            }
+        }
+    }
+    
+    
+    static void open_input_devices(InputDeviceList& devices, input::InputArray& inputs)
+    { 
         int num_sdl_joysticks = SDL_NumJoysticks();
 
         for(int i = 0; i < num_sdl_joysticks; ++i)
         {
-            if (SDL_IsGameController(i))
-            {
-                sdl::print_message("found a controller");
-                if (c >= cmax)
-                {
-                    continue;
-                }
-
-                device.controllers[c] = SDL_GameControllerOpen(i);
-                auto joystick = SDL_GameControllerGetJoystick(device.controllers[c]);
-                if(!joystick)
-                {
-                    sdl::print_message("no joystick");
-                }
-
-                device.rumbles[c] = SDL_HapticOpenFromJoystick(joystick);
-                if(!device.rumbles[c])
-                {
-                    sdl::print_message("no rumble from joystick");
-                }
-                else if(SDL_HapticRumbleInit(device.rumbles[c]) != 0)
-                {
-                    sdl::print_error("SDL_HapticRumbleInit failed");
-                    SDL_HapticClose(device.rumbles[c]);
-                    device.rumbles[c] = 0;
-                }
-                else
-                {
-                    sdl::print_message("found a rumble");
-                }
-
-                ++c;
-            }
-            else
-            {
-                sdl::print_message("found a joystick");
-                if (j >= jmax)
-                {
-                    continue;
-                }
-
-                auto joystick = SDL_JoystickOpen(j);
-                device.joysticks[j] = joystick;
-
-                //auto name = SDL_JoystickName(joystick);
-                //auto axes = SDL_JoystickNumAxes(joystick);
-                //auto buttons = SDL_JoystickNumButtons(joystick);
-                //printf("%s | %d | %d\n", name, axes, buttons);
-
-                ++j;
-            }            
-        }
-
-        device.n_controllers = c;
-        device.n_joysticks = j;
-
-        input.n_controllers = c;
-        input.n_joysticks = j;
-    }
-
-
-    static void close_gamepad_device(GamepadDevice& device)
-    {
-        for(u32 c = 0; c < device.n_controllers; ++c)
-        {
-            if(device.rumbles[c])
-            {
-                SDL_HapticClose(device.rumbles[c]);
-            }
-            SDL_GameControllerClose(device.controllers[c]);
-        }
-
-        for (u32 j = 0; j < device.n_joysticks; j++)
-        {
-            SDL_JoystickClose(device.joysticks[j]);
+            add_input_device(devices, i, inputs);
         }
     }
 }
@@ -129,28 +417,14 @@ namespace sdl
 
 namespace sdl
 {
-    static GamepadDevice gamepad;
+    static InputDeviceList device_list;
 }
 
 
 /* helpers */
 
 namespace sdl
-{
-    static i32 map_joystick_id(SDL_JoystickID joystick_id)
-    {
-        for (u32 i = 0; i < gamepad.n_joysticks; i++)
-        {
-            if (SDL_JoystickInstanceID(gamepad.joysticks[i]) == joystick_id)
-            {
-                return i;
-            }
-        }
-
-        return -1;
-    }
-    
-    
+{     
     static f32 normalize_axis_value(Sint16 axis)
     {
         constexpr f32 min = -1.0f;
@@ -165,7 +439,7 @@ namespace sdl
     static void set_unit_vector_state(input::VectorState<i8>& vs, Sint16 x, Sint16 y)
     {
         auto& vec = vs.vec;
-        auto& unit = vs.unit_direction;
+        auto& unit = vs.unit;
 
         vec.x = num::sign_i8(x);
         vec.y = num::sign_i8(y);
@@ -188,7 +462,7 @@ namespace sdl
     static void set_vector_state(input::VectorState<f32>& vs, Sint16 x, Sint16 y)
     {
         auto& vec = vs.vec;
-        auto& unit = vs.unit_direction;
+        auto& unit = vs.unit;
 
         vec.x = normalize_axis_value(x);
         vec.y = normalize_axis_value(y);
@@ -634,6 +908,7 @@ namespace input
     }
 
 #endif
+
     void record_keyboard_input(SDL_Event const& event, KeyboardInput const& old_keyboard, KeyboardInput& new_keyboard)
     {
     #ifndef NO_KEYBOARD
@@ -654,8 +929,6 @@ namespace input
             record_keyboard_input(key_code, old_keyboard, new_keyboard, is_down);
         } break;
         }
-
-        set_is_active(new_keyboard);
 
     #endif
     }
@@ -762,8 +1035,6 @@ namespace input
         #endif
         }
 
-        set_is_active(mouse);
-
     #endif
     }
 }
@@ -833,42 +1104,51 @@ namespace input
     }
 
 
-    static void record_joystick_axis_input(Uint8 axis_id, JoystickInput const& old_jsk, JoystickInput& new_jsk, Sint16 value)
+    static void record_joystick_axis_input(Uint8 axis_id, JoystickInput& jsk, Sint16 axis_value)
     {
-        Sint16 x = 0;
-        Sint16 y = 0;
-
-        value /= 3200;
+        auto val32 = sdl::normalize_axis_value(axis_value);
 
         switch (axis_id)
-        {
+        {        
+        #if JOYSTICK_AXIS_0
         case 0:
-            x = value;
+            jsk.axis_0 = val32;
             break;
-
+        #endif
+        #if JOYSTICK_AXIS_1
         case 1:
-            y = value;
+            jsk.axis_1 = val32;
             break;
+        #endif
+        #if JOYSTICK_AXIS_2
+        case 2:
+            jsk.axis_2 = val32;
+            break;
+        #endif
+        #if JOYSTICK_AXIS_3
+        case 3:
+            jsk.axis_3 = val32;
+            break;
+        #endif
+        #if JOYSTICK_AXIS_4
+        case 4:
+            jsk.axis_4 = val32;
+            break;
+        #endif
+        #if JOYSTICK_AXIS_5
+        case 5:
+            jsk.axis_5 = val32;
+            break;
+        #endif
 
         default:
             break;
         }
-
-        sdl::set_unit_vector_state(new_jsk.vec_axis, x, y);
-
-    #if JOYSTICK_BTN_AXIS
-
-        record_button_input(old_jsk.btn_axis_left,  new_jsk.btn_axis_left,  x < 0);
-        record_button_input(old_jsk.btn_axis_right, new_jsk.btn_axis_right, x > 0);
-        record_button_input(old_jsk.btn_axis_up,    new_jsk.btn_axis_up,    y < 0);
-        record_button_input(old_jsk.btn_axis_down,  new_jsk.btn_axis_down,  y > 0);
-
-    #endif
     }
 
 #endif
 
-    static void record_joystick_input(SDL_Event const& event, Input const& pre, Input& cur, u32 n_joysticks)
+    static void record_joystick_input(SDL_Event const& event, Input const& prev, Input& curr)
     {
     #ifndef NO_JOYSTICK
 
@@ -888,10 +1168,10 @@ namespace input
             is_down = event.type == SDL_JOYBUTTONDOWN;
             btn = event.jbutton.button;
 
-            id = sdl::map_joystick_id(event.jbutton.which);
+            id = sdl::find_joystick(event.jbutton.which, curr);
             if (id >= 0)
             {
-                record_joystic_button_input(btn, pre.joysticks[id], cur.joysticks[id], is_down);
+                record_joystic_button_input(btn, prev.joysticks[id], curr.joysticks[id], is_down);
             }
 
         } break;
@@ -901,21 +1181,16 @@ namespace input
             axis = event.jaxis.axis;
             value = event.jaxis.value;
 
-            id = sdl::map_joystick_id(event.jaxis.which);
+            id = sdl::find_joystick(event.jaxis.which, curr);
             if (id >= 0)
             {
-                record_joystick_axis_input(axis, pre.joysticks[id], cur.joysticks[id], value);
+                record_joystick_axis_input(axis, curr.joysticks[id], value);
             }
 
         } break;
 
         default:
             break;
-        }
-
-        for (u32 i = 0; i < n_joysticks; i++)
-        {
-            set_is_active(cur.joysticks[i]);
         }
 
     #endif
@@ -925,161 +1200,208 @@ namespace input
 }
 
 
-/* controller */
+/* gamepad */
 
 namespace input
 { 
-#ifndef NO_CONTROLLER
+#ifndef NO_GAMEPAD
 
-    static f32 get_controller_axis(SDL_GameController* sdl_controller, SDL_GameControllerAxis axis_key)
+    static f32 get_gamepad_axis(SDL_GameController* sdl_gamepad, SDL_GameControllerAxis axis_key)
     {
-        auto axis = SDL_GameControllerGetAxis(sdl_controller, axis_key);
+        auto axis = SDL_GameControllerGetAxis(sdl_gamepad, axis_key);
         return sdl::normalize_axis_value(axis);
     }
 
 
-    static void record_controller_button(SDL_GameController* sdl_controller, SDL_GameControllerButton btn_key, ButtonState const& old_btn, ButtonState& new_btn)
+    static void record_gamepad_button(SDL_GameController* sdl_gamepad, SDL_GameControllerButton btn_key, ButtonState const& old_btn, ButtonState& new_btn)
     {
-        auto is_down = SDL_GameControllerGetButton(sdl_controller, btn_key);
+        auto is_down = SDL_GameControllerGetButton(sdl_gamepad, btn_key);
         record_button_input(old_btn, new_btn, is_down);
     }
 
 
-    static void record_controller_stick_button(SDL_GameController* sdl_controller, SDL_GameControllerButton btn_key, ButtonState const& old_btn, ButtonState& new_btn, VectorState<f32> const& stick)
+    static void record_gamepad_stick_button(SDL_GameController* sdl_gamepad, SDL_GameControllerButton btn_key, ButtonState const& old_btn, ButtonState& new_btn, VectorState<f32> const& stick)
     {
         // ignore button press if stick is used for direction
-        auto is_down = SDL_GameControllerGetButton(sdl_controller, btn_key) && stick.magnitude < 0.3;
+        auto is_down = SDL_GameControllerGetButton(sdl_gamepad, btn_key) && stick.magnitude < 0.3;
         record_button_input(old_btn, new_btn, is_down);
     }
 
 
-    static void record_controller_button_input(SDL_GameController* sdl_controller, ControllerInput const& old_controller, ControllerInput& new_controller)
+    static void record_gamepad_button_input(SDL_GameController* sdl_gamepad, GamepadInput const& old_gamepad, GamepadInput& new_gamepad)
     {
 
-    #if CONTROLLER_BTN_DPAD_UP
-        record_controller_button(sdl_controller, SDL_CONTROLLER_BUTTON_DPAD_UP, old_controller.btn_dpad_up, new_controller.btn_dpad_up);
+    #if GAMEPAD_BTN_DPAD_UP
+        record_gamepad_button(sdl_gamepad, SDL_CONTROLLER_BUTTON_DPAD_UP, old_gamepad.btn_dpad_up, new_gamepad.btn_dpad_up);
     #endif
-    #if CONTROLLER_BTN_DPAD_DOWN
-        record_controller_button(sdl_controller, SDL_CONTROLLER_BUTTON_DPAD_DOWN, old_controller.btn_dpad_down, new_controller.btn_dpad_down);
+    #if GAMEPAD_BTN_DPAD_DOWN
+        record_gamepad_button(sdl_gamepad, SDL_CONTROLLER_BUTTON_DPAD_DOWN, old_gamepad.btn_dpad_down, new_gamepad.btn_dpad_down);
     #endif
-    #if CONTROLLER_BTN_DPAD_LEFT
-        record_controller_button(sdl_controller, SDL_CONTROLLER_BUTTON_DPAD_LEFT, old_controller.btn_dpad_left, new_controller.btn_dpad_left);
+    #if GAMEPAD_BTN_DPAD_LEFT
+        record_gamepad_button(sdl_gamepad, SDL_CONTROLLER_BUTTON_DPAD_LEFT, old_gamepad.btn_dpad_left, new_gamepad.btn_dpad_left);
     #endif
-    #if CONTROLLER_BTN_DPAD_RIGHT
-        record_controller_button(sdl_controller, SDL_CONTROLLER_BUTTON_DPAD_RIGHT, old_controller.btn_dpad_right, new_controller.btn_dpad_right);
+    #if GAMEPAD_BTN_DPAD_RIGHT
+        record_gamepad_button(sdl_gamepad, SDL_CONTROLLER_BUTTON_DPAD_RIGHT, old_gamepad.btn_dpad_right, new_gamepad.btn_dpad_right);
     #endif
-    #if CONTROLLER_BTN_START
-        record_controller_button(sdl_controller, SDL_CONTROLLER_BUTTON_START, old_controller.btn_start, new_controller.btn_start);
+    #if GAMEPAD_BTN_START
+        record_gamepad_button(sdl_gamepad, SDL_CONTROLLER_BUTTON_START, old_gamepad.btn_start, new_gamepad.btn_start);
     #endif
-    #if CONTROLLER_BTN_BACK
-        record_controller_button(sdl_controller, SDL_CONTROLLER_BUTTON_BACK, old_controller.btn_back, new_controller.btn_back);
+    #if GAMEPAD_BTN_BACK
+        record_gamepad_button(sdl_gamepad, SDL_CONTROLLER_BUTTON_BACK, old_gamepad.btn_back, new_gamepad.btn_back);
     #endif
-    #if CONTROLLER_BTN_A
-        record_controller_button(sdl_controller, SDL_CONTROLLER_BUTTON_A, old_controller.btn_a, new_controller.btn_a);
+    #if GAMEPAD_BTN_SOUTH
+        record_gamepad_button(sdl_gamepad, SDL_CONTROLLER_BUTTON_A, old_gamepad.btn_south, new_gamepad.btn_south);
     #endif
-    #if CONTROLLER_BTN_B
-        record_controller_button(sdl_controller, SDL_CONTROLLER_BUTTON_B, old_controller.btn_b, new_controller.btn_b);
+    #if GAMEPAD_BTN_EAST
+        record_gamepad_button(sdl_gamepad, SDL_CONTROLLER_BUTTON_B, old_gamepad.btn_east, new_gamepad.btn_east);
     #endif
-    #if CONTROLLER_BTN_X
-        record_controller_button(sdl_controller, SDL_CONTROLLER_BUTTON_X, old_controller.btn_x, new_controller.btn_x);
+    #if GAMEPAD_BTN_WEST
+        record_gamepad_button(sdl_gamepad, SDL_CONTROLLER_BUTTON_X, old_gamepad.btn_west, new_gamepad.btn_west);
     #endif
-    #if CONTROLLER_BTN_Y
-        record_controller_button(sdl_controller, SDL_CONTROLLER_BUTTON_Y, old_controller.btn_y, new_controller.btn_y);
+    #if GAMEPAD_BTN_NORTH
+        record_gamepad_button(sdl_gamepad, SDL_CONTROLLER_BUTTON_Y, old_gamepad.btn_north, new_gamepad.btn_north);
     #endif
-    #if CONTROLLER_BTN_SHOULDER_LEFT
-        record_controller_button(sdl_controller, SDL_CONTROLLER_BUTTON_LEFTSHOULDER, old_controller.btn_shoulder_left, new_controller.btn_shoulder_left);
+    #if GAMEPAD_BTN_SHOULDER_LEFT
+        record_gamepad_button(sdl_gamepad, SDL_CONTROLLER_BUTTON_LEFTSHOULDER, old_gamepad.btn_shoulder_left, new_gamepad.btn_shoulder_left);
     #endif
-    #if CONTROLLER_BTN_SHOULDER_RIGHT
-        record_controller_button(sdl_controller, SDL_CONTROLLER_BUTTON_RIGHTSHOULDER, old_controller.btn_shoulder_right, new_controller.btn_shoulder_right);
+    #if GAMEPAD_BTN_SHOULDER_RIGHT
+        record_gamepad_button(sdl_gamepad, SDL_CONTROLLER_BUTTON_RIGHTSHOULDER, old_gamepad.btn_shoulder_right, new_gamepad.btn_shoulder_right);
     #endif
-    #if CONTROLLER_BTN_STICK_LEFT
-        record_controller_stick_button(sdl_controller, SDL_CONTROLLER_BUTTON_LEFTSTICK, old_controller.btn_stick_left, new_controller.btn_stick_left, new_controller.stick_left);
+    #if GAMEPAD_BTN_STICK_LEFT
+        record_gamepad_stick_button(sdl_gamepad, SDL_CONTROLLER_BUTTON_LEFTSTICK, old_gamepad.btn_stick_left, new_gamepad.btn_stick_left, new_gamepad.stick_left);
     #endif
-    #if CONTROLLER_BTN_STICK_RIGHT
-        record_controller_stick_button(sdl_controller, SDL_CONTROLLER_BUTTON_RIGHTSTICK, old_controller.btn_stick_right, new_controller.btn_stick_right, new_controller.stick_right);        
+    #if GAMEPAD_BTN_STICK_RIGHT
+        record_gamepad_stick_button(sdl_gamepad, SDL_CONTROLLER_BUTTON_RIGHTSTICK, old_gamepad.btn_stick_right, new_gamepad.btn_stick_right, new_gamepad.stick_right);        
     #endif
 
     }
 
 
-    static void record_controller_dpad_vector(ControllerInput& controller)
+    static void record_gamepad_dpad_vector(GamepadInput& gamepad)
     {
-    #if CONTROLLER_BTN_DPAD_ALL
+    #if GAMEPAD_BTN_DPAD_ALL
 
-        Sint16 x = (Sint16)controller.btn_dpad_right.is_down - (Sint16)controller.btn_dpad_left.is_down;
-        Sint16 y = (Sint16)controller.btn_dpad_down.is_down - (Sint16)controller.btn_dpad_up.is_down;
+        Sint16 x = (Sint16)gamepad.btn_dpad_right.is_down - (Sint16)gamepad.btn_dpad_left.is_down;
+        Sint16 y = (Sint16)gamepad.btn_dpad_down.is_down - (Sint16)gamepad.btn_dpad_up.is_down;
 
-        sdl::set_unit_vector_state(controller.vec_dpad, x, y);
+        sdl::set_unit_vector_state(gamepad.vec_dpad, x, y);
 
     #endif
     }
 
 
-    static void record_controller_trigger_input(SDL_GameController* sdl_controller, ControllerInput& controller)
+    static void record_gamepad_trigger_input(SDL_GameController* sdl_gamepad, GamepadInput& gamepad)
     {
 
-    #if CONTROLLER_TRIGGER_LEFT
-        controller.trigger_left = get_controller_axis(sdl_controller, SDL_CONTROLLER_AXIS_TRIGGERLEFT);
+    #if GAMEPAD_TRIGGER_LEFT
+        gamepad.trigger_left = get_gamepad_axis(sdl_gamepad, SDL_CONTROLLER_AXIS_TRIGGERLEFT);
     #endif
-    #if CONTROLLER_TRIGGER_RIGHT
-        controller.trigger_right = get_controller_axis(sdl_controller, SDL_CONTROLLER_AXIS_TRIGGERRIGHT);
+    #if GAMEPAD_TRIGGER_RIGHT
+        gamepad.trigger_right = get_gamepad_axis(sdl_gamepad, SDL_CONTROLLER_AXIS_TRIGGERRIGHT);
     #endif
 
     }
 
 
-    static void record_controller_axis_input(SDL_GameController* sdl_controller, ControllerInput& controller)
+    static void record_gamepad_axis_input(SDL_GameController* sdl_gamepad, GamepadInput& gamepad)
     {
         Sint16 x = 0;
         Sint16 y = 0;
 
-    #if CONTROLLER_AXIS_STICK_LEFT
+    #if GAMEPAD_AXIS_STICK_LEFT
 
-        x = SDL_GameControllerGetAxis(sdl_controller, SDL_CONTROLLER_AXIS_LEFTX);
-        y = SDL_GameControllerGetAxis(sdl_controller, SDL_CONTROLLER_AXIS_LEFTY);
+        x = SDL_GameControllerGetAxis(sdl_gamepad, SDL_CONTROLLER_AXIS_LEFTX);
+        y = SDL_GameControllerGetAxis(sdl_gamepad, SDL_CONTROLLER_AXIS_LEFTY);
 
-        sdl::set_vector_state(controller.stick_left, x, y);
+        sdl::set_vector_state(gamepad.stick_left, x, y);
 
     #endif
-    #if CONTROLLER_AXIS_STICK_RIGHT
+    #if GAMEPAD_AXIS_STICK_RIGHT
         
-        x = SDL_GameControllerGetAxis(sdl_controller, SDL_CONTROLLER_AXIS_RIGHTX);
-        y = SDL_GameControllerGetAxis(sdl_controller, SDL_CONTROLLER_AXIS_RIGHTY);
+        x = SDL_GameControllerGetAxis(sdl_gamepad, SDL_CONTROLLER_AXIS_RIGHTX);
+        y = SDL_GameControllerGetAxis(sdl_gamepad, SDL_CONTROLLER_AXIS_RIGHTY);
 
-        sdl::set_vector_state(controller.stick_right, x, y);
+        sdl::set_vector_state(gamepad.stick_right, x, y);
         
     #endif
     }
 
 
-    static void record_gamepad_controller_input(SDL_GameController* sdl_controller, ControllerInput const& old_controller, ControllerInput& new_controller)
+    static void record_gamepad_gamepad_input(SDL_GameController* sdl_gamepad, GamepadInput const& old_gamepad, GamepadInput& new_gamepad)
     {
-        if(!sdl_controller || !SDL_GameControllerGetAttached(sdl_controller))
+        if(!sdl_gamepad || !SDL_GameControllerGetAttached(sdl_gamepad))
         {
             return;
         }
 
-        record_controller_button_input(sdl_controller, old_controller, new_controller);
-        record_controller_dpad_vector(new_controller);        
-        record_controller_trigger_input(sdl_controller, new_controller);
-        record_controller_axis_input(sdl_controller, new_controller);        
+        record_gamepad_button_input(sdl_gamepad, old_gamepad, new_gamepad);
+        record_gamepad_dpad_vector(new_gamepad);        
+        record_gamepad_trigger_input(sdl_gamepad, new_gamepad);
+        record_gamepad_axis_input(sdl_gamepad, new_gamepad);        
     }
 
 #endif
 
 
-    static void record_controller_input(Input const& pre, Input& cur, u32 n_controllers)
+    static void record_gamepad_input(Input const& prev, Input& curr)
     {
-    #ifndef NO_CONTROLLER
+    #ifndef NO_GAMEPAD
+        i32 id = -1;
 
-        for (u32 i = 0; i < n_controllers; i++)
+        static_assert(MAX_GAMEPADS == sdl::device_list.gamepads.capacity);
+
+        auto& gamepads = sdl::device_list.gamepads;
+
+        for (u32 i = 0; i < gamepads.capacity; i++)
         {
-            record_gamepad_controller_input(sdl::gamepad.controllers[i], pre.controllers[i], cur.controllers[i]);
-            set_is_active(cur.controllers[i]);
+            if (!gamepads.data[i].gamepad)
+            {
+                continue;
+            }
+
+            id = sdl::find_gamepad(gamepads.data[i].id, prev);
+            if (id < 0)
+            {
+                continue;
+            }
+
+            auto& p = prev.gamepads[id];
+            auto& c = curr.gamepads[id];
+
+            record_gamepad_gamepad_input(gamepads.data[i].gamepad, p, c);
+            set_is_active(c);
         }
 
     #endif
     }
+}
+
+
+/* add remove */
+
+namespace input
+{
+    static void update_device_list(SDL_Event const& event, input::InputArray& inputs)
+    {
+        switch (event.type)
+        {
+
+        case SDL_JOYDEVICEADDED:
+        {
+            sdl::add_input_device(sdl::device_list, event.jdevice.which, inputs);                        
+
+        } break;
+
+        case SDL_JOYDEVICEREMOVED:
+        {
+            sdl::remove_input_device(sdl::device_list, event.jdevice.which, inputs);
+        } break;
+
+        default:
+            break;
+        }
+    }
+
 }
 
 
@@ -1100,8 +1422,11 @@ namespace input
     }
 
 
-    bool init(InputArray& input)
+    bool init(InputArray& inputs)
     {
+        reset_input_state(inputs.prev());
+        reset_input_state(inputs.curr());
+
         auto error = SDL_InitSubSystem(subsystem_flags());
         if (error)
         {
@@ -1109,10 +1434,7 @@ namespace input
             return false;
         }
 
-        reset_input_state(input.pre());
-        reset_input_state(input.cur());
-
-        sdl::open_gamepad_device(sdl::gamepad, input);
+        sdl::open_input_devices(sdl::device_list, inputs);
 
         return true;
     }
@@ -1120,54 +1442,60 @@ namespace input
 
     void close()
     {
-        sdl::close_gamepad_device(sdl::gamepad);
+        sdl::close_input_devices(sdl::device_list);
         SDL_QuitSubSystem(subsystem_flags());
     }
 
 
-    void record_input(InputArray& input)
+    void record_input(InputArray& inputs)
     {
-        auto& pre = input.pre();
-        auto& cur = input.cur();
+        auto& prev = inputs.prev();
+        auto& curr = inputs.curr();
 
-        copy_input_state(pre, cur);
-        cur.frame = pre.frame + 1;
-        cur.dt_frame = 1.0f / 60.0f; // TODO
-        cur.window_size_changed = 0;
+        copy_input_state(prev, curr);
+        curr.frame = prev.frame + 1;
+        curr.dt_frame = 1.0f / 60.0f; // TODO
+        curr.window_size_changed = 0;
 
         SDL_Event event;
         while (SDL_PollEvent(&event))
         {
-            sdl::handle_sdl_event(event, cur);
-            record_keyboard_input(event, pre.keyboard, cur.keyboard);
-            record_mouse_input(event, pre.mouse, cur.mouse);
-            record_joystick_input(event, pre, cur, input.n_joysticks);
+            sdl::handle_sdl_event(event, curr);
+            record_keyboard_input(event, prev.keyboard, curr.keyboard);
+            record_mouse_input(event, prev.mouse, curr.mouse);
+            update_device_list(event, inputs);
+            record_joystick_input(event, prev, curr);
         }
 
-        record_controller_input(pre, cur, input.n_controllers);
+        record_gamepad_input(prev, curr);
+
+        set_is_active(curr);
     }
 
 
-    void record_input(InputArray& input, event_cb handle_event)
+    void record_input(InputArray& inputs, event_cb handle_event)
     {
-        auto& pre = input.pre();
-        auto& cur = input.cur();
+        auto& prev = inputs.prev();
+        auto& curr = inputs.curr();
 
-        copy_input_state(pre, cur);
-        cur.frame = pre.frame + 1;
-        cur.dt_frame = 1.0f / 60.0f; // TODO
-        cur.window_size_changed = 0;
+        copy_input_state(prev, curr);
+        curr.frame = prev.frame + 1;
+        curr.dt_frame = 1.0f / 60.0f; // TODO
+        curr.window_size_changed = 0;
 
         SDL_Event event;
         while (SDL_PollEvent(&event))
         {
             handle_event(&event);
-            sdl::handle_sdl_event(event, cur);
-            record_keyboard_input(event, pre.keyboard, cur.keyboard);
-            record_mouse_input(event, pre.mouse, cur.mouse);
-            record_joystick_input(event, pre, cur, input.n_joysticks);
+            sdl::handle_sdl_event(event, curr);
+            record_keyboard_input(event, prev.keyboard, curr.keyboard);
+            record_mouse_input(event, prev.mouse, curr.mouse);
+            update_device_list(event, inputs);
+            record_joystick_input(event, prev, curr);
         }
 
-        record_controller_input(pre, cur, input.n_controllers);
+        record_gamepad_input(prev, curr);
+
+        set_is_active(curr);
     }
 }
