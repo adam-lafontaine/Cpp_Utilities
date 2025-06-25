@@ -308,7 +308,7 @@ namespace input
     {
     public:
 
-		b8 is_active= 0;
+		b8 is_active = 0;
 		u64 handle = 0;
 	
         union
@@ -317,6 +317,18 @@ namespace input
 
             struct
             {
+			#if GAMEPAD_BTN_SOUTH
+                ButtonState btn_south;
+			#endif
+			#if GAMEPAD_BTN_EAST
+                ButtonState btn_east;
+			#endif
+			#if GAMEPAD_BTN_WEST
+                ButtonState btn_west;
+			#endif
+			#if GAMEPAD_BTN_NORTH
+                ButtonState btn_north;
+			#endif
 			#if GAMEPAD_BTN_DPAD_UP
                 ButtonState btn_dpad_up;
 			#endif
@@ -335,18 +347,6 @@ namespace input
 			#if GAMEPAD_BTN_BACK
                 ButtonState btn_back;
 			#endif
-			#if GAMEPAD_BTN_SOUTH
-                ButtonState btn_south;
-			#endif
-			#if GAMEPAD_BTN_EAST
-                ButtonState btn_east;
-			#endif
-			#if GAMEPAD_BTN_WEST
-                ButtonState btn_west;
-			#endif
-			#if GAMEPAD_BTN_NORTH
-                ButtonState btn_north;
-			#endif
 			#if GAMEPAD_BTN_SHOULDER_LEFT
                 ButtonState btn_shoulder_left;
 			#endif
@@ -359,7 +359,7 @@ namespace input
 			#if GAMEPAD_BTN_STICK_RIGHT
                 ButtonState btn_stick_right;
 			#endif
-            };            
+            };
         };
 
 	#if GAMEPAD_AXIS_STICK_LEFT
@@ -464,61 +464,75 @@ namespace input
 }
 
 
-/* input */
+/* max inputs */
 
 namespace input
 {
+
+#ifndef NO_GAMEPAD
 #ifdef SINGLE_GAMEPAD
 	constexpr u32 MAX_GAMEPADS = 1;
 #else
 	constexpr u32 MAX_GAMEPADS = 4;
 #endif
+#endif
 
-
+#ifndef NO_JOYSTICK
 #ifdef SINGLE_JOYSTICK
 	constexpr u32 MAX_JOYSTICKS = 1;
 #else
 	constexpr u32 MAX_JOYSTICKS = 4;
 #endif
+#endif
 
+}
+
+
+/* input */
+
+namespace input
+{
 
 	class Input
 	{
 	public:
-		KeyboardInput keyboard;
-		MouseInput mouse;
-
 		u64 frame;
 		f32 dt_frame;
 
 		b32 window_size_changed;
-		
-	#ifdef SINGLE_GAMEPAD
 
-		union
-		{
-			GamepadInput gamepad;
-			GamepadInput gamepads[MAX_GAMEPADS];
-		};		
-		
-	#else
-		GamepadInput gamepads[MAX_GAMEPADS];		
+	#ifndef NO_KEYBOARD
+		KeyboardInput keyboard;
 	#endif
 
+	#ifndef NO_MOUSE
+		MouseInput mouse;
+	#endif
 
+	#ifndef NO_JOYSTICK
 	#ifdef SINGLE_JOYSTICK
-
 		union
 		{
 			JoystickInput joystick;
 			JoystickInput joysticks[MAX_JOYSTICKS];
 		};
-
 	#else
 		JoystickInput joysticks[MAX_JOYSTICKS];
 	#endif
+	#endif
 
-		
+	#ifndef NO_GAMEPAD
+	#ifdef SINGLE_GAMEPAD
+		union
+		{
+			GamepadInput gamepad;
+			GamepadInput gamepads[MAX_GAMEPADS];
+		};
+	#else
+		GamepadInput gamepads[MAX_GAMEPADS];		
+	#endif
+
+	#endif // NO_GAMEPAD		
 	};
 
 

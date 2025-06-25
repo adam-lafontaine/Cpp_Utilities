@@ -308,6 +308,8 @@ namespace input
 {
 	inline void set_is_active(JoystickInput& jsk)
 	{
+		auto not_zero = [](f32 val) { return val < 0.001f || val > 0.001f; };
+
 		jsk.is_active = false;
 
 		for (u32 i = 0; i < N_JOYSTICK_BUTTONS; ++i)
@@ -317,7 +319,7 @@ namespace input
 
 		for (u32 i = 0; i < N_GAMEPAD_AXES; ++i)
 		{
-			jsk.is_active |= num::abs(jsk.axes[i]) > 0.001f;
+			jsk.is_active |= not_zero(jsk.axes[i]);
 		}
 	}
 
