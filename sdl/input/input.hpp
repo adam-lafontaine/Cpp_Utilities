@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../util/types.hpp"
+#include "../../util/types.hpp"
 #include "keyboard_input.hpp"
 #include "mouse_input.hpp"
 #include "gamepad_input.hpp"
@@ -262,6 +262,8 @@ namespace input
 
 		b8 is_active;
 
+		u64 window_id;
+
 	#if MOUSE_POSITION
 
 		Point2Di32 window_pos;
@@ -308,7 +310,7 @@ namespace input
     {
     public:
 
-		b8 is_active = 0;
+		b8 is_active= 0;
 		u64 handle = 0;
 	
         union
@@ -317,18 +319,6 @@ namespace input
 
             struct
             {
-			#if GAMEPAD_BTN_SOUTH
-                ButtonState btn_south;
-			#endif
-			#if GAMEPAD_BTN_EAST
-                ButtonState btn_east;
-			#endif
-			#if GAMEPAD_BTN_WEST
-                ButtonState btn_west;
-			#endif
-			#if GAMEPAD_BTN_NORTH
-                ButtonState btn_north;
-			#endif
 			#if GAMEPAD_BTN_DPAD_UP
                 ButtonState btn_dpad_up;
 			#endif
@@ -347,6 +337,18 @@ namespace input
 			#if GAMEPAD_BTN_BACK
                 ButtonState btn_back;
 			#endif
+			#if GAMEPAD_BTN_SOUTH
+                ButtonState btn_south;
+			#endif
+			#if GAMEPAD_BTN_EAST
+                ButtonState btn_east;
+			#endif
+			#if GAMEPAD_BTN_WEST
+                ButtonState btn_west;
+			#endif
+			#if GAMEPAD_BTN_NORTH
+                ButtonState btn_north;
+			#endif
 			#if GAMEPAD_BTN_SHOULDER_LEFT
                 ButtonState btn_shoulder_left;
 			#endif
@@ -359,7 +361,7 @@ namespace input
 			#if GAMEPAD_BTN_STICK_RIGHT
                 ButtonState btn_stick_right;
 			#endif
-            };
+            };            
         };
 
 	#if GAMEPAD_AXIS_STICK_LEFT
@@ -464,75 +466,70 @@ namespace input
 }
 
 
-/* max inputs */
+/* input */
 
 namespace input
 {
-
-#ifndef NO_GAMEPAD
 #ifdef SINGLE_GAMEPAD
 	constexpr u32 MAX_GAMEPADS = 1;
 #else
 	constexpr u32 MAX_GAMEPADS = 4;
 #endif
-#endif
 
-#ifndef NO_JOYSTICK
+
 #ifdef SINGLE_JOYSTICK
 	constexpr u32 MAX_JOYSTICKS = 1;
 #else
 	constexpr u32 MAX_JOYSTICKS = 4;
 #endif
-#endif
 
-}
-
-
-/* input */
-
-namespace input
-{
 
 	class Input
 	{
 	public:
+		KeyboardInput keyboard;
+		MouseInput mouse;
+
 		u64 frame;
 		f32 dt_frame;
 
-		b32 window_size_changed;
+		union 
+		{
+			b32 flags = 0;
 
-	#ifndef NO_KEYBOARD
-		KeyboardInput keyboard;
+			struct
+			{
+				b8 window_size_changed;
+				b8 cmd_end_program;
+			};
+		};
+		
+	#ifdef SINGLE_GAMEPAD
+
+		union
+		{
+			GamepadInput gamepad;
+			GamepadInput gamepads[MAX_GAMEPADS];
+		};		
+		
+	#else
+		GamepadInput gamepads[MAX_GAMEPADS];		
 	#endif
 
-	#ifndef NO_MOUSE
-		MouseInput mouse;
-	#endif
 
-	#ifndef NO_JOYSTICK
 	#ifdef SINGLE_JOYSTICK
+
 		union
 		{
 			JoystickInput joystick;
 			JoystickInput joysticks[MAX_JOYSTICKS];
 		};
+
 	#else
 		JoystickInput joysticks[MAX_JOYSTICKS];
 	#endif
-	#endif
 
-	#ifndef NO_GAMEPAD
-	#ifdef SINGLE_GAMEPAD
-		union
-		{
-			GamepadInput gamepad;
-			GamepadInput gamepads[MAX_GAMEPADS];
-		};
-	#else
-		GamepadInput gamepads[MAX_GAMEPADS];		
-	#endif
-
-	#endif // NO_GAMEPAD		
+		
 	};
 
 
@@ -575,5 +572,3 @@ namespace input
 	void record_input(InputArray& inputs, event_cb handle_event);
 
 }
-
-void end_program(); // define in main.cpp

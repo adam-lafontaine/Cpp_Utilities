@@ -1,10 +1,36 @@
 #pragma once
 
-#include "../input/input_state.hpp"
+#include "../io/input/input_state.hpp"
 #include "../util/numeric.hpp"
 #include "sdl_include.hpp"
 
 namespace num = numeric;
+
+
+#define ASSERT_INPUT
+#define LOG_INPUT
+
+
+#ifndef NDEBUG
+
+#ifdef LOG_INPUT
+#define input_log(...) SDL_Log(__VA_ARGS__)
+#else
+#define input_log(...)
+#endif
+
+#ifdef ASSERT_INPUT
+#define input_assert(condition) SDL_assert(condition)
+#else
+#define input_assert(...)
+#endif
+
+#else
+
+#define input_log(...)
+#define input_assert(...)
+
+#endif
 
 
 /* add/remove inputs */
@@ -30,10 +56,8 @@ namespace sdl
             inputs.prev().gamepads[i].handle = handle;
             inputs.curr().gamepads[i].handle = handle;
             inputs.n_gamepads++;
-
-        #ifdef PRINT_MESSAGES
-            printf("Gamepad id %d added\n", id);
-        #endif
+            
+            input_log("Gamepad id %d added\n", id);
 
             break;
         }
@@ -53,10 +77,8 @@ namespace sdl
             inputs.prev().joysticks[i].handle = handle;
             inputs.curr().joysticks[i].handle = handle;
             inputs.n_joysticks++;
-
-        #ifdef PRINT_MESSAGES
-            printf("Joystick id %d added\n", id);
-        #endif
+            
+            input_log("Joystick id %d added\n", id);
 
             break;
         }
@@ -73,10 +95,8 @@ namespace sdl
                 inputs.prev().gamepads[i].handle = 0;
                 inputs.curr().gamepads[i].handle = 0;
                 inputs.n_gamepads--;
-
-            #ifdef PRINT_MESSAGES
-                printf("Gamepad id %d removed\n", id);
-            #endif
+                
+                input_log("Gamepad id %d removed\n", id);
 
                 break;
             }
@@ -94,10 +114,8 @@ namespace sdl
                 inputs.prev().joysticks[i].handle = 0;
                 inputs.curr().joysticks[i].handle = 0;
                 inputs.n_joysticks--;
-
-            #ifdef PRINT_MESSAGES
-                printf("Joystick id %d removed\n", id);
-            #endif
+                
+                input_log("Joystick id %d removed\n", id);
 
                 break;
             }
@@ -360,7 +378,7 @@ namespace sdl
         //auto name = SDL_JoystickName(js);
         //auto axes = SDL_JoystickNumAxes(js);
         //auto buttons = SDL_JoystickNumButtons(js);
-        //printf("%s | %d | %d\n", name, axes, buttons);
+        //input_log("%s | %d | %d\n", name, axes, buttons);
 
     #endif
 
@@ -529,7 +547,7 @@ namespace sdl
 
         case SDL_QUIT:
             print_message("SDL_QUIT");
-            end_program();
+            input.cmd_end_program = 1;
             break;
 
         case SDL_KEYDOWN:
@@ -544,7 +562,7 @@ namespace sdl
                 {
                 case SDLK_F4:
                     print_message("ALT F4");
-                    end_program();
+                    input.cmd_end_program = 1;
                     break;
 
                 #ifndef NDEBUG
@@ -567,7 +585,7 @@ namespace sdl
                 {
                 case SDLK_ESCAPE:
                     print_message("ESC");
-                    end_program();
+                    input.cmd_end_program = 1;
                     break;
 
                 default:
@@ -1012,6 +1030,8 @@ namespace input
             bool is_down = event.type == SDL_MOUSEBUTTONDOWN;
             auto button_code = event.button.button;
 
+            mouse.window_id = event.button.windowID;
+
             record_mouse_button_input(button_code, old_mouse, mouse, is_down);
         } break;
 
@@ -1019,6 +1039,7 @@ namespace input
 
         case SDL_MOUSEMOTION:
         {
+            mouse.window_id = event.motion.windowID;
             record_mouse_position_input(mouse, event.motion);
             mouse.is_active = true;
         } break;
@@ -1029,6 +1050,7 @@ namespace input
 
         case SDL_MOUSEWHEEL:
         {
+            mouse.window_id = event.wheel.windowID;
             record_mouse_wheel_input(mouse, event.wheel);
             mouse.is_active = true;
         } break;
@@ -1455,7 +1477,7 @@ namespace input
         copy_input_state(prev, curr);
         curr.frame = prev.frame + 1;
         curr.dt_frame = 1.0f / 60.0f; // TODO
-        curr.window_size_changed = 0;
+        curr.flags = 0;
 
         SDL_Event event;
         while (SDL_PollEvent(&event))
@@ -1481,13 +1503,13 @@ namespace input
         copy_input_state(prev, curr);
         curr.frame = prev.frame + 1;
         curr.dt_frame = 1.0f / 60.0f; // TODO
-        curr.window_size_changed = 0;
+        curr.flags = 0;
 
         SDL_Event event;
         while (SDL_PollEvent(&event))
         {
             handle_event(&event);
-            sdl::handle_sdl_event(event, curr);
+            //sdl::handle_sdl_event(event, curr);
             record_keyboard_input(event, prev.keyboard, curr.keyboard);
             record_mouse_input(event, prev.mouse, curr.mouse);
             update_device_list(event, inputs);

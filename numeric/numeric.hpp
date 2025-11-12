@@ -1,15 +1,7 @@
 #pragma once
-// 2025-06-10
+// 2025-11-12
 
 #include "types.hpp"
-
-//#define PLATFORM_RPI
-
-#ifdef PLATFORM_RPI
-#ifndef NUMERIC_CMATH
-#define NUMERIC_CMATH
-#endif
-#endif
 
 
 /* constexpr */
@@ -110,8 +102,7 @@ namespace cxpr
     {
         f64 D = mm_dst.max - mm_dst.min;
         f64 S = mm_src.max - mm_src.min;
-        f64 s = val - mm_src.min;
-        
+        f64 s = val - mm_src.min;        
 
         return mm_dst.min + (DST)(D * s / S);
     }
@@ -203,7 +194,15 @@ namespace cxpr
     template <typename T>
     inline constexpr T floor(T value)
     { 
-        return (T)round_to_signed<i64>(value - 0.5f);
+        constexpr T zero = (T)0;
+
+        auto i = (i64)value;
+        if (value < zero && (T)i != value)
+        {
+            i -= 1;
+        }
+
+        return (T)i;
     }
 
 
@@ -545,6 +544,7 @@ namespace cxpr
 }
 
 
+//#define __AVX__
 #ifdef __AVX__
 #define NUMERIC_SIMD_128
 // -mavx -mavx2 -mfma
@@ -560,15 +560,51 @@ namespace numeric
     }
 
 
-    static inline f32 to_f32(__m128 val128)
-    {
-        return _mm_cvtss_f32(val128);
-    }
-
-
     static inline __m128d to_128(f64 val64)
     {
         return _mm_set_sd(val64);
+    }
+
+    
+    static inline __m128i to_128(i8 val8)
+    {
+        return _mm_set1_epi8(val8);
+    }
+
+    
+    static inline __m128i to_128(i16 val16)
+    {
+        return _mm_set1_epi16(val16);
+    }
+
+    
+    static inline __m128i to_128(i32 val32)
+    {
+        return _mm_set1_epi32(val32);
+    }
+    
+    
+    static inline __m128i to_128(u8 val8)
+    {
+        return _mm_set1_epi8(val8);
+    }
+
+    
+    static inline __m128i to_128(u16 val16)
+    {
+        return _mm_set1_epi16(val16);
+    }
+
+    
+    static inline __m128i to_128(u32 val32)
+    {
+        return _mm_set1_epi32(val32);
+    }
+
+
+    static inline f32 to_f32(__m128 val128)
+    {
+        return _mm_cvtss_f32(val128);
     }
 
 
@@ -576,19 +612,44 @@ namespace numeric
     {
         return _mm_cvtsd_f64(val128);
     }
+
+
+    static inline i8 to_i8(__m128i val128)
+    {
+        return _mm_extract_epi8(val128, 0);
+    }
+
+
+    static inline i16 to_i16(__m128i val128)
+    {
+        return _mm_extract_epi16(val128, 0);
+    }
+
+
+    static inline i32 to_i32(__m128i val128)
+    {
+        return _mm_extract_epi32(val128, 0);
+    }
+
+
+    static inline u8 to_u8(__m128i val128)
+    {
+        return static_cast<u8>(_mm_extract_epi8(val128, 0));
+    }
+
+
+    static inline u16 to_u16(__m128i val128)
+    {
+        return static_cast<u16>(_mm_extract_epi16(val128, 0));
+    }
+
+
+    static inline u32 to_u32(__m128i val128)
+    {
+        return static_cast<u32>(_mm_extract_epi32(val128, 0));
+    }
 }
 
-#else
-
-#ifndef NUMERIC_CMATH
-#define NUMERIC_CMATH
-#endif
-
-#endif
-
-
-#ifdef NUMERIC_CMATH
-#include <cmath>
 #endif
 
 
@@ -631,44 +692,10 @@ namespace numeric
 }
 
 
+/* min */
 
 namespace numeric
 {
-    template <typename T>
-    inline constexpr bool is_unsigned()
-    {
-        return cxpr::is_unsigned<T>();
-    }
-
-
-    template <typename T>
-    inline constexpr T min(T a, T b)
-    {
-        return cxpr::min(a, b);
-    }
-
-
-    template <typename T>
-    inline constexpr T min(T a, T b, T c)
-    {
-        return cxpr::min(a, b, c);
-    }
-
-
-    template <typename T>
-    inline constexpr T max(T a, T b)
-    {
-        return cxpr::max(a, b);
-    }
-
-
-    template <typename T>
-    inline constexpr T max(T a, T b, T c)
-    {
-        return cxpr::max(a, b, c);
-    }
-
-
     inline f32 min(f32 a, f32 b)
     {
     #ifdef NUMERIC_SIMD_128
@@ -680,23 +707,6 @@ namespace numeric
         return to_f32(res);
     #else
         return cxpr::min(a, b);
-    #endif
-    }
-
-
-    inline f32 min(f32 a, f32 b, f32 c)
-    {
-    #ifdef NUMERIC_SIMD_128
-        auto a128 = to_128(a);
-        auto b128 = to_128(b);
-        auto c128 = to_128(c);
-
-        auto res = _mm_min_ss(a128, b128);
-        res = _mm_min_ss(res, c128);
-
-        return to_f32(res);
-    #else
-        return cxpr::min(a, b, c);
     #endif
     }
 
@@ -716,23 +726,115 @@ namespace numeric
     }
 
 
-    inline f64 min(f64 a, f64 b, f64 c)
+    inline i8 min(i8 a, i8 b)
     {
     #ifdef NUMERIC_SIMD_128
         auto a128 = to_128(a);
         auto b128 = to_128(b);
-        auto c128 = to_128(c);
 
-        auto res = _mm_min_sd(a128, b128);
-        res = _mm_min_sd(res, c128);
+        auto res = _mm_min_epi8(a128, b128);
 
-        return to_f64(res);
+        return to_i8(res);
     #else
-        return cxpr::min(a, b, c);
+        return cxpr::min(a, b);
     #endif
     }
 
 
+    inline i16 min(i16 a, i16 b)
+    {
+    #ifdef NUMERIC_SIMD_128
+        auto a128 = to_128(a);
+        auto b128 = to_128(b);
+
+        auto res = _mm_min_epi16(a128, b128);
+
+        return to_i16(res);
+    #else
+        return cxpr::min(a, b);
+    #endif
+    }
+
+
+    inline i32 min(i32 a, i32 b)
+    {
+    #ifdef NUMERIC_SIMD_128
+        auto a128 = to_128(a);
+        auto b128 = to_128(b);
+
+        auto res = _mm_min_epi32(a128, b128);
+
+        return to_i32(res);
+    #else
+        return cxpr::min(a, b);
+    #endif
+    }
+
+
+    inline u8 min(u8 a, u8 b)
+    {
+    #ifdef NUMERIC_SIMD_128
+        auto a128 = to_128(a);
+        auto b128 = to_128(b);
+
+        auto res = _mm_min_epu8(a128, b128);
+
+        return to_u8(res);
+    #else
+        return cxpr::min(a, b);
+    #endif
+    }
+
+
+    inline u16 min(u16 a, u16 b)
+    {
+    #ifdef NUMERIC_SIMD_128
+        auto a128 = to_128(a);
+        auto b128 = to_128(b);
+
+        auto res = _mm_min_epu16(a128, b128);
+
+        return to_u16(res);
+    #else
+        return cxpr::min(a, b);
+    #endif
+    }
+
+
+    inline u32 min(u32 a, u32 b)
+    {
+    #ifdef NUMERIC_SIMD_128
+        auto a128 = to_128(a);
+        auto b128 = to_128(b);
+
+        auto res = _mm_min_epu32(a128, b128);
+
+        return to_u32(res);
+    #else
+        return cxpr::min(a, b);
+    #endif
+    }
+
+
+    template <typename T>
+    inline constexpr T min(T a, T b)
+    {
+        return cxpr::min(a, b);
+    }
+
+
+    template <typename T>
+    inline constexpr T min(T a, T b, T c)
+    {
+        return min(min(a, b), c);
+    }
+}
+
+
+/* max */
+
+namespace numeric
+{
     inline f32 max(f32 a, f32 b)
     {
     #ifdef NUMERIC_SIMD_128
@@ -744,23 +846,6 @@ namespace numeric
         return to_f32(res);
     #else
         return cxpr::max(a, b);
-    #endif
-    }
-
-
-    inline f32 max(f32 a, f32 b, f32 c)
-    {
-    #ifdef NUMERIC_SIMD_128
-        auto a128 = to_128(a);
-        auto b128 = to_128(b);
-        auto c128 = to_128(c);
-
-        auto res = _mm_max_ss(a128, b128);
-        res = _mm_max_ss(res, c128);
-
-        return to_f32(res);
-    #else
-        return cxpr::max(a, b, c);
     #endif
     }
 
@@ -780,23 +865,358 @@ namespace numeric
     }
 
 
-    inline f64 max(f64 a, f64 b, f64 c)
+    inline i8 max(i8 a, i8 b)
     {
     #ifdef NUMERIC_SIMD_128
         auto a128 = to_128(a);
         auto b128 = to_128(b);
-        auto c128 = to_128(c);
 
-        auto res = _mm_max_sd(a128, b128);
-        res = _mm_max_sd(res, c128);
+        auto res = _mm_max_epi8(a128, b128);
 
-        return to_f64(res);
+        return to_i8(res);
     #else
-        return cxpr::max(a, b, c);
+        return cxpr::max(a, b);
     #endif
     }
 
 
+    inline i16 max(i16 a, i16 b)
+    {
+    #ifdef NUMERIC_SIMD_128
+        auto a128 = to_128(a);
+        auto b128 = to_128(b);
+
+        auto res = _mm_max_epi16(a128, b128);
+
+        return to_i16(res);
+    #else
+        return cxpr::max(a, b);
+    #endif
+    }
+
+
+    inline i32 max(i32 a, i32 b)
+    {
+    #ifdef NUMERIC_SIMD_128
+        auto a128 = to_128(a);
+        auto b128 = to_128(b);
+
+        auto res = _mm_max_epi32(a128, b128);
+
+        return to_i32(res);
+    #else
+        return cxpr::max(a, b);
+    #endif
+    }
+
+
+    inline u8 max(u8 a, u8 b)
+    {
+    #ifdef NUMERIC_SIMD_128
+        auto a128 = to_128(a);
+        auto b128 = to_128(b);
+
+        auto res = _mm_max_epu8(a128, b128);
+
+        return to_u8(res);
+    #else
+        return cxpr::max(a, b);
+    #endif
+    }
+
+
+    inline u16 max(u16 a, u16 b)
+    {
+    #ifdef NUMERIC_SIMD_128
+        auto a128 = to_128(a);
+        auto b128 = to_128(b);
+
+        auto res = _mm_max_epu16(a128, b128);
+
+        return to_u16(res);
+    #else
+        return cxpr::max(a, b);
+    #endif
+    }
+
+
+    inline u32 max(u32 a, u32 b)
+    {
+    #ifdef NUMERIC_SIMD_128
+        auto a128 = to_128(a);
+        auto b128 = to_128(b);
+
+        auto res = _mm_max_epu32(a128, b128);
+
+        return to_u32(res);
+    #else
+        return cxpr::max(a, b);
+    #endif
+    }
+
+
+    template <typename T>
+    inline constexpr T max(T a, T b)
+    {
+        return cxpr::max(a, b);
+    }
+
+
+    template <typename T>
+    inline constexpr T max(T a, T b, T c)
+    {
+        return max(max(a, b), c);
+    }    
+}
+
+
+/* minmax */
+
+namespace numeric
+{
+    template <typename T>
+    inline MinMax<T> minmax(T a, T b)
+    {
+        MinMax<T> mm{};
+
+        mm.min = min(a, b);
+        mm.max = max(a, b);
+
+        return mm;
+    }
+
+
+    template <typename T>
+    inline MinMax<T> minmax(T a, T b, T c)
+    {
+        MinMax<T> mm{};
+
+        mm.min = min(a, b, c);
+        mm.max = max(a, b, c);
+
+        return mm;
+    }
+}
+
+
+/* round, ceil, floor */
+
+namespace numeric
+{
+    template <typename T>
+    inline constexpr bool is_unsigned()
+    {
+        return cxpr::is_unsigned<T>();
+    }
+
+
+    template <typename R, typename T>
+    inline constexpr R sign(T value)
+    {
+        return cxpr::sign<R>(value);
+    }
+
+
+    template <typename T>
+    inline constexpr T round_to_unsigned(f32 value)
+    {
+        static_assert(is_unsigned<T>());
+        
+        return cxpr::round_to_unsigned<T>(value);
+    }
+
+
+    template <typename T>
+    inline constexpr T round_to_unsigned(f64 value)
+    {
+        static_assert(is_unsigned<T>());
+        
+        return cxpr::round_to_unsigned<T>(value);
+    }
+
+
+    template <typename T>
+    inline T round_to_signed(f32 value)
+    {
+        static_assert(!is_unsigned<T>());
+        
+        return (T)fma(sign<f32, f32>(value), 0.5f, value);
+    }
+
+
+    template <typename T>
+    inline T round_to_signed(f64 value)
+    {
+        static_assert(!is_unsigned<T>());
+        
+        return (T)fma(sign<f64, f64>(value), 0.5, value);
+    }
+
+
+    template <typename T>
+    inline T floor(T value)
+    {  
+    #ifdef NUMERIC_SIMD_128
+
+        auto v = to_128(value);
+        auto res = _mm_floor_ps(v);
+
+        return to_f32(res);
+
+    #else
+
+        return cxpr::floor(value);
+
+    #endif
+    }
+
+
+    template <typename T>
+    inline T ceil(T value)
+    { 
+    #ifdef NUMERIC_SIMD_128
+
+        auto v = to_128(value);
+        auto res = _mm_ceil_ps(v);
+
+        return to_f32(res);
+
+    #else
+
+        return cxpr::ceil(value);
+
+    #endif
+    }
+}
+
+
+/* abs */
+
+namespace numeric
+{
+    inline f32 abs(f32 value)
+    {
+        // Mask: 0x7FFFFFFF = clear sign bit
+        constexpr i32 m32 = 0x7FFFFFFF;
+
+    #ifdef NUMERIC_SIMD_128
+
+        auto v128 = to_128(value);
+        
+        auto mask = _mm_castsi128_ps(_mm_set1_epi32(m32));
+        auto res = _mm_and_ps(v128, mask);
+
+        return to_f32(res);
+
+    #else
+
+        union
+        {
+            f32 f;
+            i32 i;
+        } conv;
+
+        conv.f = value;
+        conv.i &= m32;
+
+        return conv.f;
+
+    #endif
+    }
+
+
+    inline f64 abs(f64 value)
+    {
+        // Mask: 0x7FFFFFFFFFFFFFFF = clear sign bit
+        constexpr i64 m64 = 0x7FFFFFFFFFFFFFFF;
+
+    #ifdef NUMERIC_SIMD_128
+
+        auto v128 = to_128(value);
+        
+        auto mask = _mm_castsi128_pd(_mm_set1_epi64x(m64));
+        auto res = _mm_and_pd(v128, mask);
+
+        return to_f64(res);
+
+    #else
+        
+        union
+        {
+            f64 f;
+            i64 i;
+        } conv;
+
+        conv.f = value;
+        conv.i &= m64;
+
+        return conv.f;
+
+    #endif
+    }
+
+
+    inline i8 abs(i8 value)
+    {
+    #ifdef NUMERIC_SIMD_128
+
+        auto v128 = to_128(value);
+        auto res = _mm_abs_epi8(v128);
+
+        return to_i8(res);
+
+    #else
+
+        return cxpr::abs(value);
+
+    #endif
+    }
+
+
+    inline i16 abs(i16 value)
+    {
+    #ifdef NUMERIC_SIMD_128
+
+        auto v128 = to_128(value);
+        auto res = _mm_abs_epi16(v128);
+
+        return to_i16(res);
+
+    #else
+
+        return cxpr::abs(value);
+
+    #endif
+    }
+
+
+    inline i32 abs(i32 value)
+    {
+    #ifdef NUMERIC_SIMD_128
+
+        auto v128 = to_128(value);
+        auto res = _mm_abs_epi32(v128);
+
+        return to_i32(res);
+
+    #else
+
+        return cxpr::abs(value);
+
+    #endif
+    }
+
+
+    template <typename T>
+    inline constexpr T abs(T value)
+    {
+        return cxpr::abs(value);
+    }
+}
+
+
+namespace numeric
+{
     template <typename T>
     inline constexpr T clamp(T value, T min, T max)
     {
@@ -825,81 +1245,6 @@ namespace numeric
     }
 
 
-    template <typename R, typename T>
-    inline constexpr R sign(T value)
-    {
-        return cxpr::sign<R>(value);
-    }
-
-
-    template <typename T>
-    inline constexpr T round_to_unsigned(f32 value)
-    {
-        static_assert(is_unsigned<T>());
-
-    #ifdef NUMERIC_CMATH
-
-        return (T)((u64)std::roundf(value));
-
-    #else
-
-        return cxpr::round_to_unsigned<T>(value);
-
-    #endif        
-    }
-
-
-    template <typename T>
-    inline constexpr T round_to_unsigned(f64 value)
-    {
-        static_assert(is_unsigned<T>());
-
-    #ifdef NUMERIC_CMATH
-
-        return (T)((u64)std::round(value));
-
-    #else
-
-        return cxpr::round_to_unsigned<T>(value);
-
-    #endif
-    }
-
-
-    template <typename T>
-    inline T round_to_signed(f32 value)
-    {
-        static_assert(!is_unsigned<T>());
-
-    #ifdef NUMERIC_CMATH
-
-        return (T)std::llround(value);
-
-    #else
-
-        return (T)fmaf(sign<f32, f32>(value), 0.5f, value);
-
-    #endif
-    }
-
-
-    template <typename T>
-    inline T round_to_signed(f64 value)
-    {
-        static_assert(!is_unsigned<T>());
-
-    #ifdef NUMERIC_CMATH
-
-        return (T)std::llround(value);
-
-    #else
-
-        return (T)fma(sign<f64, f64>(value), 0.5, value);
-
-    #endif        
-    }
-
-
     template <typename T>
     inline constexpr f32 sign_f32(T value)
     {           
@@ -911,72 +1256,6 @@ namespace numeric
     inline constexpr i8 sign_i8(T value)
     {
         return cxpr::sign_i8(value);
-    }
-
-
-    template <typename T>
-    inline T floor(T value)
-    {         
-    #ifdef NUMERIC_CMATH
-
-        return (T)std::floor((f64)value);
-
-    #else
-
-        return (T)round_to_signed<i64>(value - 0.5f);
-
-    #endif
-    }
-
-
-    inline f32 floor(f32 value)
-    {
-    #ifdef NUMERIC_CMATH
-
-        return std::floor(value);
-
-    #else
-
-        return floor<f32>(value);
-
-    #endif
-    }
-
-
-    template <typename T>
-    inline T ceil(T value)
-    { 
-    #ifdef NUMERIC_CMATH
-
-        return (T)std::ceil((f64)value);
-
-    #else
-
-        auto f = floor(value);
-        return (T)(f + (f != value));
-
-    #endif
-    }
-
-
-    inline f32 ceil(f32 value)
-    { 
-    #ifdef NUMERIC_CMATH
-
-        return std::ceil(value);
-
-    #else
-
-        return ceil<f32>(value);
-
-    #endif
-    }
-
-
-    template <typename T>
-    inline constexpr T abs(T value)
-    {
-        return cxpr::abs(value);
     }
 
 
@@ -1031,34 +1310,77 @@ namespace numeric
 
 namespace numeric
 {
-    inline f32 log(f32 x) 
+    inline f32 log2(f32 x) 
     {
-        u32 bx = *(u32*)(&x);
-        u32 ex = bx >> 23;
-        i32 t = (i32)ex-(i32)127;
-        i32 s = (t < 0) ? (-t) : t;
-        bx = 1065353216 | (bx & 8388607);
-        x = *(f32*)(&bx);
+        union
+        {
+            f32 f;
+            u32 u;
+        } conv;
 
-        return -1.49278 + (2.11263 + (-0.729104+0.10969 * x) * x) * x + 0.6931471806 * t;
+        static_assert(sizeof(f32) == 4);
+        static_assert(sizeof(f32) == sizeof(u32));
+
+        conv.f = x;
+        u32 bits = conv.u;
+
+        f32 exp = (f32)((bits >> 23) & 0xFF) - 127.0f;
+        
+        conv.u = (bits & 0x7FFFFF) | 0x3F800000;
+
+        f32 man = conv.f;
+
+        f32 t = man - 1.0f;
+
+        f32 log_m = t * (0.6931472f  // ln(2)
+            + t * (-0.240228f
+            + t * ( 0.054997f
+            + t * (-0.007622f))));
+            
+        return exp + log_m;
+    }
+
+
+    inline f32 log(f32 x)
+    {
+        return log2(x) * 0.6931472f;  // ln(2)
     }
     
     
     inline f32 rsqrt(f32 number)
     {
+        if (number <= 0.0f)
+        {
+            return 0.0f;
+        }
+
     #ifdef NUMERIC_SIMD_128
 
         auto num128 = to_128(number);
         auto res = _mm_rsqrt_ss(num128);
         return to_f32(res);
-
-    #elif defined(NUMERIC_CMATH)
-
-        return 1.0f / std::sqrt(number);
     
     #else
-        static_assert(false && " *** rsqrt not defined *** ");
-        return 0.0f;
+
+        union
+        {
+            f32 f;
+            i32 i;
+        } conv;
+
+        static_assert(sizeof(f32) == 4);
+        static_assert(sizeof(f32) == sizeof(i32));
+
+        conv.f = number;
+        conv.i = 0x5f3759df - (conv.i >> 1);
+
+        f32 y = conv.f;        
+        f32 x2 = number * 0.5f;
+
+        y = y * (1.5f - (x2 * y * y)); // Newton-Raphson iteration
+
+        return y;
+
     #endif
     }
 
@@ -1075,35 +1397,25 @@ namespace numeric
         auto num = to_128(number);
         auto sqrt = _mm_sqrt_ss(num);
 
-        return to_f32(sqrt);        
-    #elif defined(NUMERIC_CMATH)
-    
-        return std::sqrt(number);
+        return to_f32(sqrt);
 
     #else
-        static_assert(false && " *** sqrt not defined *** ");
-        return 0.0f;
+        
+        return 1.0f / rsqrt(number);
+
     #endif
     }
 
 
     inline f32 hypot(f32 a, f32 b)
     {
-    #ifdef NUMERIC_CMATH
-
-        return std::hypotf(a, b);
-
-    #else
-        
-        return sqrt(fmaf(a, a, b * b));
-
-    #endif
+        return sqrt(fma(a, a, b * b));
     }
 
 
     inline f32 rhypot(f32 a, f32 b)
     {
-        return 1.0f / hypot(a, b); // div 0?
+        return rsqrt(fma(a, a, b * b));
     }
 }
 
@@ -1197,8 +1509,8 @@ namespace numeric
         constexpr f32 C = -4.0f / ((f32)(PI * PI));
         constexpr f32 P = 0.225f;
 
-        f32 y = fmaf(B, rad, C * rad * abs(rad));
-        y = fmaf(P, fmaf(y, abs(y), -y), y);
+        f32 y = fma(B, rad, C * rad * abs(rad));
+        y = fma(P, fma(y, abs(y), -y), y);
 
         return y;
     }
@@ -1232,7 +1544,7 @@ namespace numeric
         constexpr f32 a11 = -0.01172120f;        
 
         //return tan * (a1 + sq * (a3 + sq * (a5 + sq * (a7 + sq * (a9 + sq * a11)))));
-        return tan * fmaf(sq, fmaf(sq, fmaf(sq, fmaf(sq, fmaf(sq, a11, a9), a7), a5), a3), a1);
+        return tan * fma(sq, fma(sq, fma(sq, fma(sq, fma(sq, a11, a9), a7), a5), a3), a1);
     }
 
 
