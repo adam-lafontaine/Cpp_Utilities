@@ -1052,9 +1052,8 @@ namespace numeric
         return (T)fma(sign<f64, f64>(value), 0.5, value);
     }
 
-
-    template <typename T>
-    inline T floor(T value)
+    
+    inline f32 floor(f32 value)
     {  
     #ifdef NUMERIC_SIMD_128
 
@@ -1072,7 +1071,13 @@ namespace numeric
 
 
     template <typename T>
-    inline T ceil(T value)
+    inline T floor(T value)
+    {
+        return cxpr::floor(value);
+    }
+    
+    
+    inline f32 ceil(f32 value)
     { 
     #ifdef NUMERIC_SIMD_128
 
@@ -1086,6 +1091,13 @@ namespace numeric
         return cxpr::ceil(value);
 
     #endif
+    }
+
+
+    template <typename T>
+    inline T ceil(T value)
+    {
+        return cxpr::ceil(value);
     }
 }
 

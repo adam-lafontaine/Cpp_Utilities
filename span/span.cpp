@@ -542,3 +542,12 @@ namespace span
         }
     }
 }
+
+
+/* numeric */
+
+#ifdef SPAN_NUMERIC
+
+#include "span_numeric.cpp"
+
+#endif

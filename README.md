@@ -4,6 +4,7 @@ A collection of small utilities I like having around
 * alloc_type
     * Wrapper around malloc
     * Ability to track allocation by type
+    * SDL implementations available
 
 * allocator
     * Memory allocator on the cheap
@@ -36,6 +37,10 @@ A collection of small utilities I like having around
     * Helpers and macros for CUDA programming
     * Templated stack for managing device memory
 
+* datetime
+    * Date and time helpers
+    * SDL3 implementation available
+
 * directory_helper
     * C++17
     * Provides file paths of a given extension in a directory
@@ -61,7 +66,7 @@ A collection of small utilities I like having around
     * Sample app that accepts user input and modifies state in the background
 
 * leak_check
-    * Check for memory leaks using Visual Studio
+    * Check for memory leaks using Visual Studio (MSVC)
 
 * libimage
     * Basic image processing library using Boost GIL or stb_image
@@ -94,6 +99,10 @@ A collection of small utilities I like having around
 * make_start
     * Makefile starting point
 
+* math
+    * Math library functions
+    * SDL3 implementation available
+
 * memory_buffer
     * Encapsulated memory allocation and pointer arithemtic
     * malloc wrapper for tracking allocations
@@ -122,18 +131,20 @@ A collection of small utilities I like having around
 * ring_buffer
     * Templated ring/circular buffer
 
-* sdl
-    * SDL2 utility and input recording for games/apps
-    * Window and audio with SDL Mixer
+* sdl2
+    * SDL2 implementations for library headers
+
+* sdl3
+    * SDL3 implementation for library headers
 
 * span
     * SIMD wrapped functions for linear arrays
+    * SDL implementations available
 
 * stb_libs
     * stb librairies
     * Image read, write, resize
     * qsprintf - wrapper for stb_sprintf
 
-* stopwatch
-    * C++17
-    * Wraps std::chrono to easily time code execution
+* util
+    * Type definitions

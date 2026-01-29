@@ -1,16 +1,15 @@
-
 #define STB_IMAGE_IMPLEMENTATION
 #define STB_IMAGE_WRITE_IMPLEMENTATION
 #define STB_IMAGE_RESIZE_IMPLEMENTATION
 #include "stb_image_options.hpp"
 
-
-// Avoid redefinition errors when using with imgui
-#ifndef NO_STB_SPRINTF_IMPLEMENTATION
-#define STB_SPRINTF_IMPLEMENTATION
+#ifndef NDEBUG
+#define STB_SPRINTF_NOUNALIGNED
 #endif
 
+#define STB_SPRINTF_IMPLEMENTATION
 #include "stb_sprintf.h"
+
 
 namespace stb
 {

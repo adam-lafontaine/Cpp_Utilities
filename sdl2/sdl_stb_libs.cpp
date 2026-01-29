@@ -1,4 +1,4 @@
-#include <SDL3/SDL.h>
+#include <SDL2/SDL.h>
 
 #define STBI_MALLOC SDL_malloc
 #define STBI_REALLOC SDL_realloc

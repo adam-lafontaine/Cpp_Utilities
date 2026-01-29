@@ -1,12 +1,9 @@
 #pragma once
 
-#include <cassert>
-#include <cstddef>
-
-using u32 = unsigned;
+#include "types.hpp"
 
 
-template <class T, size_t N>
+template <class T, u32 N>
 class StackBuffer
 {
 public:
@@ -19,14 +16,14 @@ public:
 
 namespace stack_buffer
 {
-    template <class T, size_t N>
+    template <class T, u32 N>
     inline void reset_buffer(StackBuffer<T, N>& buffer)
     {
         buffer.size = 0;
     }
 
 
-    template <class T, size_t N>
+    template <class T, u32 N>
     inline T* at(StackBuffer<T, N> const& buffer, u32 i)
     {
         assert(i < buffer.size);
@@ -35,7 +32,7 @@ namespace stack_buffer
     }
 
 
-    template <class T, size_t N>
+    template <class T, u32 N>
     inline void push(StackBuffer<T, N>& buffer, T item)
     {
         assert(buffer.size < buffer.capacity_);
@@ -45,7 +42,7 @@ namespace stack_buffer
     }
 
 
-    template <class T, size_t N>    
+    template <class T, u32 N>    
     inline T* push_elements(StackBuffer<T, N>& buffer, u32 n_elements)
     {
         assert(n_elements);
@@ -79,12 +76,12 @@ namespace stack_buffer
     }
 
 
-    template <class T, size_t N, class FN>
+    /*template <class T, u32 N, class FN>
     inline void for_each(StackBuffer<T, N> const& buffer, FN const& func)
     {
         for (u32 i = 0; i < buffer.size; i++)
         {
             func(buffer.data_[i]);
         }
-    }
+    }*/
 }

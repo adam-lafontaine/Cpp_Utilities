@@ -2,8 +2,6 @@
 
 #include "../alloc_type/alloc_type.hpp"
 
-#include <cassert>
-
 
 template <typename T>
 class MemoryBuffer
@@ -22,16 +20,16 @@ namespace memory_buffer
 	template <typename T>
 	inline bool create_buffer(MemoryBuffer<T>& buffer, u32 n_elements, cstr tag)
 	{
-		assert(n_elements && " *** no elements ***");
-		assert(!buffer.data_ && " *** buffer already allocated *** ");
+		assert(n_elements > 0);
+		assert(!buffer.data_);
 
 		if (n_elements == 0 || buffer.data_)
 		{
 			return false;
 		}
 
-		buffer.data_ = mem::malloc<T>(n_elements, tag);
-		assert(buffer.data_ && " *** allocation error *** ");
+		buffer.data_ = mem::alloc<T>(n_elements, tag);
+		assert(buffer.data_);
 
 		if (!buffer.data_)
 		{
@@ -47,13 +45,6 @@ namespace memory_buffer
 
 
 	template <typename T>
-	inline bool create_buffer(MemoryBuffer<T>& buffer, u32 n_elements)
-	{
-		return create_buffer(buffer, n_elements, "create_buffer");
-	}
-
-
-	template <typename T>
 	inline void destroy_buffer(MemoryBuffer<T>& buffer)
 	{
 		if (buffer.data_)
@@ -64,6 +55,7 @@ namespace memory_buffer
 		buffer.data_ = nullptr;
 		buffer.capacity_ = 0;
 		buffer.size_ = 0;
+		buffer.ok = 0;
 	}
 	
 
@@ -87,7 +79,7 @@ namespace memory_buffer
 	template <typename T>
 	inline T* push_elements(MemoryBuffer<T>& buffer, u32 n_elements)
 	{
-		assert(n_elements && " *** no elements *** ");
+		assert(n_elements > 0);
 
 		if (n_elements == 0)
 		{
@@ -103,7 +95,7 @@ namespace memory_buffer
 			buffer.size_ < buffer.capacity_;
 
 		auto elements_available = (buffer.capacity_ - buffer.size_) >= n_elements;
-		assert(elements_available && " *** buffer full *** ");
+		assert(elements_available > 0);
 
 		if (!is_valid || !elements_available)
 		{
@@ -126,9 +118,9 @@ namespace memory_buffer
 			return;
 		}
 
-		assert(buffer.data_ && " *** no memory *** ");
-		assert(buffer.capacity_ && " *** no capacity *** ");
-		assert(n_elements <= buffer.size_ && " *** too many elements *** ");
+		assert(buffer.data_);
+		assert(buffer.capacity_);
+		assert(n_elements <= buffer.size_);
 
 		if(n_elements > buffer.size_)
 		{

@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../output/window.hpp"
+#include "../io/window.hpp"
 #include "../alloc_type/alloc_type.hpp"
 #include "sdl_include.hpp"
 
@@ -16,7 +16,7 @@ namespace sdl
         SDL_Renderer* renderer = 0;
         SDL_Texture* texture = 0;
 
-        SDL_Rect render_rect;
+        SDL_FRect render_rect;
 
         u32 width_px = 0;
         u32 height_px = 0;
@@ -48,8 +48,6 @@ namespace sdl
     {
         screen.window = SDL_CreateWindow(
             title,
-            SDL_WINDOWPOS_UNDEFINED,
-            SDL_WINDOWPOS_UNDEFINED,
             (int)width,
             (int)height,
             SDL_WINDOW_RESIZABLE);
@@ -68,11 +66,9 @@ namespace sdl
     {
         screen.window = SDL_CreateWindow(
             title,
-            SDL_WINDOWPOS_UNDEFINED,
-            SDL_WINDOWPOS_UNDEFINED,
             0,
             0,
-            SDL_WINDOW_FULLSCREEN_DESKTOP);
+            SDL_WINDOW_FULLSCREEN);
 
         if(!screen.window)
         {
@@ -86,7 +82,7 @@ namespace sdl
 
     static bool create_renderer(ScreenMemory& screen)
     {
-        screen.renderer = SDL_CreateRenderer(screen.window, -1, 0);
+        screen.renderer = SDL_CreateRenderer(screen.window, NULL);
 
         if(!screen.renderer)
         {
@@ -166,9 +162,8 @@ namespace sdl
 
         int width = 0;
         int height = 0;
-
-        auto err = SDL_GetRendererOutputSize(screen.renderer, &width, &height);
-        if (err)
+        
+        if (!SDL_GetCurrentRenderOutputSize(screen.renderer, &width, &height))
         {
             destroy_screen_memory(screen);
             return false;
@@ -214,24 +209,94 @@ namespace sdl
     }
 
 
-    static void set_out_rect(ScreenMemory& screen)
+    static void resize_render_rect(ScreenMemory& screen)
     {
-        int width;
-        int height;
-        SDL_GetRendererOutputSize(screen.renderer, &width, &height);
+        bool ok = true;
 
-        auto scale_w = (f32)width / screen.width_px;
-        auto scale_h = (f32)height / screen.height_px;
+        ok = SDL_SetRenderDrawColor(screen.renderer, 0, 0, 0, 255); // Black background
+        ok = SDL_RenderClear(screen.renderer);
+
+        int out_width;
+        int out_height;
+
+        ok = SDL_GetCurrentRenderOutputSize(screen.renderer, &out_width, &out_height);
+
+    #ifdef PRINT_MESSAGES
+        if (!ok)
+        {
+            print_error("SDL_GetCurrentRenderOutputSize()");
+            return;
+        }
+    #endif
+
+        auto in_width = (int)screen.width_px;
+        auto in_height = (int)screen.height_px;
+
+        auto scale_w = (f32)out_width / in_width;
+        auto scale_h = (f32)out_height / in_height;
 
         auto scale = scale_w < scale_h ? scale_w : scale_h;
 
+        auto w = (int)(scale * in_width);
+        auto h = (int)(scale * in_height);
+
         auto& r = screen.render_rect;
 
-        auto w = (int)(scale * screen.width_px);
-        auto h = (int)(scale * screen.height_px);
+        r.x = (out_width - w) / 2;
+        r.y = (out_height - h) / 2;
+        r.w = w;
+        r.h = h;
+    }
 
-        r.x = (width - w) / 2;
-        r.y = (height - h) / 2;
+
+    static void resize_render_rect(ScreenMemory& screen, window::Rotate rotate)
+    {
+        using R = window::Rotate;
+
+        bool ok = true;
+
+        ok = SDL_SetRenderDrawColor(screen.renderer, 0, 0, 0, 255); // Black background
+        ok = SDL_RenderClear(screen.renderer);
+
+        int out_width;
+        int out_height;
+
+        ok = SDL_GetCurrentRenderOutputSize(screen.renderer, &out_width, &out_height);
+
+    #ifdef PRINT_MESSAGES
+        if (!ok)
+        {
+            print_error("SDL_GetCurrentRenderOutputSize()");
+            return;
+        }
+    #endif
+
+        auto in_width = (int)screen.width_px;
+        auto in_height = (int)screen.height_px;
+
+        auto scale_w = (f32)out_width / in_width;
+        auto scale_h = (f32)out_height / in_height;
+
+        switch (rotate)
+        {
+        case R::Clockwise_90:
+        case R::CounterClockwise_90:
+            scale_w = (f32)out_width / in_height;
+            scale_h = (f32)out_height / in_width;
+            break;
+        default:
+            break;
+        }
+
+        auto scale = scale_w < scale_h ? scale_w : scale_h;
+
+        auto w = (int)(scale * in_width);
+        auto h = (int)(scale * in_height);
+
+        auto& r = screen.render_rect;
+
+        r.x = (out_width - w) / 2;
+        r.y = (out_height - h) / 2;
         r.w = w;
         r.h = h;
     }
@@ -258,8 +323,6 @@ namespace window
             return false;
         }
 
-        sdl::set_out_rect(screen);
-
         window.handle = (u64)data;
 
         return true;
@@ -281,8 +344,6 @@ namespace window
             return false;
         }
 
-        sdl::set_out_rect(screen);
-
         window.handle = (u64)data;
 
         return true;
@@ -301,6 +362,46 @@ namespace window
 
         sdl::set_window_icon(screen.window, icon_64);
     }
+
+
+    static void copy_window_pixels(Window const& window, void* dst_data, int dst_pitch)
+    {   
+        auto h = window.height_px;
+        auto w = window.width_px;
+
+        auto dst = (u8*)dst_data;
+        auto src = (u8*)window.pixel_buffer;
+
+        u64 row_bytes = w * sizeof(u32);
+        u64 row_pitch = (u64)dst_pitch;
+
+        if (row_bytes == row_pitch)
+        {
+            auto length = row_bytes * h;
+            SDL_memcpy(dst, src, length);
+        }
+        else
+        {
+            for (u32 y = 0; y < h; y++)
+            {
+                SDL_memcpy(dst, src, row_bytes);
+
+                src += row_bytes;
+                dst += dst_pitch;
+            }
+        }
+    }
+
+
+    static f32 get_rotate_angle(Rotate r)
+    {
+        switch (r)
+        {
+        case Rotate::Clockwise_90: return 90.0f;
+        case Rotate::CounterClockwise_90: return -90.0f;
+        default: return 0.0f;
+        }
+    }
 }
 
 
@@ -313,8 +414,7 @@ namespace window
 
     bool init()
     {
-        auto error = SDL_InitSubSystem(subsystem_flags);
-        if (error)
+        if (!SDL_InitSubSystem(subsystem_flags))
         {
             sdl::print_error("Init Video failed");
             return false;
@@ -341,6 +441,8 @@ namespace window
 
         auto& screen = get_screen(window);
 
+        sdl::resize_render_rect(screen);
+
         auto buffer = mem::alloc<u32>(pixel_size.x * pixel_size.y, "window.pixel_buffer");
         if (!buffer)
         {
@@ -350,22 +452,43 @@ namespace window
         }
 
         window.pixel_buffer = buffer;
-        window.width_px = screen.width_px;
-        window.height_px = screen.height_px;
+        window.width_px = pixel_size.x;
+        window.height_px = pixel_size.y;
 
         return true;
     }
 
 
-    bool create(Window& window, cstr title, Vec2Du32 window_size, Vec2Du32 pixel_size, Icon64 const& icon)
-    {
-        if (!create(window, title, window_size, pixel_size))
+    bool create(Window& window, cstr title, Vec2Du32 window_size, Vec2Du32 pixel_size, Rotate rotate)
+    {        
+        if (rotate == Rotate::None)
+        {
+            sdl::print_error("Window rotate must be specified");
+            return false;
+        }
+
+        SDL_zero(window);
+        
+        if (!create_window_memory(window, title, window_size, pixel_size))
         {
             return false;
         }
 
         auto& screen = get_screen(window);
-        set_window_icon_64(screen, icon);
+
+        sdl::resize_render_rect(screen, rotate);
+
+        auto buffer = mem::alloc<u32>(pixel_size.x * pixel_size.y, "window.pixel_buffer");
+        if (!buffer)
+        {
+            sdl::destroy_screen_memory(screen);
+            SDL_zero(window);
+            return false;
+        }
+
+        window.pixel_buffer = buffer;
+        window.width_px = pixel_size.x;
+        window.height_px = pixel_size.y;
 
         return true;
     }
@@ -382,8 +505,7 @@ namespace window
 
         auto& screen = get_screen(window);
 
-        auto width = screen.width_px;
-        auto height = screen.height_px;
+        sdl::resize_render_rect(screen);
 
         auto buffer = mem::alloc<u32>(pixel_size.x * pixel_size.y, "window.pixel_buffer");
         if (!buffer)
@@ -401,17 +523,45 @@ namespace window
     }
 
 
-    bool create_fullscreen(Window& window, cstr title, Vec2Du32 pixel_size, Icon64 const& icon)
+    bool create_fullscreen(Window& window, cstr title, Vec2Du32 pixel_size, Rotate rotate)
     {
-        if (!create_fullscreen(window, title, pixel_size))
+        if (rotate == Rotate::None)
+        {
+            sdl::print_error("Window rotate must be specified");
+            return false;
+        }
+
+        SDL_zero(window);
+        
+        if (!create_window_memory_fullscreen(window, title, pixel_size))
         {
             return false;
         }
 
         auto& screen = get_screen(window);
-        set_window_icon_64(screen, icon);
+
+        sdl::resize_render_rect(screen, rotate);
+
+        auto buffer = mem::alloc<u32>(pixel_size.x * pixel_size.y, "window.pixel_buffer");
+        if (!buffer)
+        {
+            sdl::destroy_screen_memory(screen);
+            SDL_zero(window);
+            return false;
+        }
+
+        window.pixel_buffer = buffer;
+        window.width_px = screen.width_px;
+        window.height_px = screen.height_px;
 
         return true;
+    }
+
+
+    void set_window_icon(Window& window, Icon64 const& icon)
+    {
+        auto& screen = get_screen(window);
+        set_window_icon_64(screen, icon);
     }
 
 
@@ -474,39 +624,93 @@ namespace window
 
     void render(Window const& window, b32 size_changed)
     {
+        bool ok = true;
+
         auto& screen = get_screen(window);
-        int err = 0;
 
         if (size_changed)
         {
-            sdl::set_out_rect(screen);
+            sdl::resize_render_rect(screen);
         }
 
-        SDL_SetRenderDrawColor(screen.renderer, 0, 0, 0, 255); // Black background
-        SDL_RenderClear(screen.renderer);
+        ok = SDL_SetRenderDrawColor(screen.renderer, 0, 0, 0, 255); // Black background
+        ok = SDL_RenderClear(screen.renderer);
 
-        auto pitch = screen.width_px * sizeof(window.pixel_buffer[0]);
-        
+        void* dst_data = 0;
+        int dst_pitch = 0;
+
+        ok = SDL_LockTexture(screen.texture, NULL, &dst_data, &dst_pitch);
+        if (ok)
+        {
+            copy_window_pixels(window, dst_data, dst_pitch);
+            SDL_UnlockTexture(screen.texture);
+        }
 
         #ifdef PRINT_MESSAGES
-
-        err = SDL_UpdateTexture(screen.texture, 0, (void*)window.pixel_buffer, pitch);
-        if(err)
+        if (!ok)
         {
-            sdl::print_error("SDL_UpdateTexture failed");
+            sdl::print_error("SDL_LockTexture()");
+        }
+        #endif
+
+        ok = SDL_RenderTexture(screen.renderer, screen.texture, NULL, &screen.render_rect);
+
+        #ifdef PRINT_MESSAGES
+        if (!ok)
+        {
+            sdl::print_error("SDL_RenderTexture()");
+        }
+        #endif
+        
+        SDL_RenderPresent(screen.renderer);
+    }
+
+
+    void render(Window const& window, Rotate rotate, b32 size_changed)
+    {
+        bool ok = true;
+
+        auto& screen = get_screen(window);
+
+        if (size_changed)
+        {
+            sdl::resize_render_rect(screen, rotate);
         }
 
-        err = SDL_RenderCopy(screen.renderer, screen.texture, NULL, &screen.render_rect);
-        if(err)
+        ok = SDL_SetRenderDrawColor(screen.renderer, 0, 0, 0, 255); // Black background
+        ok = SDL_RenderClear(screen.renderer);
+
+        void* dst_data = 0;
+        int dst_pitch = 0;
+
+        ok = SDL_LockTexture(screen.texture, NULL, &dst_data, &dst_pitch);
+        if (ok)
         {
-            sdl::print_error("SDL_RenderCopy failed");
+            copy_window_pixels(window, dst_data, dst_pitch);
+            SDL_UnlockTexture(screen.texture);
         }
 
-        #else
+        #ifdef PRINT_MESSAGES
+        if (!ok)
+        {
+            sdl::print_error("SDL_LockTexture()");
+        }
+        #endif
 
-        SDL_UpdateTexture(screen.texture, 0, (void*)window.pixel_buffer, pitch);
-        SDL_RenderCopy(screen.renderer, screen.texture, 0, &screen.render_rect);
+        auto angle = get_rotate_angle(rotate);
 
+        ok = SDL_RenderTextureRotated(screen.renderer, screen.texture, 
+            NULL, 
+            &screen.render_rect, 
+            angle, 
+            NULL, 
+            SDL_FLIP_NONE);
+
+        #ifdef PRINT_MESSAGES
+        if (!ok)
+        {
+            sdl::print_error("SDL_RenderTextureRotated()");
+        }
         #endif
         
         SDL_RenderPresent(screen.renderer);
@@ -515,12 +719,12 @@ namespace window
 
     void hide_mouse_cursor()
     {
-        SDL_ShowCursor(SDL_DISABLE);
+        SDL_HideCursor();
     }
 
 
     void show_mouse_cursor()
     {
-        SDL_ShowCursor(SDL_ENABLE);
+        SDL_ShowCursor();
     }
 }
