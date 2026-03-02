@@ -209,47 +209,7 @@ namespace sdl
     }
 
 
-    static void resize_render_rect(ScreenMemory& screen)
-    {
-        bool ok = true;
-
-        ok = SDL_SetRenderDrawColor(screen.renderer, 0, 0, 0, 255); // Black background
-        ok = SDL_RenderClear(screen.renderer);
-
-        int out_width;
-        int out_height;
-
-        ok = SDL_GetCurrentRenderOutputSize(screen.renderer, &out_width, &out_height);
-
-    #ifdef PRINT_MESSAGES
-        if (!ok)
-        {
-            print_error("SDL_GetCurrentRenderOutputSize()");
-            return;
-        }
-    #endif
-
-        auto in_width = (int)screen.width_px;
-        auto in_height = (int)screen.height_px;
-
-        auto scale_w = (f32)out_width / in_width;
-        auto scale_h = (f32)out_height / in_height;
-
-        auto scale = scale_w < scale_h ? scale_w : scale_h;
-
-        auto w = (int)(scale * in_width);
-        auto h = (int)(scale * in_height);
-
-        auto& r = screen.render_rect;
-
-        r.x = (out_width - w) / 2;
-        r.y = (out_height - h) / 2;
-        r.w = w;
-        r.h = h;
-    }
-
-
-    static void resize_render_rect(ScreenMemory& screen, window::Rotate rotate)
+    static void resize_render_rect(ScreenMemory& screen, window::Rotate rotate = window::Rotate::None)
     {
         using R = window::Rotate;
 
@@ -271,32 +231,37 @@ namespace sdl
         }
     #endif
 
-        auto in_width = (int)screen.width_px;
-        auto in_height = (int)screen.height_px;
+        auto in_w = (f32)screen.width_px;
+        auto in_h = (f32)screen.height_px;
+        auto rot_w = in_w;
+        auto rot_h = in_h;
 
-        auto scale_w = (f32)out_width / in_width;
-        auto scale_h = (f32)out_height / in_height;
+        auto out_w = (f32)out_width;
+        auto out_h = (f32)out_height;
 
         switch (rotate)
         {
         case R::Clockwise_90:
         case R::CounterClockwise_90:
-            scale_w = (f32)out_width / in_height;
-            scale_h = (f32)out_height / in_width;
+            rot_w = in_h;
+            rot_h = in_w;
             break;
         default:
             break;
         }
 
+        auto scale_w = out_w / rot_w;
+        auto scale_h = out_h / rot_h;
         auto scale = scale_w < scale_h ? scale_w : scale_h;
 
-        auto w = (int)(scale * in_width);
-        auto h = (int)(scale * in_height);
+        f32 w = scale * in_w;
+        f32 h = scale * in_h;
+        f32 xb = (out_w - w) / 2;
+        f32 yb = (out_h - h) / 2;
 
         auto& r = screen.render_rect;
-
-        r.x = (out_width - w) / 2;
-        r.y = (out_height - h) / 2;
+        r.x = xb;
+        r.y = yb;        
         r.w = w;
         r.h = h;
     }

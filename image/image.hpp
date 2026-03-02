@@ -21,7 +21,10 @@ namespace image
         };
 
         u32 rgba;
-    };
+
+
+        bool operator == (Pixel other) { return other.rgba == rgba; }
+    };  
 
     //using Pixel = RGBAu8;
     using Image = Matrix2D<Pixel>;

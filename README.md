@@ -3,7 +3,7 @@ A collection of small utilities I like having around
 
 * alloc_type
     * Wrapper around malloc
-    * Ability to track allocation by type
+    * Ability to track allocation by type/size
     * SDL implementations available
 
 * allocator
@@ -44,6 +44,10 @@ A collection of small utilities I like having around
 * directory_helper
     * C++17
     * Provides file paths of a given extension in a directory
+    * Simple wrapper for std::filesystem
+
+* em_fetch
+    * Wrapper for Emscripten fetch api
 
 * execute
     * C++17
@@ -147,4 +151,4 @@ A collection of small utilities I like having around
     * qsprintf - wrapper for stb_sprintf
 
 * util
-    * Type definitions
+    * Type alias and definitions
